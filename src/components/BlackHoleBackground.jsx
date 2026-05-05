@@ -44,6 +44,7 @@ export default function BlackHoleBackground() {
     function center() {
       const mx = mouse.current.active ? (mouse.current.x - width / 2) / width : 0
       const my = mouse.current.active ? (mouse.current.y - height / 2) / height : 0
+
       return {
         cx: width * (width < 900 ? 0.52 : 0.68) + mx * 34,
         cy: height * (width < 900 ? 0.36 : 0.40) + my * 24,
@@ -52,6 +53,7 @@ export default function BlackHoleBackground() {
 
     function drawSpace() {
       const { cx, cy } = center()
+
       const base = ctx.createLinearGradient(0, 0, width, height)
       base.addColorStop(0, '#02030b')
       base.addColorStop(0.22, '#071327')
@@ -64,6 +66,7 @@ export default function BlackHoleBackground() {
       for (const cloud of clouds) {
         cloud.x += cloud.speed
         if (cloud.x > 1.14) cloud.x = -0.14
+
         const x = cloud.x * width
         const y = cloud.y * height
         const g = ctx.createRadialGradient(x, y, 0, x, y, cloud.size)
@@ -91,19 +94,29 @@ export default function BlackHoleBackground() {
       const lens = Math.min(1, strength / (dist * dist))
       const bend = lens * 110
       const angle = Math.atan2(dy, dx) + lens * 1.7
-      return { x: x + Math.cos(angle) * bend, y: y + Math.sin(angle) * bend * 0.75, lens, dist }
+
+      return {
+        x: x + Math.cos(angle) * bend,
+        y: y + Math.sin(angle) * bend * 0.75,
+        lens,
+        dist,
+      }
     }
 
     function drawStars() {
       const { cx, cy } = center()
       const eventRadius = Math.min(width, height) * 0.105
+
       for (const s of stars) {
         const rawX = s.x * width
         const rawY = s.y * height
         const p = distortPoint(rawX, rawY, cx, cy, 2800)
+
         if (p.dist < eventRadius * 0.92) continue
+
         const twinkle = 0.55 + Math.sin(frame * 0.025 + s.tw) * 0.32
         const alpha = Math.max(0, Math.min(0.82, s.a * twinkle * (1 - p.lens * 0.45)))
+
         ctx.beginPath()
         ctx.arc(p.x, p.y, s.r * (1 + p.lens * 1.4), 0, Math.PI * 2)
         ctx.fillStyle = `hsla(${s.hue}, 90%, 82%, ${alpha})`
@@ -114,19 +127,22 @@ export default function BlackHoleBackground() {
       }
     }
 
-    function drawDisk() {
+    function drawAccretionDisk() {
       const { cx, cy } = center()
       const eventRadius = Math.min(width, height) * 0.105
       const time = frame * 0.009
+
       ctx.save()
       ctx.translate(cx, cy)
       ctx.rotate(-0.12)
+
       for (let layer = 0; layer < 42; layer++) {
         const t = layer / 42
         const rx = eventRadius * (1.7 + t * 5.3)
         const ry = eventRadius * (0.34 + t * 0.96)
         const alpha = (1 - t) * 0.16
         const hue = layer % 3 === 0 ? 32 : layer % 3 === 1 ? 190 : 280
+
         ctx.beginPath()
         ctx.ellipse(0, 0, rx, ry, Math.sin(time + layer * 0.23) * 0.08, Math.PI * 0.03, Math.PI * 1.97)
         ctx.strokeStyle = `hsla(${hue}, 96%, ${64 + (1 - t) * 20}%, ${alpha})`
@@ -135,12 +151,14 @@ export default function BlackHoleBackground() {
         ctx.shadowBlur = 12 * (1 - t)
         ctx.stroke()
       }
+
       for (let arc = 0; arc < 18; arc++) {
         const t = arc / 18
         const rx = eventRadius * (2.1 + t * 4.6)
         const ry = eventRadius * (0.44 + t * 0.78)
         const start = (time * 0.35 + arc * 0.7) % (Math.PI * 2)
         const end = start + Math.PI * (0.18 + t * 0.12)
+
         ctx.beginPath()
         ctx.ellipse(0, 0, rx, ry, Math.sin(time + arc) * 0.08, start, end)
         ctx.strokeStyle = arc % 2 ? 'rgba(255,180,86,.34)' : 'rgba(120,235,255,.24)'
@@ -149,13 +167,15 @@ export default function BlackHoleBackground() {
         ctx.shadowBlur = 18
         ctx.stroke()
       }
+
       ctx.shadowBlur = 0
       ctx.restore()
     }
 
-    function drawHole() {
+    function drawEventHorizon() {
       const { cx, cy } = center()
       const eventRadius = Math.min(width, height) * 0.105
+
       const lens = ctx.createRadialGradient(cx, cy, eventRadius * 0.55, cx, cy, eventRadius * 2.7)
       lens.addColorStop(0, 'rgba(0,0,0,1)')
       lens.addColorStop(0.35, 'rgba(0,0,0,.98)')
@@ -167,6 +187,7 @@ export default function BlackHoleBackground() {
       ctx.beginPath()
       ctx.arc(cx, cy, eventRadius * 2.75, 0, Math.PI * 2)
       ctx.fill()
+
       ctx.beginPath()
       ctx.arc(cx, cy, eventRadius, 0, Math.PI * 2)
       ctx.fillStyle = 'rgba(0,0,0,1)'
@@ -176,12 +197,12 @@ export default function BlackHoleBackground() {
       ctx.shadowBlur = 0
     }
 
-    function vignette() {
-      const v = ctx.createRadialGradient(width * 0.52, height * 0.46, 0, width * 0.52, height * 0.46, Math.max(width, height) * 0.78)
-      v.addColorStop(0, 'rgba(0,0,0,0)')
-      v.addColorStop(0.58, 'rgba(0,0,0,.26)')
-      v.addColorStop(1, 'rgba(0,0,0,.95)')
-      ctx.fillStyle = v
+    function drawVignette() {
+      const vignette = ctx.createRadialGradient(width * 0.52, height * 0.46, 0, width * 0.52, height * 0.46, Math.max(width, height) * 0.78)
+      vignette.addColorStop(0, 'rgba(0,0,0,0)')
+      vignette.addColorStop(0.58, 'rgba(0,0,0,.26)')
+      vignette.addColorStop(1, 'rgba(0,0,0,.95)')
+      ctx.fillStyle = vignette
       ctx.fillRect(0, 0, width, height)
     }
 
@@ -190,19 +211,27 @@ export default function BlackHoleBackground() {
       ctx.clearRect(0, 0, width, height)
       drawSpace()
       drawStars()
-      drawDisk()
-      drawHole()
-      vignette()
+      drawAccretionDisk()
+      drawEventHorizon()
+      drawVignette()
       raf = requestAnimationFrame(render)
     }
 
-    const onMove = e => { mouse.current = { x: e.clientX, y: e.clientY, active: true } }
-    const onLeave = () => { mouse.current.active = false }
+    const onMove = event => {
+      mouse.current = { x: event.clientX, y: event.clientY, active: true }
+    }
+
+    const onLeave = () => {
+      mouse.current.active = false
+    }
+
     resize()
     render()
+
     window.addEventListener('resize', resize)
     window.addEventListener('mousemove', onMove)
     window.addEventListener('mouseleave', onLeave)
+
     return () => {
       cancelAnimationFrame(raf)
       window.removeEventListener('resize', resize)
@@ -216,6 +245,8 @@ export default function BlackHoleBackground() {
       <canvas ref={canvasRef} className="absolute inset-0" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_68%_40%,transparent,rgba(0,0,0,.18)_24%,rgba(0,0,0,.72)_78%,rgba(0,0,0,.95)_100%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(1,1,4,.96)_0%,rgba(1,1,4,.82)_25%,rgba(1,1,4,.30)_58%,rgba(1,1,4,.78)_100%)]" />
+      <div className="absolute inset-x-0 top-0 h-[22vh] bg-gradient-to-b from-black/55 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-[48vh] bg-gradient-to-t from-[#010103] to-transparent" />
     </div>
   )
 }

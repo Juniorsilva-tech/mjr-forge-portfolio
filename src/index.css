@@ -34,3 +34,8 @@ a {
     cursor: none;
   }
 }
+
+::selection {
+  background: rgba(93, 224, 255, 0.35);
+  color: #ffffff;
+}
