@@ -1,36 +1,11 @@
 @keyframes forge-side-drift {
-  0%, 100% { transform: translate3d(-3%, 0, 0) scale(1); opacity: 0.18; }
-  50% { transform: translate3d(4%, -2%, 0) scale(1.08); opacity: 0.34; }
+  0%, 100% { transform: translate3d(-2%, 0, 0) scale(1); opacity: 0.14; }
+  50% { transform: translate3d(2%, -1%, 0) scale(1.03); opacity: 0.24; }
 }
 
 @keyframes forge-rise-fog {
-  0%, 100% { transform: translate3d(0, 8%, 0) scale(0.98); opacity: 0.16; }
-  50% { transform: translate3d(0, -4%, 0) scale(1.04); opacity: 0.34; }
-}
-
-@keyframes forge-depth-entry {
-  from { opacity: 0.2; transform: scale(0.88) translate3d(0, 70px, 0); filter: blur(22px); }
-  to { opacity: 1; transform: scale(1) translate3d(0, 0, 0); filter: blur(0); }
-}
-
-@keyframes forge-rise-entry {
-  from { opacity: 0.18; transform: translate3d(0, 120px, 0) scale(0.96); filter: blur(24px); }
-  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
-}
-
-@keyframes forge-side-entry {
-  from { opacity: 0.22; transform: translate3d(12vw, 0, 0) scale(0.98); filter: blur(18px); }
-  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
-}
-
-@keyframes forge-expand-entry {
-  from { opacity: 0.18; transform: scale(0.82); filter: blur(26px); }
-  to { opacity: 1; transform: scale(1); filter: blur(0); }
-}
-
-@keyframes forge-final-entry {
-  from { opacity: 0.16; transform: translate3d(0, 80px, 0) scale(0.9); filter: blur(30px); }
-  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+  0%, 100% { transform: translate3d(0, 4%, 0) scale(0.99); opacity: 0.12; }
+  50% { transform: translate3d(0, -2%, 0) scale(1.02); opacity: 0.24; }
 }
 
 #manifesto,
@@ -39,8 +14,6 @@
 #processo,
 #contato {
   isolation: isolate;
-  view-timeline-name: --forge-scene;
-  view-timeline-axis: block;
 }
 
 #manifesto::before,
@@ -53,91 +26,66 @@
   pointer-events: none;
   z-index: -1;
   border-radius: 999px;
-  filter: blur(90px);
+  filter: blur(48px);
 }
-
-#manifesto > *,
-#journey > *,
-#work > *,
-#processo > *,
-#contato > * {
-  animation-duration: 1ms;
-  animation-fill-mode: both;
-  animation-timeline: --forge-scene;
-  animation-range: entry 8% cover 34%;
-  transform-origin: center center;
-}
-
-#manifesto > * { animation-name: forge-depth-entry; }
-#journey > * { animation-name: forge-side-entry; animation-range: entry 4% cover 22%; }
-#work > * { animation-name: forge-expand-entry; animation-range: entry 10% cover 38%; }
-#processo > * { animation-name: forge-rise-entry; animation-range: entry 10% cover 36%; }
-#contato > * { animation-name: forge-final-entry; animation-range: entry 8% cover 42%; }
 
 #manifesto::before {
   left: 8%;
   top: -8%;
-  width: 42vw;
-  height: 42vw;
-  background: rgba(199, 161, 90, 0.075);
-  animation: forge-rise-fog 14s ease-in-out infinite;
+  width: 36vw;
+  height: 36vw;
+  background: rgba(199, 161, 90, 0.055);
+  animation: forge-rise-fog 16s ease-in-out infinite;
 }
 
 #journey::before {
-  right: -16%;
+  right: -12%;
   top: 18%;
-  width: 58vw;
-  height: 34vw;
-  background: rgba(155, 94, 50, 0.07);
-  animation: forge-side-drift 16s ease-in-out infinite;
+  width: 48vw;
+  height: 28vw;
+  background: rgba(155, 94, 50, 0.055);
+  animation: forge-side-drift 18s ease-in-out infinite;
 }
 
 #work::before {
-  left: -14%;
+  left: -12%;
   top: 10%;
-  width: 62vw;
-  height: 40vw;
-  background: radial-gradient(circle, rgba(199, 161, 90, 0.08), transparent 66%);
-  animation: forge-depth-breathe 18s ease-in-out infinite;
+  width: 52vw;
+  height: 34vw;
+  background: radial-gradient(circle, rgba(199, 161, 90, 0.06), transparent 66%);
+  animation: forge-rise-fog 20s ease-in-out infinite;
 }
 
 #processo::before {
   right: 0;
   bottom: 10%;
-  width: 48vw;
-  height: 28vw;
-  background: rgba(244, 239, 231, 0.035);
-  animation: forge-rise-fog 15s ease-in-out infinite reverse;
+  width: 42vw;
+  height: 24vw;
+  background: rgba(244, 239, 231, 0.025);
+  animation: forge-rise-fog 18s ease-in-out infinite reverse;
 }
 
 #contato::before {
   left: 50%;
   top: 5%;
-  width: 46vw;
-  height: 46vw;
-  background: radial-gradient(circle, rgba(199, 161, 90, 0.12), transparent 62%);
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle, rgba(199, 161, 90, 0.08), transparent 62%);
   transform: translateX(-50%);
-  animation: forge-depth-breathe 13s ease-in-out infinite;
+  animation: forge-rise-fog 16s ease-in-out infinite;
 }
 
-@supports not (animation-timeline: view()) {
-  #manifesto > *,
-  #journey > *,
-  #work > *,
-  #processo > *,
-  #contato > * {
-    animation: none;
-  }
+.forge-scene-depth {
+  will-change: transform, opacity;
+  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1), opacity 900ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #manifesto > *,
-  #journey > *,
-  #work > *,
-  #processo > *,
-  #contato > * {
+  #manifesto::before,
+  #journey::before,
+  #work::before,
+  #processo::before,
+  #contato::before {
     animation: none !important;
-    transform: none !important;
-    filter: none !important;
   }
 }
