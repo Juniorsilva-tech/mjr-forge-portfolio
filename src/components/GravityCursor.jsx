@@ -1,17 +1,35 @@
 import { useEffect, useState } from 'react'
-import { motion, useMotionValue, useSpring } from 'framer-motion'
+import { motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion'
+
+const DESKTOP_CURSOR_QUERY = '(hover: hover) and (pointer: fine) and (min-width: 768px)'
 
 export default function GravityCursor() {
+  const prefersReducedMotion = useReducedMotion()
   const x = useMotionValue(-100)
   const y = useMotionValue(-100)
   const smoothX = useSpring(x, { stiffness: 620, damping: 42, mass: 0.28 })
   const smoothY = useSpring(y, { stiffness: 620, damping: 42, mass: 0.28 })
   const haloX = useSpring(x, { stiffness: 180, damping: 28, mass: 0.45 })
   const haloY = useSpring(y, { stiffness: 180, damping: 28, mass: 0.45 })
+  const [enabled, setEnabled] = useState(false)
   const [active, setActive] = useState(false)
   const [pressed, setPressed] = useState(false)
 
   useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+
+    const media = window.matchMedia(DESKTOP_CURSOR_QUERY)
+    const syncMode = () => setEnabled(media.matches && !prefersReducedMotion)
+
+    syncMode()
+    media.addEventListener('change', syncMode)
+
+    return () => media.removeEventListener('change', syncMode)
+  }, [prefersReducedMotion])
+
+  useEffect(() => {
+    if (!enabled) return undefined
+
     let raf = 0
     let lastX = -100
     let lastY = -100
@@ -42,12 +60,14 @@ export default function GravityCursor() {
       window.removeEventListener('mousemove', move)
       window.removeEventListener('mousedown', down)
     }
-  }, [x, y])
+  }, [enabled, x, y])
+
+  if (!enabled) return null
 
   return (
     <>
       <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[999] hidden h-20 w-20 rounded-full md:block"
+        className="pointer-events-none fixed left-0 top-0 z-[999] h-20 w-20 rounded-full"
         style={{ x: haloX, y: haloY, translateX: '-50%', translateY: '-50%' }}
         animate={{ scale: active ? 1.12 : pressed ? 0.92 : 1, opacity: active ? 0.42 : 0.22 }}
         transition={{ type: 'spring', stiffness: 320, damping: 28 }}
@@ -56,7 +76,7 @@ export default function GravityCursor() {
       </motion.div>
 
       <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[1000] hidden h-3 w-3 rounded-full bg-[#f4efe7] shadow-[0_0_24px_rgba(244,239,231,.28)] md:block"
+        className="pointer-events-none fixed left-0 top-0 z-[1000] h-3 w-3 rounded-full bg-[#f4efe7] shadow-[0_0_24px_rgba(244,239,231,.28)]"
         style={{ x: smoothX, y: smoothY, translateX: '-50%', translateY: '-50%' }}
         animate={{ scale: pressed ? 0.7 : active ? 1.45 : 1, backgroundColor: active ? '#c7a15a' : '#f4efe7' }}
         transition={{ type: 'spring', stiffness: 540, damping: 26 }}

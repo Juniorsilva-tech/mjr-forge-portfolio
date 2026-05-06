@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import BrandMark from './components/BrandMark.jsx'
 import GravityCursor from './components/GravityCursor.jsx'
@@ -114,14 +114,32 @@ const sceneVariants = {
   },
 }
 
+function useCompactViewport() {
+  const [isCompactViewport, setIsCompactViewport] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+
+    const media = window.matchMedia('(max-width: 767px)')
+    const syncViewport = () => setIsCompactViewport(media.matches)
+
+    syncViewport()
+    media.addEventListener('change', syncViewport)
+
+    return () => media.removeEventListener('change', syncViewport)
+  }, [])
+
+  return isCompactViewport
+}
+
 function Scene({ type = 'rise', children, className = '', delay = 0 }) {
   return (
     <motion.div
       variants={sceneVariants[type] || sceneVariants.rise}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: false, amount: 0.22, margin: '-80px' }}
-      transition={{ duration: 0.9, delay, ease: [0.16, 1, 0.3, 1] }}
+      viewport={{ once: true, amount: 0.2, margin: '-60px' }}
+      transition={{ duration: 0.72, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
       {children}
@@ -138,7 +156,7 @@ function Bridge({ label, align = 'left' }) {
         <motion.div
           initial={{ width: 0, opacity: 0 }}
           whileInView={{ width: '34%', opacity: 1 }}
-          viewport={{ once: false, amount: 0.6 }}
+          viewport={{ once: true, amount: 0.6 }}
           transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
           className={`absolute top-1/2 h-px bg-[#c7a15a]/80 ${align === 'right' ? 'right-0' : 'left-0'}`}
         />
@@ -146,7 +164,7 @@ function Bridge({ label, align = 'left' }) {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false }}
+          viewport={{ once: true }}
           transition={{ duration: 0.8 }}
           className={`absolute top-1/2 -translate-y-1/2 rounded-full border border-[#f4efe7]/10 bg-[#050505]/70 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#c7a15a] backdrop-blur-xl ${align === 'right' ? 'right-0' : 'left-0'}`}
         >
@@ -191,7 +209,7 @@ function Button({ href, children, secondary = false }) {
       target={isExternal ? '_blank' : undefined}
       rel={isExternal ? 'noreferrer' : undefined}
       data-cursor="active"
-      className={`group inline-flex items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-semibold transition duration-300 ${
+      className={`group inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-semibold transition duration-300 sm:w-auto ${
         secondary
           ? 'border border-[#f4efe7]/10 bg-[#080807]/55 text-[#f4efe7] hover:border-[#c7a15a]/50 hover:bg-[#c7a15a]/10'
           : 'bg-[#c7a15a] text-[#080807] shadow-[0_20px_90px_rgba(199,161,90,.22)] hover:bg-[#f4efe7]'
@@ -208,13 +226,13 @@ function Header() {
 
   return (
     <header className="fixed left-0 right-0 top-0 z-50 border-b border-[#f4efe7]/10 bg-[#050505]/70 backdrop-blur-2xl">
-      <div className="mx-auto flex max-w-[1500px] items-center justify-between px-5 py-4 lg:px-8">
-        <a href="#top" className="flex items-center gap-3" data-cursor="active">
+      <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-3 px-5 py-4 lg:px-8">
+        <a href="#top" className="min-w-0 flex items-center gap-3" data-cursor="active">
           <BrandMark />
 
-          <div>
-            <p className="text-sm font-semibold text-[#f4efe7]">{BRAND.name}</p>
-            <p className="mt-1 text-[10px] uppercase tracking-[0.26em] text-[#a89f91]">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-[#f4efe7]">{BRAND.name}</p>
+            <p className="mt-1 truncate text-[10px] uppercase tracking-[0.26em] text-[#a89f91]">
               {BRAND.signature}
             </p>
           </div>
@@ -264,6 +282,15 @@ function Header() {
               {label}
             </a>
           ))}
+
+          <a
+            href={BRAND.whatsapp}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 inline-flex w-full items-center justify-center rounded-2xl bg-[#c7a15a] px-4 py-3 text-sm font-semibold text-[#080807]"
+          >
+            Vamos conversar
+          </a>
         </div>
       )}
     </header>
@@ -271,20 +298,34 @@ function Header() {
 }
 
 function Atmosphere() {
+  const isCompactViewport = useCompactViewport()
+
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050505]">
       <div className="absolute inset-0 bg-[linear-gradient(120deg,#050505_0%,#080706_34%,#11100d_58%,#050505_100%)]" />
 
       <motion.div
         className="absolute -right-[16vw] -top-[18vh] h-[65vh] w-[62vw] rounded-full bg-[#c7a15a]/[0.04] blur-[90px]"
-        animate={{ opacity: [0.22, 0.42, 0.22], scale: [1, 1.03, 1], x: [0, -10, 0] }}
-        transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
+        animate={
+          isCompactViewport
+            ? { opacity: 0.26, scale: 1, x: 0 }
+            : { opacity: [0.22, 0.42, 0.22], scale: [1, 1.03, 1], x: [0, -10, 0] }
+        }
+        transition={
+          isCompactViewport ? { duration: 0 } : { duration: 16, repeat: Infinity, ease: 'easeInOut' }
+        }
       />
 
       <motion.div
         className="absolute -bottom-[20vh] -left-[18vw] h-[70vh] w-[56vw] rounded-full bg-[#9b5e32]/[0.04] blur-[100px]"
-        animate={{ opacity: [0.18, 0.32, 0.18], scale: [1.02, 1, 1.02], x: [0, 12, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+        animate={
+          isCompactViewport
+            ? { opacity: 0.22, scale: 1, x: 0 }
+            : { opacity: [0.18, 0.32, 0.18], scale: [1.02, 1, 1.02], x: [0, 12, 0] }
+        }
+        transition={
+          isCompactViewport ? { duration: 0 } : { duration: 18, repeat: Infinity, ease: 'easeInOut' }
+        }
       />
 
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,.30)_42%,rgba(0,0,0,.86)_100%)]" />
@@ -295,19 +336,19 @@ function Atmosphere() {
 
 function Hero() {
   return (
-    <section id="top" className="relative z-10 min-h-screen overflow-hidden px-5 pb-16 pt-28 lg:px-8">
-      <div className="forge-depth-stage relative mx-auto grid min-h-[calc(100vh-7rem)] max-w-[1500px] items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
+    <section id="top" className="relative z-10 min-h-screen overflow-hidden px-5 pb-16 pt-24 sm:pt-28 lg:px-8">
+      <div className="forge-depth-stage relative mx-auto grid min-h-[calc(100vh-6.5rem)] max-w-[1500px] items-center gap-10 lg:min-h-[calc(100vh-7rem)] lg:grid-cols-[0.95fr_1.05fr] lg:gap-12">
         <Scene type="depth">
           <div className="relative z-10 max-w-[880px]">
-            <p className="mb-7 text-xs font-semibold uppercase tracking-[0.45em] text-[#c7a15a]">
+            <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.34em] text-[#c7a15a] sm:mb-7 sm:text-xs sm:tracking-[0.45em]">
               MJR Forge — Front-end, UI premium e direção de produto
             </p>
 
-            <h1 className="text-[14vw] font-semibold leading-[0.82] tracking-[-0.10em] text-[#f4efe7] sm:text-[6.7rem] lg:text-[8.4rem]">
+            <h1 className="max-w-[11ch] text-[16vw] font-semibold leading-[0.88] tracking-[-0.09em] text-[#f4efe7] sm:text-[6rem] sm:leading-[0.84] lg:max-w-none lg:text-[8.4rem]">
               Interfaces premium para produtos, marcas e negócios reais.
             </h1>
 
-            <p className="mt-8 max-w-2xl text-lg leading-9 text-[#d8d0c3] md:text-xl">
+            <p className="mt-6 max-w-2xl text-base leading-8 text-[#d8d0c3] sm:mt-8 sm:text-lg md:text-xl md:leading-9">
               Sou Maurício Júnior, desenvolvedor Front-end React em formação. Crio landing
               pages, dashboards e experiências digitais com UI premium, automação e visão de
               produto.
@@ -317,14 +358,14 @@ function Hero() {
               {['React', 'Landing Pages', 'Dashboards', 'Automação com IA'].map(item => (
                 <span
                   key={item}
-                  className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#d8d0c3]"
+                  className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#d8d0c3] sm:px-4 sm:text-[11px] sm:tracking-[0.18em]"
                 >
                   {item}
                 </span>
               ))}
             </div>
 
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:gap-4">
               <Button href="#work">Explorar projetos</Button>
               <Button href={BRAND.whatsapp} secondary>
                 Falar comigo
@@ -335,18 +376,18 @@ function Hero() {
 
         <Scene type="left" delay={0.12}>
           <div className="relative ml-auto w-full max-w-[560px]">
-            <div className="absolute -inset-8 rounded-[3rem] bg-[#c7a15a]/10 blur-3xl" />
+            <div className="absolute -inset-4 rounded-[2.5rem] bg-[#c7a15a]/10 blur-3xl sm:-inset-8 sm:rounded-[3rem]" />
 
             <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/70 p-3 shadow-[0_50px_160px_rgba(0,0,0,.55)]">
               <img
                 src="/forge-portrait.jpg"
                 alt="Maurício Júnior"
-                className="h-[620px] w-full rounded-[2.4rem] object-cover object-[50%_42%] saturate-[.72] contrast-[1.12] brightness-[.72] sepia-[.12]"
+                className="h-[420px] w-full rounded-[2.2rem] object-cover object-[50%_42%] saturate-[.72] contrast-[1.12] brightness-[.72] sepia-[.12] sm:h-[560px] sm:rounded-[2.4rem] lg:h-[620px]"
               />
 
-              <div className="absolute inset-3 rounded-[2.4rem] bg-[linear-gradient(180deg,transparent_35%,rgba(5,5,5,.92)_100%)]" />
+              <div className="absolute inset-3 rounded-[2.2rem] bg-[linear-gradient(180deg,transparent_35%,rgba(5,5,5,.92)_100%)] sm:rounded-[2.4rem]" />
 
-              <div className="absolute bottom-8 left-8 right-8 rounded-3xl border border-[#f4efe7]/10 bg-[#050505]/55 p-5 backdrop-blur-xl">
+              <div className="absolute bottom-5 left-5 right-5 rounded-[1.6rem] border border-[#f4efe7]/10 bg-[#050505]/55 p-4 backdrop-blur-xl sm:bottom-8 sm:left-8 sm:right-8 sm:rounded-3xl sm:p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#c7a15a]">
                   Human Presence
                 </p>
@@ -433,12 +474,12 @@ function JourneyScene() {
             <Scene key={time} type="left" delay={index * 0.07}>
               <article
                 data-cursor="active"
-                className="forge-emerge-card relative h-[420px] w-[360px] rounded-[2.4rem] border border-[#f4efe7]/10 bg-[#0c0b09]/80 p-8 shadow-[0_40px_140px_rgba(0,0,0,.42)] backdrop-blur-2xl"
+                className="forge-emerge-card relative h-[360px] w-[82vw] max-w-[360px] rounded-[2.2rem] border border-[#f4efe7]/10 bg-[#0c0b09]/80 p-6 shadow-[0_40px_140px_rgba(0,0,0,.42)] backdrop-blur-2xl sm:h-[420px] sm:w-[360px] sm:rounded-[2.4rem] sm:p-8"
               >
                 <p className="text-[6rem] font-semibold leading-none tracking-[-0.12em] text-[#c7a15a]/18">
                   {number}
                 </p>
-                <p className="mt-20 text-xs font-semibold uppercase tracking-[0.32em] text-[#c7a15a]">
+                <p className="mt-12 text-xs font-semibold uppercase tracking-[0.32em] text-[#c7a15a] sm:mt-20">
                   {time}
                 </p>
                 <p className="mt-5 text-base leading-8 text-[#a89f91]">{text}</p>
@@ -471,9 +512,9 @@ function Work() {
             <motion.article
               whileHover={{ y: -6 }}
               data-cursor="active"
-              className="forge-emerge-card overflow-hidden rounded-[2.8rem] border border-[#f4efe7]/10 bg-[#0b0a08]/70 p-4 shadow-[0_40px_140px_rgba(0,0,0,.45)] backdrop-blur-2xl"
+              className="forge-emerge-card overflow-hidden rounded-[2.3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/70 p-3 shadow-[0_40px_140px_rgba(0,0,0,.45)] backdrop-blur-2xl sm:rounded-[2.8rem] sm:p-4"
             >
-              <div className="grid gap-8 rounded-[2.4rem] bg-gradient-to-br from-[#f4efe7]/[0.035] via-transparent to-[#c7a15a]/[0.035] p-7 md:p-10 lg:grid-cols-[0.7fr_0.95fr_0.7fr] lg:items-center">
+              <div className="grid gap-8 rounded-[2rem] bg-gradient-to-br from-[#f4efe7]/[0.035] via-transparent to-[#c7a15a]/[0.035] p-5 sm:rounded-[2.4rem] sm:p-7 md:p-10 lg:grid-cols-[0.7fr_0.95fr_0.7fr] lg:items-center">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#c7a15a]">
                     {project.label}
@@ -649,7 +690,7 @@ function Contact() {
 
 export default function App() {
   return (
-    <main className="min-h-screen overflow-hidden bg-[#050505] text-[#f4efe7] antialiased md:cursor-none">
+    <main className="min-h-screen overflow-hidden bg-[#050505] text-[#f4efe7] antialiased">
       <Atmosphere />
       <DynamicLight />
       <FilmGrain />
