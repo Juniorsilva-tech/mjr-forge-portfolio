@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import BlackHoleBackground from './components/BlackHoleBackground.jsx'
 import GravityCursor from './components/GravityCursor.jsx'
 import BrandMark from './components/BrandMark.jsx'
 import ProjectMockup from './components/ProjectMockup.jsx'
@@ -8,7 +7,6 @@ import ProjectMockup from './components/ProjectMockup.jsx'
 const BRAND = {
   name: 'MJR Forge',
   signature: 'Maurício Júnior',
-  line: 'Front-end React com UI premium, automação e IA aplicada à entrega.',
   email: 'mauriciojr07052006@gmail.com',
   phone: '+55 24 99262-5175',
   whatsapp: 'https://wa.me/5524992625175',
@@ -16,57 +14,49 @@ const BRAND = {
 }
 
 const nav = [
-  ['Impacto', '#impacto'],
-  ['Sinais', '#sinais'],
-  ['Jarvis', '#jarvis'],
-  ['Projetos', '#projetos'],
+  ['Journey', '#journey'],
+  ['Work', '#work'],
+  ['Processo', '#processo'],
   ['Contato', '#contato'],
 ]
 
-const stack = ['React', 'Tailwind', 'Vite', 'Next.js', 'JavaScript', 'Python', 'Supabase', 'SQL', 'Git/GitHub', 'Vercel', 'Playwright', 'UI/UX', 'Automation', 'AI Workflow']
-
-const stats = [
-  ['2 projetos', 'publicados e apresentáveis'],
-  ['React', 'foco principal de carreira'],
-  ['Vercel', 'deploys em produção'],
-  ['IA + QA', 'workflow próprio com Jarvis'],
-]
-
-const signals = [
-  ['Construo antes de pedir oportunidade', 'Mesmo sem experiência formal CLT, já publiquei portfólio, dashboard SaaS demo, landing pages, automações e sistemas para problemas reais.'],
-  ['Mentalidade de produto', 'Penso em interface, usuário, clareza, conversão, manutenção e entrega final — não só em código.'],
-  ['IA com critério técnico', 'Uso IA para acelerar protótipo, testar, revisar e aumentar consistência, não para mascarar falta de base.'],
-  ['Aprendizado rápido', 'Transformo estudo em projeto visível, com melhoria contínua, deploy, README e evolução prática.'],
-  ['Valor desde o estágio', 'Consigo ajudar com interfaces, componentes, responsividade, QA visual, dashboards e automações simples.'],
+const milestones = [
+  ['Março 2026', 'Início forte em ADS e desenvolvimento web, transformando estudo em prática visível.'],
+  ['MJR Forge', 'Site pessoal em evolução, criado para centralizar minha identidade, projetos e trajetória.'],
+  ['RetailFlow', 'Dashboard SaaS demo com CRUD, métricas, pagamentos, clientes e experiência de produto.'],
+  ['Princessmel', 'Projeto real de landing page e identidade digital para uma loja de moda cristã.'],
+  ['Jarvis', 'Workflow privado de automação e desenvolvimento assistido por IA para acelerar entregas.'],
 ]
 
 const projects = [
   {
-    label: 'Flagship',
-    title: 'Jarvis Coding OS',
-    text: 'Workflow próprio com IA para acelerar criação, teste e refinamento de interfaces. O foco público é o resultado: mais velocidade, menos retrabalho e entrega mais consistente.',
-    tags: ['AI-assisted delivery', 'QA', 'Automation', 'React UI'],
+    label: 'Real Case',
+    title: 'Princessmel',
+    text: 'Landing page e identidade digital para loja de moda cristã, com foco em curadoria, apresentação de produtos, WhatsApp e atmosfera editorial.',
+    tags: ['Landing Page', 'Branding', 'UI Editorial', 'WhatsApp'],
   },
   {
     label: 'SaaS Demo',
     title: 'RetailFlow Dashboard',
-    text: 'Dashboard SaaS premium para pequenos negócios controlarem clientes, pedidos, pagamentos e cobranças. Demo funcional com CRUD local, localStorage, gráficos, mapa regional e deploy em produção.',
-    tags: ['React', 'Vite', 'Tailwind', 'CRUD', 'Dashboard', 'Vercel'],
+    text: 'Demo funcional de dashboard para pequenos negócios, com clientes, pedidos, pagamentos, relatórios e persistência local.',
+    tags: ['React', 'Dashboard', 'CRUD', 'Vercel'],
     demo: 'https://retailflow-dashboard.vercel.app',
     repo: 'https://github.com/Juniorsilva-tech/retailflow-dashboard',
   },
   {
-    label: 'Real Product',
-    title: 'Sistema de loja de varejo',
-    text: 'Dashboard com controle financeiro, clientes, pagamentos e interface responsiva para operação real em negócio familiar.',
-    tags: ['Dashboard', 'Produto real', 'Supabase', 'Responsivo'],
+    label: 'Personal System',
+    title: 'Jarvis Workflow',
+    text: 'Sistema experimental privado para organizar, revisar e acelerar criação de interfaces e aplicações web com apoio de IA.',
+    tags: ['Automation', 'QA Visual', 'AI Workflow', 'React UI'],
   },
-  {
-    label: 'Freelance',
-    title: 'Landing pages e sites locais',
-    text: 'Sites para pequenos negócios que precisam parecer profissionais, captar contato e se destacar no digital sem parecer template genérico.',
-    tags: ['Landing pages', 'Sites', 'UI polish', 'Conversão'],
-  },
+]
+
+const process = [
+  ['Briefing', 'entender objetivo, público e sensação desejada'],
+  ['Direção', 'definir estética, ritmo, cores, tipografia e narrativa'],
+  ['Construção', 'transformar direção em React, componentes e layout responsivo'],
+  ['Refino', 'ajustar motion, espaçamento, contraste e experiência'],
+  ['Entrega', 'publicar, documentar e preparar evolução contínua'],
 ]
 
 function Icon({ name, className = '' }) {
@@ -74,7 +64,6 @@ function Icon({ name, className = '' }) {
     arrow: ['M5 12h14', 'M13 5l7 7-7 7'],
     menu: ['M4 6h16', 'M4 12h16', 'M4 18h16'],
     close: ['M6 6l12 12', 'M18 6L6 18'],
-    shield: ['M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z', 'M9 12l2 2 4-5'],
   }
 
   return (
@@ -91,7 +80,7 @@ function Button({ href, children, secondary = false }) {
       target={href?.startsWith('http') ? '_blank' : undefined}
       rel={href?.startsWith('http') ? 'noreferrer' : undefined}
       data-cursor="active"
-      className={`group inline-flex items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-black transition ${secondary ? 'border border-cyan-200/20 bg-black/45 text-white shadow-[0_18px_70px_rgba(0,0,0,.35)] backdrop-blur-2xl hover:border-[#5de0ff]/50 hover:bg-[#5de0ff]/10' : 'bg-[#5de0ff] text-black shadow-[0_0_80px_rgba(93,224,255,.28)] hover:bg-white'}`}
+      className={`group inline-flex items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-semibold transition duration-300 ${secondary ? 'border border-[#f4efe7]/10 bg-[#f4efe7]/5 text-[#f4efe7] hover:border-[#c7a15a]/50 hover:bg-[#c7a15a]/10' : 'bg-[#c7a15a] text-[#080807] shadow-[0_20px_90px_rgba(199,161,90,.22)] hover:bg-[#f4efe7]'}`}
     >
       {children}
       <Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-1" />
@@ -102,10 +91,10 @@ function Button({ href, children, secondary = false }) {
 function Reveal({ children, delay = 0, className = '' }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 36, filter: 'blur(10px)' }}
+      initial={{ opacity: 0, y: 30, filter: 'blur(8px)' }}
       whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
       viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.9, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
       {children}
@@ -113,22 +102,14 @@ function Reveal({ children, delay = 0, className = '' }) {
   )
 }
 
-function Card({ children, className = '' }) {
-  return (
-    <motion.div data-cursor="active" whileHover={{ y: -8 }} className={`rounded-[2rem] border border-cyan-200/15 bg-black/48 p-6 shadow-[0_24px_100px_rgba(0,0,0,.38)] backdrop-blur-2xl ${className}`}>
-      {children}
-    </motion.div>
-  )
-}
-
 function SectionTitle({ eyebrow, title, text }) {
   return (
-    <Reveal className="mb-12 grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+    <Reveal className="mb-14 grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
       <div>
-        <p className="mb-4 text-sm font-black uppercase tracking-[0.32em] text-[#5de0ff]">{eyebrow}</p>
-        <h2 className="text-4xl font-black leading-[0.98] tracking-[-0.06em] text-white md:text-6xl">{title}</h2>
+        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">{eyebrow}</p>
+        <h2 className="max-w-4xl text-4xl font-semibold leading-[0.98] tracking-[-0.055em] text-[#f4efe7] md:text-6xl">{title}</h2>
       </div>
-      {text && <p className="max-w-2xl text-lg font-medium leading-9 text-[#e8fffc]">{text}</p>}
+      {text && <p className="max-w-2xl text-lg leading-8 text-[#a89f91]">{text}</p>}
     </Reveal>
   )
 }
@@ -137,37 +118,37 @@ function Header() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="fixed left-0 right-0 top-0 z-50 border-b border-cyan-200/15 bg-black/55 shadow-[0_18px_80px_rgba(0,0,0,.45)] backdrop-blur-2xl">
+    <header className="fixed left-0 right-0 top-0 z-50 border-b border-[#f4efe7]/10 bg-[#080807]/70 backdrop-blur-2xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
         <a href="#top" className="flex items-center gap-3" data-cursor="active">
           <BrandMark />
           <div>
-            <p className="text-sm font-black text-white">{BRAND.name}</p>
-            <p className="mt-1 text-[11px] uppercase tracking-[0.24em] text-[#9bc7c1]">{BRAND.signature}</p>
+            <p className="text-sm font-semibold text-[#f4efe7]">{BRAND.name}</p>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.26em] text-[#a89f91]">{BRAND.signature}</p>
           </div>
         </a>
 
-        <nav className="hidden items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1 md:flex">
+        <nav className="hidden items-center gap-1 rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 p-1 md:flex">
           {nav.map(([label, href]) => (
-            <a key={href} href={href} data-cursor="active" className="rounded-full px-4 py-2 text-xs font-bold text-[#aeefff] transition hover:bg-[#5de0ff]/10 hover:text-[#5de0ff]">
+            <a key={href} href={href} data-cursor="active" className="rounded-full px-4 py-2 text-xs font-semibold text-[#a89f91] transition hover:bg-[#c7a15a]/10 hover:text-[#f4efe7]">
               {label}
             </a>
           ))}
         </nav>
 
-        <a href={BRAND.whatsapp} target="_blank" rel="noreferrer" data-cursor="active" className="hidden rounded-full bg-[#5de0ff] px-5 py-2.5 text-xs font-black text-black transition hover:bg-white md:inline-flex">
-          WhatsApp
+        <a href={BRAND.whatsapp} target="_blank" rel="noreferrer" data-cursor="active" className="hidden rounded-full bg-[#c7a15a] px-5 py-2.5 text-xs font-semibold text-[#080807] transition hover:bg-[#f4efe7] md:inline-flex">
+          Vamos conversar
         </a>
 
-        <button onClick={() => setOpen(!open)} className="rounded-full border border-white/10 bg-white/[0.04] p-2 md:hidden" aria-label="Abrir menu">
+        <button onClick={() => setOpen(!open)} className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 p-2 md:hidden" aria-label="Abrir menu">
           <Icon name={open ? 'close' : 'menu'} className="h-5 w-5" />
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-white/10 bg-[#020610] px-5 py-4 md:hidden">
+        <div className="border-t border-[#f4efe7]/10 bg-[#080807] px-5 py-4 md:hidden">
           {nav.map(([label, href]) => (
-            <a key={href} href={href} onClick={() => setOpen(false)} className="mb-2 block rounded-2xl bg-white/[0.05] px-4 py-3 text-sm font-bold text-[#d8fffb]">
+            <a key={href} href={href} onClick={() => setOpen(false)} className="mb-2 block rounded-2xl bg-[#f4efe7]/5 px-4 py-3 text-sm font-semibold text-[#f4efe7]">
               {label}
             </a>
           ))}
@@ -177,134 +158,132 @@ function Header() {
   )
 }
 
+function Atmosphere() {
+  return (
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#080807]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_18%,rgba(199,161,90,.18),transparent_35%),radial-gradient(circle_at_10%_70%,rgba(155,94,50,.16),transparent_32%),linear-gradient(180deg,#080807_0%,#11110f_46%,#080807_100%)]" />
+      <div className="absolute inset-0 opacity-[0.06] [background-image:linear-gradient(rgba(244,239,231,.8)_1px,transparent_1px),linear-gradient(90deg,rgba(244,239,231,.8)_1px,transparent_1px)] [background-size:80px_80px]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,.72)_85%)]" />
+      <div className="absolute inset-0 opacity-[0.07] [background-image:repeating-linear-gradient(0deg,rgba(244,239,231,.35)_0px,rgba(244,239,231,.35)_1px,transparent_1px,transparent_4px)]" />
+    </div>
+  )
+}
+
+function HumanPresence() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.94, y: 24 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 1.1, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+      className="relative hidden min-h-[620px] items-center justify-center lg:flex"
+    >
+      <div className="absolute h-[620px] w-[410px] rounded-[999px] bg-[#c7a15a]/[0.08] blur-[2px]" />
+      <div className="absolute h-[520px] w-[230px] rounded-[999px] bg-black/50 shadow-[0_0_120px_rgba(0,0,0,.8)]" />
+      <div className="absolute -right-4 top-20 h-44 w-44 rounded-full bg-[#c7a15a]/20 blur-3xl" />
+      <div className="absolute bottom-20 left-12 h-28 w-28 rounded-full bg-[#9b5e32]/20 blur-3xl" />
+      <div className="absolute bottom-16 right-10 max-w-xs rounded-[2rem] border border-[#f4efe7]/10 bg-[#11110f]/70 p-5 backdrop-blur-2xl">
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#c7a15a]">Human Presence</p>
+        <p className="mt-3 text-sm leading-6 text-[#a89f91]">A presença humana entra como linguagem visual: sombra, textura, silêncio e direção.</p>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function App() {
   const hero = useRef(null)
   const { scrollYProgress } = useScroll({ target: hero, offset: ['start start', 'end start'] })
-  const y = useTransform(scrollYProgress, [0, 1], [0, 170])
-  const opacity = useTransform(scrollYProgress, [0, 0.75], [1, 0])
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.92])
+  const y = useTransform(scrollYProgress, [0, 1], [0, 120])
+  const opacity = useTransform(scrollYProgress, [0, 0.85], [1, 0])
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.96])
 
   return (
-    <main id="top" className="min-h-screen overflow-hidden bg-[#010103] text-white antialiased md:cursor-none">
-      <BlackHoleBackground />
+    <main id="top" className="min-h-screen overflow-hidden bg-[#080807] text-[#f4efe7] antialiased md:cursor-none">
+      <Atmosphere />
       <GravityCursor />
       <Header />
 
       <section ref={hero} className="relative z-10 flex min-h-screen items-center px-5 pt-28 lg:px-8">
-        <motion.div style={{ y, opacity, scale }} className="mx-auto grid w-full max-w-7xl gap-16 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
+        <motion.div style={{ y, opacity, scale }} className="mx-auto grid w-full max-w-7xl gap-16 lg:grid-cols-[1.04fr_.96fr] lg:items-center">
           <div>
-            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="mb-7 inline-flex items-center gap-3 rounded-full border border-[#5de0ff]/20 bg-[#5de0ff]/10 px-4 py-2 text-sm font-bold text-[#5de0ff]">
-              <span className="h-2 w-2 rounded-full bg-[#5de0ff] shadow-[0_0_20px_rgba(93,224,255,.9)]" />
-              {BRAND.name} — Front-end React + AI-assisted delivery
-            </motion.div>
+            <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="mb-7 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">
+              MJR Forge — Cinematic Front-end Experience
+            </motion.p>
 
-            <motion.h1 initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.95, delay: 0.08 }} className="max-w-5xl text-5xl font-black leading-[0.89] tracking-[-0.085em] text-white drop-shadow-[0_0_38px_rgba(93,224,255,.18)] md:text-7xl lg:text-[7.2rem]">
-              Front-end React com UI premium,
-              <span className="block bg-gradient-to-r from-[#5de0ff] via-white to-[#ff78d6] bg-clip-text text-transparent">automação e IA aplicada à entrega.</span>
+            <motion.h1 initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.95, delay: 0.08 }} className="max-w-5xl text-5xl font-semibold leading-[0.88] tracking-[-0.08em] text-[#f4efe7] md:text-7xl lg:text-[6.6rem]">
+              Interfaces digitais com estética, produto e intenção.
             </motion.h1>
 
-            <motion.p initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.95, delay: 0.18 }} className="mt-8 max-w-2xl text-lg font-medium leading-9 text-[#e8fffc] drop-shadow-[0_10px_34px_rgba(0,0,0,.75)] md:text-xl">
-              Sou Maurício Júnior, desenvolvedor Front-end React. Construo landing pages, dashboards e interfaces modernas com foco em clareza, responsividade, estética premium e validação real antes da entrega.
+            <motion.p initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.95, delay: 0.18 }} className="mt-8 max-w-2xl text-lg leading-9 text-[#a89f91] md:text-xl">
+              Sou Maurício Júnior, desenvolvedor Front-end React em formação. Construo landing pages, dashboards e experiências web modernas com UI premium, narrativa visual e entrega real.
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.95, delay: 0.28 }} className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <Button href={BRAND.whatsapp}>Chamar no WhatsApp</Button>
-              <Button href="#projetos" secondary>Ver projetos</Button>
+              <Button href="#work">Explorar projetos</Button>
+              <Button href={BRAND.whatsapp} secondary>Falar comigo</Button>
             </motion.div>
           </div>
 
-          <motion.div initial={{ opacity: 0, scale: 0.88, rotate: -5 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ duration: 1, delay: 0.2 }} className="hidden justify-center lg:flex">
-            <BrandMark large />
-          </motion.div>
+          <HumanPresence />
         </motion.div>
       </section>
 
-      <section id="impacto" className="relative z-10 mx-auto max-w-7xl px-5 py-28 lg:px-8">
-        <SectionTitle eyebrow="Impacto real" title="Bonito chama atenção. Prova real gera confiança." text="Eu não quero vender só estética. Quero mostrar que consigo construir, testar, publicar e evoluir interfaces com mentalidade de produto." />
-        <div className="grid gap-4 md:grid-cols-4">
-          {stats.map(([value, label], index) => (
-            <Reveal key={label} delay={index * 0.06}>
-              <Card>
-                <p className="text-4xl font-black tracking-[-0.06em] text-white">{value}</p>
-                <p className="mt-3 text-sm font-bold leading-6 text-[#9bc7c1]">{label}</p>
-              </Card>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      <section id="sinais" className="relative z-10 mx-auto max-w-7xl px-5 py-28 lg:px-8">
-        <SectionTitle eyebrow="Sinais de contratação" title="Por que um recrutador deveria prestar atenção agora?" text="Porque minha história não é sobre esperar ficar perfeito. É sobre construir, publicar, medir, corrigir e evoluir rápido com projetos reais." />
-        <div className="grid gap-4 lg:grid-cols-5">
-          {signals.map(([title, text], index) => (
-            <Reveal key={title} delay={index * 0.06}>
-              <Card className="h-full">
-                <p className="mb-8 text-xs font-black uppercase tracking-[0.22em] text-[#5de0ff]">signal 0{index + 1}</p>
-                <h3 className="text-xl font-black leading-tight text-white">{title}</h3>
-                <p className="mt-4 text-sm leading-7 text-[#9bc7c1]">{text}</p>
-              </Card>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      <section id="jarvis" className="relative z-10 mx-auto max-w-7xl px-5 py-28 lg:px-8">
+      <section id="manifesto" className="relative z-10 mx-auto max-w-7xl px-5 py-28 lg:px-8">
         <Reveal>
-          <div className="overflow-hidden rounded-[3rem] border border-[#5de0ff]/25 bg-[linear-gradient(135deg,rgba(93,224,255,.16),rgba(5,18,25,.72),rgba(12,10,30,.78))] p-7 shadow-[0_40px_160px_rgba(0,0,0,.55)] backdrop-blur-2xl md:p-12">
-            <div className="grid gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
-              <div>
-                <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-black/30 px-4 py-2 text-sm font-bold text-[#5de0ff]"><Icon name="shield" className="h-4 w-4" /> Vantagem privada</p>
-                <h2 className="text-4xl font-black tracking-[-0.06em] text-white md:text-6xl">O Jarvis aparece como vantagem, não como manual aberto.</h2>
-                <p className="mt-6 text-lg font-medium leading-9 text-[#e8fffc]">Para clientes e recrutadores, o que importa é o resultado: protótipos rápidos, QA visual, menos erros e capacidade de transformar ideia em interface. A arquitetura profunda fica protegida.</p>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                {[
-                  ['Planejo', 'briefing vira direção visual'],
-                  ['Construo', 'React/Tailwind com estrutura'],
-                  ['Valido', 'mobile, screenshots e QA'],
-                  ['Refino', 'polish antes da entrega'],
-                ].map(([title, text], index) => (
-                  <Card key={title}>
-                    <p className="mb-8 text-sm font-black text-[#5de0ff]">0{index + 1}</p>
-                    <h3 className="text-2xl font-black text-white">{title}</h3>
-                    <p className="mt-3 leading-7 text-[#9bc7c1]">{text}</p>
-                  </Card>
-                ))}
-              </div>
-            </div>
+          <div className="grid gap-10 border-y border-[#f4efe7]/10 py-20 lg:grid-cols-[.7fr_1.3fr] lg:items-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">Manifesto</p>
+            <h2 className="text-4xl font-semibold leading-[1.02] tracking-[-0.06em] text-[#f4efe7] md:text-6xl">
+              O site não deve gritar. Deve conduzir.
+            </h2>
+            <div />
+            <p className="max-w-3xl text-xl leading-9 text-[#a89f91]">
+              O Forge nasce da ideia de que uma boa interface tem ritmo. Silêncio, tensão, respiro, impacto e clareza. Menos efeito genérico. Mais direção criativa.
+            </p>
           </div>
         </Reveal>
       </section>
 
-      <section id="projetos" className="relative z-10 mx-auto max-w-7xl px-5 py-28 lg:px-8">
-        <SectionTitle eyebrow="Projetos" title="Projetos com cara de produto, não lista de curso." text="Demos publicadas, dashboards, automações e interfaces pensadas como produto. O foco é mostrar entrega real, não apenas código solto." />
+      <section id="journey" className="relative z-10 mx-auto max-w-7xl px-5 py-28 lg:px-8">
+        <SectionTitle eyebrow="Journey" title="Uma trajetória em movimento." text="A jornada não é uma lista de datas. É uma sequência de escolhas, projetos e evolução prática." />
+        <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#11110f]/70 p-6 backdrop-blur-2xl md:p-10">
+          <div className="absolute left-10 top-10 bottom-10 hidden w-px bg-gradient-to-b from-transparent via-[#c7a15a]/50 to-transparent md:block" />
+          <div className="grid gap-5">
+            {milestones.map(([time, text], index) => (
+              <Reveal key={time} delay={index * 0.06}>
+                <div className="grid gap-5 rounded-[2rem] border border-[#f4efe7]/10 bg-[#080807]/55 p-6 md:grid-cols-[0.32fr_1fr] md:p-8">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#c7a15a]">{time}</p>
+                  </div>
+                  <p className="text-lg leading-8 text-[#a89f91]">{text}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <div className="space-y-5">
+      <section id="work" className="relative z-10 mx-auto max-w-7xl px-5 py-28 lg:px-8">
+        <SectionTitle eyebrow="Selected Work" title="Projetos apresentados como peças editoriais." text="Cada projeto precisa explicar contexto, intenção e resultado — não apenas mostrar uma tela bonita." />
+        <div className="grid gap-6">
           {projects.map((project, index) => (
             <Reveal key={project.title} delay={index * 0.08}>
-              <motion.article data-cursor="active" whileHover={{ scale: 1.012 }} className="group overflow-hidden rounded-[2.6rem] border border-cyan-200/15 bg-black/45 p-1 shadow-[0_34px_140px_rgba(0,0,0,.48)] backdrop-blur-2xl">
-                <div className="grid gap-7 rounded-[2.4rem] bg-[linear-gradient(135deg,rgba(93,224,255,.10),rgba(255,255,255,.045),rgba(10,12,28,.72))] p-6 lg:grid-cols-[0.15fr_0.55fr_0.85fr_0.9fr] lg:items-center md:p-8">
-                  <p className="text-6xl font-black tracking-[-0.08em] text-[#5de0ff]/20 md:text-8xl">0{index + 1}</p>
-
+              <motion.article whileHover={{ y: -6 }} data-cursor="active" className="overflow-hidden rounded-[2.6rem] border border-[#f4efe7]/10 bg-[#11110f]/70 p-4 shadow-[0_40px_140px_rgba(0,0,0,.45)] backdrop-blur-2xl">
+                <div className="grid gap-8 rounded-[2.2rem] bg-gradient-to-br from-[#f4efe7]/[0.045] via-transparent to-[#c7a15a]/[0.06] p-6 md:p-8 lg:grid-cols-[0.65fr_0.9fr_0.75fr] lg:items-center">
                   <div>
-                    <p className="text-sm font-black uppercase tracking-[0.24em] text-[#5de0ff]">{project.label}</p>
-                    <h3 className="mt-3 text-3xl font-black text-white md:text-4xl">{project.title}</h3>
+                    <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#c7a15a]">{project.label}</p>
+                    <h3 className="mt-4 text-4xl font-semibold tracking-[-0.055em] text-[#f4efe7] md:text-5xl">{project.title}</h3>
                   </div>
-
                   <div>
-                    <p className="font-medium leading-8 text-[#e8fffc]">{project.text}</p>
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      {project.tags.map(tag => <span key={tag} className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-[#cffffb]">{tag}</span>)}
+                    <p className="text-lg leading-8 text-[#a89f91]">{project.text}</p>
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      {project.tags.map(tag => <span key={tag} className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 px-3 py-1 text-xs font-semibold text-[#d8d0c3]">{tag}</span>)}
                     </div>
                     {(project.demo || project.repo) && (
-                      <div className="mt-6 flex flex-wrap gap-3">
-                        {project.demo && <Button href={project.demo}>Demo online</Button>}
+                      <div className="mt-7 flex flex-wrap gap-3">
+                        {project.demo && <Button href={project.demo}>Demo</Button>}
                         {project.repo && <Button href={project.repo} secondary>GitHub</Button>}
                       </div>
                     )}
                   </div>
-
                   <ProjectMockup index={index} />
                 </div>
               </motion.article>
@@ -313,40 +292,47 @@ export default function App() {
         </div>
       </section>
 
-      <section id="stack" className="relative z-10 py-16">
-        <div className="overflow-hidden border-y border-white/10 bg-white/[0.035] py-5 backdrop-blur-xl">
-          <motion.div className="flex gap-8 whitespace-nowrap" animate={{ x: [0, -950] }} transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}>
-            {[...stack, ...stack, ...stack].map((item, index) => <span key={`${item}-${index}`} className="text-2xl font-black uppercase tracking-[-0.04em] text-white/20 md:text-4xl">{item}</span>)}
-          </motion.div>
+      <section id="processo" className="relative z-10 mx-auto max-w-7xl px-5 py-28 lg:px-8">
+        <SectionTitle eyebrow="Processo" title="Do briefing ao refinamento." text="O diferencial não está só em codar. Está em transformar intenção em experiência utilizável, bonita e clara." />
+        <div className="grid gap-4 md:grid-cols-5">
+          {process.map(([title, text], index) => (
+            <Reveal key={title} delay={index * 0.06}>
+              <div className="h-full rounded-[2rem] border border-[#f4efe7]/10 bg-[#11110f]/65 p-6 backdrop-blur-xl">
+                <p className="mb-10 text-sm font-semibold text-[#c7a15a]">0{index + 1}</p>
+                <h3 className="text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">{title}</h3>
+                <p className="mt-4 text-sm leading-7 text-[#a89f91]">{text}</p>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </section>
 
       <section id="contato" className="relative z-10 mx-auto max-w-6xl px-5 py-28 text-center lg:px-8">
         <Reveal>
-          <div className="relative overflow-hidden rounded-[3rem] border border-[#5de0ff]/20 bg-[linear-gradient(135deg,rgba(93,224,255,.14),rgba(255,255,255,.04),rgba(9,52,53,.70))] p-8 backdrop-blur-2xl md:p-16">
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#5de0ff] to-transparent" />
-            <div className="mx-auto mb-8 flex justify-center"><BrandMark large /></div>
-            <p className="text-sm font-black uppercase tracking-[0.32em] text-[#5de0ff]">Contato</p>
-            <h2 className="mx-auto mt-5 max-w-4xl text-4xl font-black tracking-[-0.06em] text-white md:text-6xl">Procuro a primeira oportunidade. E também entrego projetos freelance.</h2>
-            <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-8 text-[#e8fffc]">Aberto para estágio Front-end React, freelas de landing pages, dashboards, interfaces premium e projetos remotos em dólar/euro. Respondo por e-mail ou WhatsApp.</p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 text-sm font-bold text-[#c6fffa] sm:flex-row">
+          <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#11110f]/70 p-8 backdrop-blur-2xl md:p-16">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c7a15a] to-transparent" />
+            <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[#c7a15a]/10 blur-3xl" />
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">Final Scene</p>
+            <h2 className="mx-auto mt-6 max-w-4xl text-4xl font-semibold tracking-[-0.06em] text-[#f4efe7] md:text-6xl">Vamos construir algo memorável.</h2>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[#a89f91]">Aberto para estágio Front-end React, freelas de landing pages, dashboards e experiências digitais premium.</p>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 text-sm font-semibold text-[#d8d0c3] sm:flex-row">
               <span>{BRAND.email}</span>
-              <span className="hidden text-white/20 sm:inline">•</span>
+              <span className="hidden text-[#f4efe7]/20 sm:inline">•</span>
               <span>{BRAND.phone}</span>
             </div>
             <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
-              <Button href={BRAND.whatsapp}>Chamar no WhatsApp</Button>
-              <Button href={`mailto:${BRAND.email}`} secondary>Enviar e-mail</Button>
+              <Button href={BRAND.whatsapp}>WhatsApp</Button>
+              <Button href={`mailto:${BRAND.email}`} secondary>E-mail</Button>
               <Button href={BRAND.github} secondary>GitHub</Button>
             </div>
           </div>
         </Reveal>
       </section>
 
-      <footer className="relative z-10 border-t border-white/10 px-5 py-8 lg:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 text-sm text-[#6d9b94] md:flex-row md:items-center md:justify-between">
+      <footer className="relative z-10 border-t border-[#f4efe7]/10 px-5 py-8 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 text-sm text-[#766f65] md:flex-row md:items-center md:justify-between">
           <p>© 2026 {BRAND.signature} — {BRAND.name}</p>
-          <p>{BRAND.line}</p>
+          <p>React • UI premium • experiências digitais com intenção</p>
         </div>
       </footer>
     </main>
