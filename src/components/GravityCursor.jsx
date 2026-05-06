@@ -4,10 +4,10 @@ import { motion, useMotionValue, useSpring } from 'framer-motion'
 export default function GravityCursor() {
   const x = useMotionValue(-100)
   const y = useMotionValue(-100)
-  const smoothX = useSpring(x, { stiffness: 780, damping: 42, mass: 0.22 })
-  const smoothY = useSpring(y, { stiffness: 780, damping: 42, mass: 0.22 })
-  const haloX = useSpring(x, { stiffness: 260, damping: 30, mass: 0.35 })
-  const haloY = useSpring(y, { stiffness: 260, damping: 30, mass: 0.35 })
+  const smoothX = useSpring(x, { stiffness: 620, damping: 42, mass: 0.28 })
+  const smoothY = useSpring(y, { stiffness: 620, damping: 42, mass: 0.28 })
+  const haloX = useSpring(x, { stiffness: 180, damping: 28, mass: 0.45 })
+  const haloY = useSpring(y, { stiffness: 180, damping: 28, mass: 0.45 })
   const [active, setActive] = useState(false)
   const [pressed, setPressed] = useState(false)
 
@@ -31,7 +31,7 @@ export default function GravityCursor() {
 
     const down = () => {
       setPressed(true)
-      window.setTimeout(() => setPressed(false), 220)
+      window.setTimeout(() => setPressed(false), 180)
     }
 
     window.addEventListener('mousemove', move, { passive: true })
@@ -47,37 +47,19 @@ export default function GravityCursor() {
   return (
     <>
       <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[999] hidden h-24 w-24 md:block"
+        className="pointer-events-none fixed left-0 top-0 z-[999] hidden h-20 w-20 rounded-full md:block"
         style={{ x: haloX, y: haloY, translateX: '-50%', translateY: '-50%' }}
-        animate={{ scale: active ? 1.18 : pressed ? 0.9 : 1, opacity: active ? 0.95 : 0.58 }}
-        transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+        animate={{ scale: active ? 1.12 : pressed ? 0.92 : 1, opacity: active ? 0.42 : 0.22 }}
+        transition={{ type: 'spring', stiffness: 320, damping: 28 }}
       >
-        <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(93,224,255,.16),rgba(93,224,255,.055)_34%,transparent_68%)] blur-[1px]" />
-        <div className="absolute inset-5 rounded-full border border-cyan-200/20" />
-        <div className="absolute left-1/2 top-1/2 h-px w-24 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-transparent via-cyan-100/45 to-transparent" />
-        <div className="absolute left-1/2 top-1/2 h-24 w-px -translate-x-1/2 -translate-y-1/2 bg-gradient-to-b from-transparent via-cyan-100/35 to-transparent" />
+        <div className="absolute inset-0 rounded-full border border-[#c7a15a]/20 bg-[radial-gradient(circle,rgba(199,161,90,.12),transparent_68%)]" />
       </motion.div>
 
       <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[1000] hidden h-7 w-7 md:block"
+        className="pointer-events-none fixed left-0 top-0 z-[1000] hidden h-3 w-3 rounded-full bg-[#f4efe7] shadow-[0_0_24px_rgba(244,239,231,.28)] md:block"
         style={{ x: smoothX, y: smoothY, translateX: '-50%', translateY: '-50%' }}
-        animate={{ scale: pressed ? 0.72 : active ? 1.22 : 1 }}
-        transition={{ type: 'spring', stiffness: 620, damping: 25 }}
-      >
-        <div className="absolute inset-0 rounded-full border border-[#5de0ff]/80 shadow-[0_0_28px_rgba(93,224,255,.62)]" />
-        <div className="absolute inset-[5px] rounded-full border border-white/35" />
-        <div className="absolute left-1/2 top-[-5px] h-2 w-px -translate-x-1/2 bg-[#5de0ff]/80" />
-        <div className="absolute bottom-[-5px] left-1/2 h-2 w-px -translate-x-1/2 bg-[#5de0ff]/80" />
-        <div className="absolute left-[-5px] top-1/2 h-px w-2 -translate-y-1/2 bg-[#5de0ff]/80" />
-        <div className="absolute right-[-5px] top-1/2 h-px w-2 -translate-y-1/2 bg-[#5de0ff]/80" />
-        <div className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_18px_rgba(255,255,255,.95)]" />
-      </motion.div>
-
-      <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[998] hidden h-12 w-12 rounded-full border border-cyan-100/40 md:block"
-        style={{ x: smoothX, y: smoothY, translateX: '-50%', translateY: '-50%' }}
-        animate={{ scale: pressed ? 2.7 : 0.3, opacity: pressed ? 0 : 0 }}
-        transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+        animate={{ scale: pressed ? 0.7 : active ? 1.45 : 1, backgroundColor: active ? '#c7a15a' : '#f4efe7' }}
+        transition={{ type: 'spring', stiffness: 540, damping: 26 }}
       />
     </>
   )
