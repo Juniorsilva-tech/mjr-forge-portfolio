@@ -175,15 +175,31 @@ function HumanPresence() {
       initial={{ opacity: 0, scale: 0.94, y: 24 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 1.1, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-      className="relative hidden min-h-[620px] items-center justify-center lg:flex"
+      className="relative hidden min-h-[680px] items-center justify-center lg:flex"
     >
-      <div className="absolute h-[620px] w-[410px] rounded-[999px] bg-[#c7a15a]/[0.08] blur-[2px]" />
-      <div className="absolute h-[520px] w-[230px] rounded-[999px] bg-black/50 shadow-[0_0_120px_rgba(0,0,0,.8)]" />
+      <div className="absolute -right-6 top-10 h-[660px] w-[480px] rounded-[3rem] bg-[#c7a15a]/[0.08] blur-[2px]" />
+      <motion.div
+        initial={{ clipPath: 'inset(14% 0% 18% 0% round 3rem)' }}
+        animate={{ clipPath: 'inset(0% 0% 0% 0% round 3rem)' }}
+        transition={{ duration: 1.4, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="relative h-[640px] w-[440px] overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#11110f] shadow-[0_40px_160px_rgba(0,0,0,.65)]"
+      >
+        <img
+          src="/forge-portrait.jpg"
+          alt="Maurício Júnior em composição cinematográfica"
+          className="h-full w-full object-cover object-[52%_42%] saturate-[.78] contrast-[1.08] brightness-[.74] sepia-[.12]"
+          onError={(event) => {
+            event.currentTarget.style.display = 'none'
+          }}
+        />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_18%,rgba(199,161,90,.22),transparent_34%),linear-gradient(90deg,rgba(8,8,7,.24),transparent_42%,rgba(8,8,7,.72)),linear-gradient(180deg,transparent_45%,rgba(8,8,7,.86))]" />
+        <div className="absolute inset-0 mix-blend-soft-light opacity-25 [background-image:repeating-linear-gradient(0deg,rgba(244,239,231,.35)_0px,rgba(244,239,231,.35)_1px,transparent_1px,transparent_5px)]" />
+      </motion.div>
       <div className="absolute -right-4 top-20 h-44 w-44 rounded-full bg-[#c7a15a]/20 blur-3xl" />
       <div className="absolute bottom-20 left-12 h-28 w-28 rounded-full bg-[#9b5e32]/20 blur-3xl" />
-      <div className="absolute bottom-16 right-10 max-w-xs rounded-[2rem] border border-[#f4efe7]/10 bg-[#11110f]/70 p-5 backdrop-blur-2xl">
+      <div className="absolute bottom-12 right-2 max-w-xs rounded-[2rem] border border-[#f4efe7]/10 bg-[#11110f]/75 p-5 backdrop-blur-2xl">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#c7a15a]">Human Presence</p>
-        <p className="mt-3 text-sm leading-6 text-[#a89f91]">A presença humana entra como linguagem visual: sombra, textura, silêncio e direção.</p>
+        <p className="mt-3 text-sm leading-6 text-[#a89f91]">Foto real tratada como linguagem visual: sombra, textura, silêncio e direção.</p>
       </div>
     </motion.div>
   )
