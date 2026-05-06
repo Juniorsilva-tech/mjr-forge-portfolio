@@ -1,102 +1,92 @@
 import { motion } from 'framer-motion'
 
+const mockups = [
+  {
+    title: 'Princessmel Editorial',
+    subtitle: 'moda cristã • WhatsApp • vitrine',
+    stats: [['01', 'brand'], ['24h', 'lead'], ['CTA', 'direct']],
+    lines: ['Curadoria visual', 'Produtos em destaque', 'Contato sem fricção'],
+  },
+  {
+    title: 'RetailFlow SaaS',
+    subtitle: 'clientes • pedidos • pagamentos',
+    stats: [['4', 'clientes'], ['3', 'pedidos'], ['local', 'storage']],
+    lines: ['Dashboard operacional', 'Pagamentos e pedidos', 'Mapa regional'],
+  },
+  {
+    title: 'Jarvis Workflow',
+    subtitle: 'generate • QA • repair',
+    stats: [['90', 'score'], ['6', 'shots'], ['PASS', 'build']],
+    lines: ['Planner cria direção', 'QA valida interface', 'Repair corrige falhas'],
+  },
+]
+
 export default function ProjectMockup({ index }) {
-  const titles = ['Jarvis Command', 'RetailFlow SaaS', 'Store Dashboard', 'Landing Demo']
-  const subtitles = ['Generate → QA → Repair', 'Clientes • Pedidos • Pagamentos', 'Financeiro • Clientes • Pix', 'Premium UI • CTA • Mobile']
-  const safeIndex = Math.min(index, titles.length - 1)
+  const item = mockups[Math.min(index, mockups.length - 1)]
 
   return (
-    <div className="relative min-h-[260px] overflow-hidden rounded-[1.8rem] border border-[#5de0ff]/25 bg-[#020b13]/90 p-4 shadow-[0_0_90px_rgba(93,224,255,.14)]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(93,224,255,.24),transparent_58%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,.08),transparent_38%,rgba(140,90,255,.10))]" />
+    <motion.div
+      initial={{ opacity: 0, y: 45, rotateX: 10, scale: 0.92, filter: 'blur(14px)' }}
+      whileInView={{ opacity: 1, y: 0, rotateX: 0, scale: 1, filter: 'blur(0px)' }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{ duration: 1.05, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ y: -12, rotateX: 4, rotateY: -5, scale: 1.025 }}
+      className="relative min-h-[310px] overflow-hidden rounded-[2.2rem] border border-[#f4efe7]/10 bg-[#050505]/80 p-4 shadow-[0_45px_140px_rgba(0,0,0,.62)] [transform-style:preserve-3d]"
+    >
+      <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#c7a15a]/15 blur-[70px]" />
+      <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[#9b5e32]/12 blur-[90px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(244,239,231,.08),transparent_36%,rgba(199,161,90,.08))]" />
+      <div className="absolute inset-0 opacity-[0.05] [background-image:repeating-linear-gradient(0deg,rgba(244,239,231,.35)_0px,rgba(244,239,231,.35)_1px,transparent_1px,transparent_6px)]" />
 
-      <div className="relative flex items-center justify-between border-b border-white/10 pb-3">
-        <div className="flex gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
-          <span className="h-2.5 w-2.5 rounded-full bg-yellow-300/80" />
-          <span className="h-2.5 w-2.5 rounded-full bg-[#5de0ff]" />
-        </div>
-        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#5de0ff]">mockup</p>
-      </div>
-
-      <div className="relative mt-4">
-        <p className="text-xl font-black tracking-[-0.04em] text-white">{titles[safeIndex]}</p>
-        <p className="mt-1 text-xs font-bold text-[#aeefff]">{subtitles[safeIndex]}</p>
-      </div>
-
-      {index === 0 && (
-        <div className="relative mt-5 space-y-3">
-          <div className="grid grid-cols-3 gap-2">
-            {[['90', 'score'], ['6', 'shots'], ['PASS', 'build']].map(([v, l]) => (
-              <div key={l} className="rounded-2xl border border-cyan-200/15 bg-black/35 p-3 text-center">
-                <p className="text-lg font-black text-white">{v}</p>
-                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#5de0ff]">{l}</p>
-              </div>
-            ))}
+      <div className="relative rounded-[1.7rem] border border-[#f4efe7]/10 bg-[#0b0a08]/78 p-5 backdrop-blur-xl">
+        <div className="flex items-center justify-between border-b border-[#f4efe7]/10 pb-4">
+          <div className="flex gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#c7a15a]/80" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#f4efe7]/35" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#9b5e32]/80" />
           </div>
-          {['Planner criou arquitetura', 'QA validou responsividade', 'PatchExecutor reparou falha'].map((item, i) => (
-            <motion.div key={item} initial={{ width: '38%' }} whileInView={{ width: `${74 + i * 7}%` }} viewport={{ once: true }} transition={{ duration: 0.9, delay: i * 0.12 }} className="rounded-full bg-[#5de0ff]/10 p-[1px]">
-              <div className="rounded-full bg-[#04161f] px-3 py-2 text-xs font-bold text-[#dffcff]">{item}</div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#c7a15a]">artifact</p>
+        </div>
+
+        <div className="mt-5">
+          <p className="text-2xl font-semibold tracking-[-0.06em] text-[#f4efe7]">{item.title}</p>
+          <p className="mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#a89f91]">{item.subtitle}</p>
+        </div>
+
+        <div className="mt-6 grid grid-cols-3 gap-2">
+          {item.stats.map(([value, label]) => (
+            <div key={label} className="rounded-2xl border border-[#f4efe7]/10 bg-[#050505]/55 p-3 text-center">
+              <p className="text-lg font-semibold text-[#f4efe7]">{value}</p>
+              <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#c7a15a]">{label}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6 space-y-3">
+          {item.lines.map((line, lineIndex) => (
+            <motion.div
+              key={line}
+              initial={{ width: '40%' }}
+              whileInView={{ width: `${72 + lineIndex * 8}%` }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, delay: lineIndex * 0.1 }}
+              className="rounded-full bg-[#c7a15a]/10 p-[1px]"
+            >
+              <div className="rounded-full bg-[#050505]/70 px-3 py-2 text-xs font-semibold text-[#d8d0c3]">{line}</div>
             </motion.div>
           ))}
         </div>
-      )}
 
-      {index === 1 && (
-        <div className="relative mt-5 space-y-3">
-          <div className="grid grid-cols-3 gap-2">
-            {[['4', 'clientes'], ['3', 'pedidos'], ['local', 'storage']].map(([v, l]) => (
-              <div key={l} className="rounded-2xl border border-cyan-200/15 bg-black/35 p-3 text-center">
-                <p className="text-lg font-black text-white">{v}</p>
-                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#5de0ff]">{l}</p>
-              </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-[0.8fr_1.2fr] gap-3">
-            <div className="relative h-32 overflow-hidden rounded-2xl border border-cyan-200/15 bg-[radial-gradient(circle_at_55%_45%,rgba(93,224,255,.25),transparent_40%)]">
-              <div className="absolute left-[55%] top-[58%] h-3 w-3 rounded-full bg-[#5de0ff] shadow-[0_0_24px_rgba(93,224,255,.9)]" />
-              <div className="absolute left-[52%] top-[55%] h-9 w-9 animate-ping rounded-full border border-cyan-200/30" />
-              <div className="absolute inset-5 rounded-[45%] border border-cyan-200/20 bg-cyan-300/5" />
-            </div>
-            <div className="space-y-2">
-              {['Dashboard SaaS', 'Pagamentos', 'Mapa Brasil'].map((item, i) => (
-                <motion.div key={item} initial={{ width: '45%' }} whileInView={{ width: `${78 + i * 6}%` }} viewport={{ once: true }} className="rounded-full bg-[#5de0ff]/10 p-[1px]">
-                  <div className="rounded-full bg-[#04161f] px-3 py-2 text-xs font-bold text-[#dffcff]">{item}</div>
-                </motion.div>
-              ))}
-            </div>
+        <div className="mt-6 grid grid-cols-[0.7fr_1.3fr] gap-3">
+          <div className="h-28 rounded-2xl border border-[#f4efe7]/10 bg-[radial-gradient(circle_at_55%_45%,rgba(199,161,90,.22),transparent_42%)]" />
+          <div className="space-y-2">
+            <div className="h-9 rounded-2xl bg-[#f4efe7]/10" />
+            <div className="h-3 w-5/6 rounded-full bg-[#f4efe7]/12" />
+            <div className="h-3 w-3/5 rounded-full bg-[#f4efe7]/8" />
+            <div className="mt-4 h-8 w-28 rounded-full bg-[#c7a15a]" />
           </div>
         </div>
-      )}
-
-      {index === 2 && (
-        <div className="relative mt-5 grid grid-cols-2 gap-2">
-          {[['12k', 'Vendas'], ['48', 'Clientes'], ['OK', 'Pix'], ['4', 'Cards']].map(([v, l]) => (
-            <div key={l} className="rounded-2xl border border-white/10 bg-white/[0.05] p-3">
-              <p className="text-lg font-black text-white">{v}</p>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#9bc7c1]">{l}</p>
-            </div>
-          ))}
-          <div className="col-span-2 mt-1 h-16 rounded-2xl border border-cyan-200/10 bg-[linear-gradient(90deg,rgba(93,224,255,.28),rgba(255,120,214,.13),rgba(255,186,91,.18))]" />
-        </div>
-      )}
-
-      {index >= 3 && (
-        <div className="relative mt-5 space-y-3">
-          <div className="h-9 rounded-2xl bg-gradient-to-r from-[#5de0ff]/40 via-white/20 to-[#ff78d6]/25" />
-          <div className="h-3 w-5/6 rounded-full bg-white/18" />
-          <div className="h-3 w-3/5 rounded-full bg-white/12" />
-          <div className="grid grid-cols-3 gap-2 pt-2">
-            <div className="h-20 rounded-2xl border border-white/10 bg-white/[0.05]" />
-            <div className="h-20 rounded-2xl border border-white/10 bg-white/[0.07]" />
-            <div className="h-20 rounded-2xl border border-white/10 bg-white/[0.05]" />
-          </div>
-          <div className="flex gap-2 pt-1">
-            <div className="h-9 w-24 rounded-full bg-[#5de0ff]" />
-            <div className="h-9 w-20 rounded-full border border-white/20" />
-          </div>
-        </div>
-      )}
-    </div>
+      </div>
+    </motion.div>
   )
 }
