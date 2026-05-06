@@ -13,13 +13,8 @@ const BRAND = {
   github: 'https://github.com/Juniorsilva-tech',
 }
 
-const nav = [
-  ['Manifesto', '#manifesto'],
-  ['Journey', '#journey'],
-  ['Work', '#work'],
-  ['Contato', '#contato'],
-]
-
+const nav = [['Manifesto', '#manifesto'], ['Journey', '#journey'], ['Work', '#work'], ['Contato', '#contato']]
+const principles = ['Silence', 'Presence', 'Rhythm', 'Product', 'Refinement']
 const milestones = [
   ['01', 'Março 2026', 'ADS + foco real em web. Estudo virando prática, deploy e projeto visível.'],
   ['02', 'MJR Forge', 'Site pessoal em evolução. Um laboratório de identidade, UI e experiência digital.'],
@@ -27,363 +22,67 @@ const milestones = [
   ['04', 'Princessmel', 'Projeto real para loja cristã: presença digital, estética e conversão via WhatsApp.'],
   ['05', 'Jarvis', 'Workflow privado com IA para acelerar criação, QA visual e refinamento de interfaces.'],
 ]
-
 const projects = [
-  {
-    label: 'Real Case',
-    title: 'Princessmel',
-    text: 'Landing page e identidade digital para loja de moda cristã, com foco em curadoria, apresentação de produtos, WhatsApp e atmosfera editorial.',
-    tags: ['Landing Page', 'Branding', 'UI Editorial', 'WhatsApp'],
-  },
-  {
-    label: 'SaaS Demo',
-    title: 'RetailFlow Dashboard',
-    text: 'Demo funcional de dashboard para pequenos negócios, com clientes, pedidos, pagamentos, relatórios e persistência local.',
-    tags: ['React', 'Dashboard', 'CRUD', 'Vercel'],
-    demo: 'https://retailflow-dashboard.vercel.app',
-    repo: 'https://github.com/Juniorsilva-tech/retailflow-dashboard',
-  },
-  {
-    label: 'Private System',
-    title: 'Jarvis Workflow',
-    text: 'Sistema experimental privado para organizar, revisar e acelerar criação de interfaces e aplicações web com apoio de IA.',
-    tags: ['Automation', 'QA Visual', 'AI Workflow', 'React UI'],
-  },
+  { label: 'Real Case', title: 'Princessmel', text: 'Landing page e identidade digital para loja de moda cristã, com foco em curadoria, apresentação de produtos, WhatsApp e atmosfera editorial.', tags: ['Landing Page', 'Branding', 'UI Editorial', 'WhatsApp'] },
+  { label: 'SaaS Demo', title: 'RetailFlow Dashboard', text: 'Demo funcional de dashboard para pequenos negócios, com clientes, pedidos, pagamentos, relatórios e persistência local.', tags: ['React', 'Dashboard', 'CRUD', 'Vercel'], demo: 'https://retailflow-dashboard.vercel.app', repo: 'https://github.com/Juniorsilva-tech/retailflow-dashboard' },
+  { label: 'Private System', title: 'Jarvis Workflow', text: 'Sistema experimental privado para organizar, revisar e acelerar criação de interfaces e aplicações web com apoio de IA.', tags: ['Automation', 'QA Visual', 'AI Workflow', 'React UI'] },
 ]
 
-const principles = ['Silence', 'Presence', 'Rhythm', 'Product', 'Refinement']
-
 function Icon({ name, className = '' }) {
-  const icons = {
-    arrow: ['M5 12h14', 'M13 5l7 7-7 7'],
-    menu: ['M4 6h16', 'M4 12h16', 'M4 18h16'],
-    close: ['M6 6l12 12', 'M18 6L6 18'],
-  }
-
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {(icons[name] || icons.arrow).map((d, i) => <path key={i} d={d} />)}
-    </svg>
-  )
+  const icons = { arrow: ['M5 12h14', 'M13 5l7 7-7 7'], menu: ['M4 6h16', 'M4 12h16', 'M4 18h16'], close: ['M6 6l12 12', 'M18 6L6 18'] }
+  return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{(icons[name] || icons.arrow).map((d, i) => <path key={i} d={d} />)}</svg>
 }
 
 function Button({ href, children, secondary = false }) {
-  return (
-    <a
-      href={href}
-      target={href?.startsWith('http') ? '_blank' : undefined}
-      rel={href?.startsWith('http') ? 'noreferrer' : undefined}
-      data-cursor="active"
-      className={`group inline-flex items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-semibold transition duration-300 ${secondary ? 'border border-[#f4efe7]/10 bg-[#080807]/55 text-[#f4efe7] hover:border-[#c7a15a]/50 hover:bg-[#c7a15a]/10' : 'bg-[#c7a15a] text-[#080807] shadow-[0_20px_90px_rgba(199,161,90,.22)] hover:bg-[#f4efe7]'}`}
-    >
-      {children}
-      <Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-1" />
-    </a>
-  )
+  return <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel={href?.startsWith('http') ? 'noreferrer' : undefined} data-cursor="active" className={`group inline-flex items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-semibold transition duration-300 ${secondary ? 'border border-[#f4efe7]/10 bg-[#080807]/55 text-[#f4efe7] hover:border-[#c7a15a]/50 hover:bg-[#c7a15a]/10' : 'bg-[#c7a15a] text-[#080807] shadow-[0_20px_90px_rgba(199,161,90,.22)] hover:bg-[#f4efe7]'}`}>{children}<Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-1" /></a>
 }
 
 function Reveal({ children, delay = 0, className = '' }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 42, filter: 'blur(14px)' }}
-      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      viewport={{ once: true, margin: '-110px' }}
-      transition={{ duration: 1.05, delay, ease: [0.16, 1, 0.3, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  )
+  return <motion.div initial={{ opacity: 0, y: 42, filter: 'blur(14px)' }} whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }} viewport={{ once: true, margin: '-110px' }} transition={{ duration: 1.05, delay, ease: [0.16, 1, 0.3, 1] }} className={className}>{children}</motion.div>
 }
 
 function Header() {
   const [open, setOpen] = useState(false)
-
-  return (
-    <header className="fixed left-0 right-0 top-0 z-50 border-b border-[#f4efe7]/10 bg-[#050505]/55 backdrop-blur-2xl">
-      <div className="mx-auto flex max-w-[1500px] items-center justify-between px-5 py-4 lg:px-8">
-        <a href="#top" className="flex items-center gap-3" data-cursor="active">
-          <BrandMark />
-          <div>
-            <p className="text-sm font-semibold text-[#f4efe7]">{BRAND.name}</p>
-            <p className="mt-1 text-[10px] uppercase tracking-[0.26em] text-[#a89f91]">{BRAND.signature}</p>
-          </div>
-        </a>
-
-        <nav className="hidden items-center gap-1 rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 p-1 md:flex">
-          {nav.map(([label, href]) => (
-            <a key={href} href={href} data-cursor="active" className="rounded-full px-4 py-2 text-xs font-semibold text-[#a89f91] transition hover:bg-[#c7a15a]/10 hover:text-[#f4efe7]">
-              {label}
-            </a>
-          ))}
-        </nav>
-
-        <a href={BRAND.whatsapp} target="_blank" rel="noreferrer" data-cursor="active" className="hidden rounded-full bg-[#c7a15a] px-5 py-2.5 text-xs font-semibold text-[#080807] transition hover:bg-[#f4efe7] md:inline-flex">
-          Vamos conversar
-        </a>
-
-        <button onClick={() => setOpen(!open)} className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 p-2 md:hidden" aria-label="Abrir menu">
-          <Icon name={open ? 'close' : 'menu'} className="h-5 w-5" />
-        </button>
-      </div>
-
-      {open && (
-        <div className="border-t border-[#f4efe7]/10 bg-[#080807] px-5 py-4 md:hidden">
-          {nav.map(([label, href]) => (
-            <a key={href} href={href} onClick={() => setOpen(false)} className="mb-2 block rounded-2xl bg-[#f4efe7]/5 px-4 py-3 text-sm font-semibold text-[#f4efe7]">
-              {label}
-            </a>
-          ))}
-        </div>
-      )}
-    </header>
-  )
+  return <header className="fixed left-0 right-0 top-0 z-50 border-b border-[#f4efe7]/10 bg-[#050505]/55 backdrop-blur-2xl"><div className="mx-auto flex max-w-[1500px] items-center justify-between px-5 py-4 lg:px-8"><a href="#top" className="flex items-center gap-3" data-cursor="active"><BrandMark /><div><p className="text-sm font-semibold text-[#f4efe7]">{BRAND.name}</p><p className="mt-1 text-[10px] uppercase tracking-[0.26em] text-[#a89f91]">{BRAND.signature}</p></div></a><nav className="hidden items-center gap-1 rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 p-1 md:flex">{nav.map(([label, href]) => <a key={href} href={href} data-cursor="active" className="rounded-full px-4 py-2 text-xs font-semibold text-[#a89f91] transition hover:bg-[#c7a15a]/10 hover:text-[#f4efe7]">{label}</a>)}</nav><a href={BRAND.whatsapp} target="_blank" rel="noreferrer" data-cursor="active" className="hidden rounded-full bg-[#c7a15a] px-5 py-2.5 text-xs font-semibold text-[#080807] transition hover:bg-[#f4efe7] md:inline-flex">Vamos conversar</a><button onClick={() => setOpen(!open)} className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 p-2 md:hidden" aria-label="Abrir menu"><Icon name={open ? 'close' : 'menu'} className="h-5 w-5" /></button></div>{open && <div className="border-t border-[#f4efe7]/10 bg-[#080807] px-5 py-4 md:hidden">{nav.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)} className="mb-2 block rounded-2xl bg-[#f4efe7]/5 px-4 py-3 text-sm font-semibold text-[#f4efe7]">{label}</a>)}</div>}</header>
 }
 
 function Atmosphere() {
-  return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050505]">
-      <div className="absolute inset-0 bg-[linear-gradient(120deg,#050505_0%,#080706_34%,#11100d_58%,#050505_100%)]" />
-      <motion.div
-        className="absolute -right-[18vw] -top-[22vh] h-[72vh] w-[72vw] rounded-full bg-[#c7a15a]/[0.052] blur-[130px]"
-        animate={{ opacity: [0.34, 0.62, 0.34], scale: [1, 1.055, 1], x: [0, -18, 0] }}
-        transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="absolute -bottom-[24vh] -left-[20vw] h-[78vh] w-[62vw] rounded-full bg-[#9b5e32]/[0.058] blur-[150px]"
-        animate={{ opacity: [0.25, 0.48, 0.25], scale: [1.03, 1, 1.03], x: [0, 20, 0] }}
-        transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(244,239,231,.04),transparent_32%),radial-gradient(circle_at_78%_28%,rgba(199,161,90,.06),transparent_30%),radial-gradient(circle_at_18%_88%,rgba(155,94,50,.05),transparent_34%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,.30)_42%,rgba(0,0,0,.86)_100%)]" />
-      <div className="absolute inset-0 opacity-[0.055] [background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.20)_0px,rgba(255,255,255,.20)_1px,transparent_1px,transparent_7px)]" />
-      <div className="absolute inset-0 opacity-[0.026] [background-image:linear-gradient(115deg,transparent_0%,rgba(244,239,231,.12)_48%,transparent_52%)]" />
-    </div>
-  )
+  return <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050505]"><div className="absolute inset-0 bg-[linear-gradient(120deg,#050505_0%,#080706_34%,#11100d_58%,#050505_100%)]" /><motion.div className="absolute -right-[18vw] -top-[22vh] h-[72vh] w-[72vw] rounded-full bg-[#c7a15a]/[0.052] blur-[130px]" animate={{ opacity: [0.34, 0.62, 0.34], scale: [1, 1.055, 1], x: [0, -18, 0] }} transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }} /><motion.div className="absolute -bottom-[24vh] -left-[20vw] h-[78vh] w-[62vw] rounded-full bg-[#9b5e32]/[0.058] blur-[150px]" animate={{ opacity: [0.25, 0.48, 0.25], scale: [1.03, 1, 1.03], x: [0, 20, 0] }} transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }} /><div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,.30)_42%,rgba(0,0,0,.86)_100%)]" /><div className="absolute inset-0 opacity-[0.055] [background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.20)_0px,rgba(255,255,255,.20)_1px,transparent_1px,transparent_7px)]" /></div>
 }
 
-function HeroPortrait({ y, scale, opacity }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 1.04, x: 80 }}
-      animate={{ opacity: 1, scale: 1, x: 0 }}
-      transition={{ duration: 1.25, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-      className="pointer-events-none absolute inset-y-0 right-0 hidden w-[58vw] overflow-hidden lg:block"
-    >
-      <div className="absolute inset-0 bg-[#050505]" />
-      <motion.img
-        src="/forge-portrait.jpg"
-        alt="Maurício Júnior em composição cinematográfica"
-        style={{ y, scale, opacity }}
-        className="absolute inset-0 h-[112%] w-full object-cover object-[48%_40%] saturate-[.68] contrast-[1.17] brightness-[.64] sepia-[.16]"
-        onError={(event) => {
-          event.currentTarget.style.display = 'none'
-        }}
-      />
-      <motion.div style={{ opacity }} className="absolute inset-0 bg-[linear-gradient(90deg,#050505_0%,rgba(5,5,5,.90)_20%,rgba(5,5,5,.28)_54%,rgba(5,5,5,.76)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_58%_24%,rgba(199,161,90,.18),transparent_29%),linear-gradient(180deg,rgba(5,5,5,.08),rgba(5,5,5,.96))]" />
-      <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#050505] to-transparent" />
-    </motion.div>
-  )
+function HeroPortrait({ y, scale, opacity, blur }) {
+  return <motion.div initial={{ opacity: 0, scale: 1.04, x: 80 }} animate={{ opacity: 1, scale: 1, x: 0 }} transition={{ duration: 1.25, delay: 0.25, ease: [0.16, 1, 0.3, 1] }} className="pointer-events-none absolute inset-y-0 right-0 hidden w-[58vw] overflow-hidden lg:block"><div className="absolute inset-0 bg-[#050505]" /><motion.img src="/forge-portrait.jpg" alt="Maurício Júnior em composição cinematográfica" style={{ y, scale, opacity, filter: blur }} className="absolute inset-0 h-[112%] w-full object-cover object-[48%_40%] saturate-[.68] contrast-[1.17] brightness-[.64] sepia-[.16]" onError={(event) => { event.currentTarget.style.display = 'none' }} /><motion.div style={{ opacity }} className="absolute inset-0 bg-[linear-gradient(90deg,#050505_0%,rgba(5,5,5,.90)_20%,rgba(5,5,5,.28)_54%,rgba(5,5,5,.76)_100%)]" /><div className="absolute inset-0 bg-[radial-gradient(circle_at_58%_24%,rgba(199,161,90,.18),transparent_29%),linear-gradient(180deg,rgba(5,5,5,.08),rgba(5,5,5,.96))]" /><div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#050505] to-transparent" /></motion.div>
 }
 
 function SectionTitle({ eyebrow, title, text }) {
-  return (
-    <Reveal className="mb-16 grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
-      <div>
-        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">{eyebrow}</p>
-        <h2 className="max-w-4xl text-4xl font-semibold leading-[0.98] tracking-[-0.055em] text-[#f4efe7] md:text-6xl">{title}</h2>
-      </div>
-      {text && <p className="max-w-2xl text-lg leading-8 text-[#a89f91]">{text}</p>}
-    </Reveal>
-  )
+  return <Reveal className="mb-16 grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end"><div><p className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">{eyebrow}</p><h2 className="max-w-4xl text-4xl font-semibold leading-[0.98] tracking-[-0.055em] text-[#f4efe7] md:text-6xl">{title}</h2></div>{text && <p className="max-w-2xl text-lg leading-8 text-[#a89f91]">{text}</p>}</Reveal>
 }
 
 function Manifesto() {
-  return (
-    <section id="manifesto" className="relative z-10 mx-auto max-w-[1500px] px-5 py-32 lg:px-8">
-      <Reveal>
-        <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/65 p-8 backdrop-blur-2xl md:p-14 lg:p-20">
-          <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-[#c7a15a]/[0.07] blur-3xl" />
-          <div className="grid gap-14 lg:grid-cols-[.85fr_1.15fr] lg:items-end">
-            <div>
-              <p className="mb-6 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">Manifesto</p>
-              <h2 className="text-5xl font-semibold leading-[.95] tracking-[-0.07em] text-[#f4efe7] md:text-7xl">O site não deve gritar. Deve conduzir.</h2>
-            </div>
-            <div>
-              <p className="text-xl leading-9 text-[#a89f91]">O Forge nasce da ideia de que uma boa interface tem ritmo: silêncio, tensão, respiro, impacto e clareza. Menos efeito genérico. Mais direção criativa.</p>
-              <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-5">
-                {principles.map((item) => (
-                  <div key={item} className="rounded-2xl border border-[#f4efe7]/10 bg-[#050505]/60 px-4 py-5 text-center text-sm font-semibold text-[#d8d0c3]">{item}</div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </Reveal>
-    </section>
-  )
+  return <section id="manifesto" className="relative z-10 -mt-24 mx-auto max-w-[1500px] px-5 pb-32 lg:px-8"><Reveal><div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/75 p-8 shadow-[0_-60px_160px_rgba(5,5,5,.85)] backdrop-blur-2xl md:p-14 lg:p-20"><div className="grid gap-14 lg:grid-cols-[.85fr_1.15fr] lg:items-end"><div><p className="mb-6 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">Manifesto</p><h2 className="text-5xl font-semibold leading-[.95] tracking-[-0.07em] text-[#f4efe7] md:text-7xl">O site não deve gritar. Deve conduzir.</h2></div><div><p className="text-xl leading-9 text-[#a89f91]">O Forge nasce da ideia de que uma boa interface tem ritmo: silêncio, tensão, respiro, impacto e clareza. Menos efeito genérico. Mais direção criativa.</p><div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-5">{principles.map((item) => <div key={item} className="rounded-2xl border border-[#f4efe7]/10 bg-[#050505]/60 px-4 py-5 text-center text-sm font-semibold text-[#d8d0c3]">{item}</div>)}</div></div></div></div></Reveal></section>
 }
 
 function JourneyScene() {
-  return (
-    <section id="journey" className="relative z-10 mx-auto max-w-[1500px] px-5 py-32 lg:px-8">
-      <SectionTitle eyebrow="Journey" title="Uma trajetória em movimento." text="Agora a evolução vira cena: cada marco tem peso, ritmo e direção — não só cards empilhados." />
-      <Reveal>
-        <div className="relative overflow-hidden rounded-[3.2rem] border border-[#f4efe7]/10 bg-[#070706]/75 p-6 shadow-[0_50px_180px_rgba(0,0,0,.45)] backdrop-blur-2xl md:p-10 lg:p-14">
-          <div className="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-[#c7a15a]/[0.055] blur-[90px]" />
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#c7a15a]/40 to-transparent" />
-          <div className="hidden overflow-x-auto pb-4 lg:block">
-            <div className="relative flex min-w-[1220px] gap-5">
-              <div className="absolute left-8 right-8 top-[142px] h-px bg-gradient-to-r from-transparent via-[#c7a15a]/35 to-transparent" />
-              {milestones.map(([number, time, text], index) => (
-                <motion.article
-                  key={time}
-                  initial={{ opacity: 0, y: 55, filter: 'blur(16px)' }}
-                  whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                  viewport={{ once: true, margin: '-80px' }}
-                  transition={{ duration: 1, delay: index * 0.09, ease: [0.16, 1, 0.3, 1] }}
-                  data-cursor="active"
-                  className="group relative min-h-[520px] flex-1 rounded-[2.4rem] border border-[#f4efe7]/10 bg-[#0c0b09]/70 p-8 transition duration-500 hover:-translate-y-3 hover:border-[#c7a15a]/45 hover:bg-[#12100c]/90"
-                >
-                  <span className="absolute left-8 top-[132px] h-5 w-5 rounded-full border border-[#c7a15a]/70 bg-[#050505] shadow-[0_0_36px_rgba(199,161,90,.28)]" />
-                  <p className="text-[7rem] font-semibold leading-none tracking-[-.12em] text-[#c7a15a]/16 transition group-hover:text-[#c7a15a]/26">{number}</p>
-                  <p className="mt-20 text-xs font-semibold uppercase tracking-[.32em] text-[#c7a15a]">{time}</p>
-                  <p className="mt-5 text-base leading-8 text-[#a89f91]">{text}</p>
-                </motion.article>
-              ))}
-            </div>
-          </div>
-          <div className="grid gap-4 lg:hidden">
-            {milestones.map(([number, time, text], index) => (
-              <Reveal key={time} delay={index * 0.06}>
-                <div className="rounded-[2rem] border border-[#f4efe7]/10 bg-[#0c0b09]/80 p-6">
-                  <p className="text-5xl font-semibold tracking-[-.08em] text-[#c7a15a]/25">{number}</p>
-                  <p className="mt-8 text-xs font-semibold uppercase tracking-[.28em] text-[#c7a15a]">{time}</p>
-                  <p className="mt-4 text-sm leading-7 text-[#a89f91]">{text}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </Reveal>
-    </section>
-  )
+  const scene = useRef(null)
+  const { scrollYProgress } = useScroll({ target: scene, offset: ['start start', 'end end'] })
+  const x = useTransform(scrollYProgress, [0, 1], ['0%', '-55%'])
+  const titleY = useTransform(scrollYProgress, [0, 1], [0, -70])
+  const bgScale = useTransform(scrollYProgress, [0, 1], [0.92, 1.08])
+  return <section id="journey" ref={scene} className="relative z-10 h-[320vh] px-5 lg:px-8"><div className="sticky top-0 flex h-screen items-center overflow-hidden py-24"><motion.div style={{ scale: bgScale }} className="absolute inset-0 rounded-[4rem] bg-[radial-gradient(circle_at_70%_30%,rgba(199,161,90,.10),transparent_34%),linear-gradient(120deg,rgba(12,11,9,.92),rgba(5,5,5,.72))]" /><div className="relative mx-auto w-full max-w-[1500px]"><motion.div style={{ y: titleY }} className="mb-12 max-w-4xl"><p className="mb-5 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">Journey / spatial timeline</p><h2 className="text-5xl font-semibold leading-[.92] tracking-[-.07em] text-[#f4efe7] md:text-7xl">A jornada atravessa a tela.</h2><p className="mt-6 max-w-2xl text-lg leading-8 text-[#a89f91]">Você ainda rola para baixo, mas a experiência se move lateralmente — como câmera atravessando uma galeria.</p></motion.div><div className="relative hidden h-[460px] overflow-visible lg:block"><div className="absolute left-0 right-0 top-[145px] h-px bg-gradient-to-r from-transparent via-[#c7a15a]/45 to-transparent" /><motion.div style={{ x }} className="flex w-[2200px] gap-6">{milestones.map(([number, time, text], index) => <motion.article key={time} initial={{ opacity: 0, y: 70, filter: 'blur(18px)' }} whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }} viewport={{ once: true }} transition={{ duration: 1.05, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }} data-cursor="active" className="group relative h-[430px] w-[390px] shrink-0 rounded-[2.4rem] border border-[#f4efe7]/10 bg-[#0c0b09]/80 p-8 shadow-[0_40px_140px_rgba(0,0,0,.42)] backdrop-blur-2xl transition duration-500 hover:-translate-y-3 hover:border-[#c7a15a]/45 hover:bg-[#12100c]/90"><span className="absolute left-8 top-[136px] h-5 w-5 rounded-full border border-[#c7a15a]/70 bg-[#050505] shadow-[0_0_36px_rgba(199,161,90,.28)]" /><p className="text-[7rem] font-semibold leading-none tracking-[-.12em] text-[#c7a15a]/16 transition group-hover:text-[#c7a15a]/28">{number}</p><p className="mt-20 text-xs font-semibold uppercase tracking-[.32em] text-[#c7a15a]">{time}</p><p className="mt-5 text-base leading-8 text-[#a89f91]">{text}</p></motion.article>)}</motion.div></div><div className="grid gap-4 lg:hidden">{milestones.map(([number, time, text], index) => <Reveal key={time} delay={index * 0.06}><div className="rounded-[2rem] border border-[#f4efe7]/10 bg-[#0c0b09]/80 p-6"><p className="text-5xl font-semibold tracking-[-.08em] text-[#c7a15a]/25">{number}</p><p className="mt-8 text-xs font-semibold uppercase tracking-[.28em] text-[#c7a15a]">{time}</p><p className="mt-4 text-sm leading-7 text-[#a89f91]">{text}</p></div></Reveal>)}</div></div></div></section>
 }
 
 export default function App() {
   const hero = useRef(null)
-  const { scrollYProgress } = useScroll({ target: hero, offset: ['start start', 'end start'] })
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 130])
-  const heroTextY = useTransform(scrollYProgress, [0, 1], [0, 105])
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.82], [1, 0])
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.96])
-  const portraitY = useTransform(scrollYProgress, [0, 1], [-45, 90])
-  const portraitScale = useTransform(scrollYProgress, [0, 1], [1.08, 1])
-  const portraitOpacity = useTransform(scrollYProgress, [0, 0.76], [0.88, 0])
+  const { scrollYProgress } = useScroll({ target: hero, offset: ['start start', 'end end'] })
+  const heroTextY = useTransform(scrollYProgress, [0, 1], [0, -160])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.72], [1, 0])
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.88])
+  const portraitY = useTransform(scrollYProgress, [0, 1], [-70, 95])
+  const portraitScale = useTransform(scrollYProgress, [0, 1], [1.14, 1])
+  const portraitOpacity = useTransform(scrollYProgress, [0, 0.78], [0.9, 0])
+  const portraitBlur = useTransform(scrollYProgress, [0, 0.85], ['blur(0px)', 'blur(16px)'])
+  const emergingScale = useTransform(scrollYProgress, [0, 1], [0.72, 1.18])
+  const emergingOpacity = useTransform(scrollYProgress, [0.1, 0.8], [0, 0.42])
 
-  return (
-    <main id="top" className="min-h-screen overflow-hidden bg-[#050505] text-[#f4efe7] antialiased md:cursor-none">
-      <Atmosphere />
-      <GravityCursor />
-      <Header />
-
-      <section ref={hero} className="relative z-10 min-h-screen overflow-hidden px-5 pt-28 lg:px-8">
-        <HeroPortrait y={portraitY} scale={portraitScale} opacity={portraitOpacity} />
-        <motion.div style={{ y: heroY, opacity: heroOpacity, scale: heroScale }} className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[#050505]" />
-        <motion.div style={{ y: heroTextY, opacity: heroOpacity, scale: heroScale }} className="relative z-10 mx-auto flex min-h-[calc(100vh-7rem)] max-w-[1500px] items-center">
-          <div className="max-w-[880px] py-24">
-            <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.85 }} className="mb-7 text-xs font-semibold uppercase tracking-[0.45em] text-[#c7a15a]">
-              MJR Forge — Cinematic Front-end Experience
-            </motion.p>
-            <motion.h1 initial={{ opacity: 0, y: 34, filter: 'blur(12px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: 1.05, delay: 0.08, ease: [0.16, 1, 0.3, 1] }} className="text-[14vw] font-semibold leading-[.82] tracking-[-.10em] text-[#f4efe7] sm:text-[6.7rem] lg:text-[8.4rem]">
-              Interfaces with presence.
-            </motion.h1>
-            <motion.p initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.2 }} className="mt-8 max-w-2xl text-lg leading-9 text-[#d8d0c3] md:text-xl">
-              Sou Maurício Júnior. Desenvolvedor Front-end React em formação, criando landing pages, dashboards e experiências web com estética, produto, narrativa visual e entrega real.
-            </motion.p>
-            <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.32 }} className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <Button href="#work">Explorar projetos</Button>
-              <Button href={BRAND.whatsapp} secondary>Falar comigo</Button>
-            </motion.div>
-          </div>
-        </motion.div>
-      </section>
-
-      <Manifesto />
-      <JourneyScene />
-
-      <section id="work" className="relative z-10 mx-auto max-w-[1500px] px-5 py-32 lg:px-8">
-        <SectionTitle eyebrow="Selected Work" title="Projetos como peças editoriais." text="Cada projeto precisa explicar contexto, intenção e resultado — não apenas mostrar uma tela bonita." />
-        <div className="grid gap-6">
-          {projects.map((project, index) => (
-            <Reveal key={project.title} delay={index * 0.08}>
-              <motion.article whileHover={{ y: -6 }} data-cursor="active" className="overflow-hidden rounded-[2.8rem] border border-[#f4efe7]/10 bg-[#0b0a08]/70 p-4 shadow-[0_40px_140px_rgba(0,0,0,.45)] backdrop-blur-2xl">
-                <div className="grid gap-8 rounded-[2.4rem] bg-gradient-to-br from-[#f4efe7]/[0.035] via-transparent to-[#c7a15a]/[0.035] p-7 md:p-10 lg:grid-cols-[0.7fr_0.95fr_0.7fr] lg:items-center">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#c7a15a]">{project.label}</p>
-                    <h3 className="mt-4 text-5xl font-semibold tracking-[-0.06em] text-[#f4efe7] md:text-6xl">{project.title}</h3>
-                  </div>
-                  <div>
-                    <p className="text-lg leading-8 text-[#a89f91]">{project.text}</p>
-                    <div className="mt-6 flex flex-wrap gap-2">
-                      {project.tags.map(tag => <span key={tag} className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 px-3 py-1 text-xs font-semibold text-[#d8d0c3]">{tag}</span>)}
-                    </div>
-                    {(project.demo || project.repo) && (
-                      <div className="mt-7 flex flex-wrap gap-3">
-                        {project.demo && <Button href={project.demo}>Demo</Button>}
-                        {project.repo && <Button href={project.repo} secondary>GitHub</Button>}
-                      </div>
-                    )}
-                  </div>
-                  <ProjectMockup index={index} />
-                </div>
-              </motion.article>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      <section id="processo" className="relative z-10 mx-auto max-w-[1500px] px-5 py-32 lg:px-8">
-        <Reveal>
-          <div className="rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/65 p-8 backdrop-blur-2xl md:p-14 lg:p-20">
-            <p className="mb-6 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">Processo</p>
-            <h2 className="max-w-5xl text-5xl font-semibold leading-[.95] tracking-[-.07em] text-[#f4efe7] md:text-7xl">Do briefing ao refinamento.</h2>
-            <div className="mt-16 grid gap-4 md:grid-cols-5">
-              {['Briefing', 'Direção', 'Build', 'Refino', 'Deploy'].map((item, index) => (
-                <div key={item} className="rounded-[2rem] border border-[#f4efe7]/10 bg-[#050505]/50 p-6">
-                  <p className="mb-10 text-sm font-semibold text-[#c7a15a]">0{index + 1}</p>
-                  <h3 className="text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">{item}</h3>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Reveal>
-      </section>
-
-      <section id="contato" className="relative z-10 mx-auto max-w-6xl px-5 py-32 text-center lg:px-8">
-        <Reveal>
-          <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/70 p-8 backdrop-blur-2xl md:p-16">
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c7a15a] to-transparent" />
-            <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[#c7a15a]/[0.07] blur-3xl" />
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">Final Scene</p>
-            <h2 className="mx-auto mt-6 max-w-4xl text-4xl font-semibold tracking-[-0.06em] text-[#f4efe7] md:text-6xl">Vamos construir algo memorável.</h2>
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[#a89f91]">Aberto para estágio Front-end React, freelas de landing pages, dashboards e experiências digitais premium.</p>
-            <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
-              <Button href={BRAND.whatsapp}>WhatsApp</Button>
-              <Button href={`mailto:${BRAND.email}`} secondary>E-mail</Button>
-              <Button href={BRAND.github} secondary>GitHub</Button>
-            </div>
-          </div>
-        </Reveal>
-      </section>
-
-      <footer className="relative z-10 border-t border-[#f4efe7]/10 px-5 py-8 lg:px-8">
-        <div className="mx-auto flex max-w-[1500px] flex-col gap-4 text-sm text-[#766f65] md:flex-row md:items-center md:justify-between">
-          <p>© 2026 {BRAND.signature} — {BRAND.name}</p>
-          <p>React • UI premium • experiências digitais com intenção</p>
-        </div>
-      </footer>
-    </main>
-  )
+  return <main id="top" className="min-h-screen overflow-hidden bg-[#050505] text-[#f4efe7] antialiased md:cursor-none"><Atmosphere /><GravityCursor /><Header /><section ref={hero} className="relative z-10 h-[190vh] overflow-hidden px-5 lg:px-8"><div className="sticky top-0 h-screen overflow-hidden pt-28"><motion.div style={{ scale: emergingScale, opacity: emergingOpacity }} className="pointer-events-none absolute inset-10 rounded-[4rem] border border-[#f4efe7]/10 bg-[#0b0a08]/40 blur-[2px]" /><HeroPortrait y={portraitY} scale={portraitScale} opacity={portraitOpacity} blur={portraitBlur} /><motion.div style={{ opacity: heroOpacity }} className="pointer-events-none absolute inset-x-0 bottom-0 h-52 bg-gradient-to-b from-transparent to-[#050505]" /><motion.div style={{ y: heroTextY, opacity: heroOpacity, scale: heroScale }} className="relative z-10 mx-auto flex min-h-[calc(100vh-7rem)] max-w-[1500px] items-center"><div className="max-w-[880px] py-24"><motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.85 }} className="mb-7 text-xs font-semibold uppercase tracking-[0.45em] text-[#c7a15a]">MJR Forge — Cinematic Front-end Experience</motion.p><motion.h1 initial={{ opacity: 0, y: 34, filter: 'blur(12px)', scale: 0.92 }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)', scale: 1 }} transition={{ duration: 1.15, delay: 0.08, ease: [0.16, 1, 0.3, 1] }} className="text-[14vw] font-semibold leading-[.82] tracking-[-.10em] text-[#f4efe7] sm:text-[6.7rem] lg:text-[8.4rem]">Interfaces with presence.</motion.h1><motion.p initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.2 }} className="mt-8 max-w-2xl text-lg leading-9 text-[#d8d0c3] md:text-xl">Sou Maurício Júnior. Desenvolvedor Front-end React em formação, criando landing pages, dashboards e experiências web com estética, produto, narrativa visual e entrega real.</motion.p><motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.32 }} className="mt-10 flex flex-col gap-4 sm:flex-row"><Button href="#work">Explorar projetos</Button><Button href={BRAND.whatsapp} secondary>Falar comigo</Button></motion.div></div></motion.div></div></section><Manifesto /><JourneyScene /><section id="work" className="relative z-10 mx-auto max-w-[1500px] px-5 py-32 lg:px-8"><SectionTitle eyebrow="Selected Work" title="Projetos como peças editoriais." text="Cada projeto precisa explicar contexto, intenção e resultado — não apenas mostrar uma tela bonita." /><div className="grid gap-6">{projects.map((project, index) => <Reveal key={project.title} delay={index * 0.08}><motion.article whileHover={{ y: -6 }} data-cursor="active" className="overflow-hidden rounded-[2.8rem] border border-[#f4efe7]/10 bg-[#0b0a08]/70 p-4 shadow-[0_40px_140px_rgba(0,0,0,.45)] backdrop-blur-2xl"><div className="grid gap-8 rounded-[2.4rem] bg-gradient-to-br from-[#f4efe7]/[0.035] via-transparent to-[#c7a15a]/[0.035] p-7 md:p-10 lg:grid-cols-[0.7fr_0.95fr_0.7fr] lg:items-center"><div><p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#c7a15a]">{project.label}</p><h3 className="mt-4 text-5xl font-semibold tracking-[-0.06em] text-[#f4efe7] md:text-6xl">{project.title}</h3></div><div><p className="text-lg leading-8 text-[#a89f91]">{project.text}</p><div className="mt-6 flex flex-wrap gap-2">{project.tags.map(tag => <span key={tag} className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 px-3 py-1 text-xs font-semibold text-[#d8d0c3]">{tag}</span>)}</div>{(project.demo || project.repo) && <div className="mt-7 flex flex-wrap gap-3">{project.demo && <Button href={project.demo}>Demo</Button>}{project.repo && <Button href={project.repo} secondary>GitHub</Button>}</div>}</div><ProjectMockup index={index} /></div></motion.article></Reveal>)}</div></section><section id="processo" className="relative z-10 mx-auto max-w-[1500px] px-5 py-32 lg:px-8"><Reveal><div className="rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/65 p-8 backdrop-blur-2xl md:p-14 lg:p-20"><p className="mb-6 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">Processo</p><h2 className="max-w-5xl text-5xl font-semibold leading-[.95] tracking-[-.07em] text-[#f4efe7] md:text-7xl">Do briefing ao refinamento.</h2><div className="mt-16 grid gap-4 md:grid-cols-5">{['Briefing', 'Direção', 'Build', 'Refino', 'Deploy'].map((item, index) => <div key={item} className="rounded-[2rem] border border-[#f4efe7]/10 bg-[#050505]/50 p-6"><p className="mb-10 text-sm font-semibold text-[#c7a15a]">0{index + 1}</p><h3 className="text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">{item}</h3></div>)}</div></div></Reveal></section><section id="contato" className="relative z-10 mx-auto max-w-6xl px-5 py-32 text-center lg:px-8"><Reveal><div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/70 p-8 backdrop-blur-2xl md:p-16"><div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c7a15a] to-transparent" /><p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">Final Scene</p><h2 className="mx-auto mt-6 max-w-4xl text-4xl font-semibold tracking-[-0.06em] text-[#f4efe7] md:text-6xl">Vamos construir algo memorável.</h2><p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[#a89f91]">Aberto para estágio Front-end React, freelas de landing pages, dashboards e experiências digitais premium.</p><div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row"><Button href={BRAND.whatsapp}>WhatsApp</Button><Button href={`mailto:${BRAND.email}`} secondary>E-mail</Button><Button href={BRAND.github} secondary>GitHub</Button></div></div></Reveal></section><footer className="relative z-10 border-t border-[#f4efe7]/10 px-5 py-8 lg:px-8"><div className="mx-auto flex max-w-[1500px] flex-col gap-4 text-sm text-[#766f65] md:flex-row md:items-center md:justify-between"><p>© 2026 {BRAND.signature} — {BRAND.name}</p><p>React • UI premium • experiências digitais com intenção</p></div></footer></main>
 }
