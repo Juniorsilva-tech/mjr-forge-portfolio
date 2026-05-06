@@ -85,10 +85,10 @@ function Button({ href, children, secondary = false }) {
 function Reveal({ children, delay = 0, className = '' }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 34, filter: 'blur(10px)' }}
+      initial={{ opacity: 0, y: 42, filter: 'blur(14px)' }}
       whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      viewport={{ once: true, margin: '-90px' }}
-      transition={{ duration: 0.9, delay, ease: [0.16, 1, 0.3, 1] }}
+      viewport={{ once: true, margin: '-110px' }}
+      transition={{ duration: 1.05, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
       {children}
@@ -100,7 +100,7 @@ function Header() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="fixed left-0 right-0 top-0 z-50 border-b border-[#f4efe7]/10 bg-[#080807]/55 backdrop-blur-2xl">
+    <header className="fixed left-0 right-0 top-0 z-50 border-b border-[#f4efe7]/10 bg-[#050505]/55 backdrop-blur-2xl">
       <div className="mx-auto flex max-w-[1500px] items-center justify-between px-5 py-4 lg:px-8">
         <a href="#top" className="flex items-center gap-3" data-cursor="active">
           <BrandMark />
@@ -142,38 +142,47 @@ function Header() {
 
 function Atmosphere() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#080807]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_20%,rgba(199,161,90,.20),transparent_34%),radial-gradient(circle_at_8%_82%,rgba(155,94,50,.18),transparent_30%),linear-gradient(180deg,#080807_0%,#11110f_45%,#080807_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,.78)_85%)]" />
-      <div className="absolute inset-0 opacity-[0.045] [background-image:linear-gradient(rgba(244,239,231,.9)_1px,transparent_1px),linear-gradient(90deg,rgba(244,239,231,.9)_1px,transparent_1px)] [background-size:110px_110px]" />
-      <div className="absolute inset-0 opacity-[0.08] [background-image:repeating-linear-gradient(0deg,rgba(244,239,231,.35)_0px,rgba(244,239,231,.35)_1px,transparent_1px,transparent_5px)]" />
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050505]">
+      <div className="absolute inset-0 bg-[linear-gradient(120deg,#050505_0%,#080706_34%,#11100d_58%,#050505_100%)]" />
+      <motion.div
+        className="absolute -right-[18vw] -top-[22vh] h-[72vh] w-[72vw] rounded-full bg-[#c7a15a]/[0.052] blur-[130px]"
+        animate={{ opacity: [0.34, 0.62, 0.34], scale: [1, 1.055, 1], x: [0, -18, 0] }}
+        transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute -bottom-[24vh] -left-[20vw] h-[78vh] w-[62vw] rounded-full bg-[#9b5e32]/[0.058] blur-[150px]"
+        animate={{ opacity: [0.25, 0.48, 0.25], scale: [1.03, 1, 1.03], x: [0, 20, 0] }}
+        transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(244,239,231,.04),transparent_32%),radial-gradient(circle_at_78%_28%,rgba(199,161,90,.06),transparent_30%),radial-gradient(circle_at_18%_88%,rgba(155,94,50,.05),transparent_34%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,.30)_42%,rgba(0,0,0,.86)_100%)]" />
+      <div className="absolute inset-0 opacity-[0.055] [background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.20)_0px,rgba(255,255,255,.20)_1px,transparent_1px,transparent_7px)]" />
+      <div className="absolute inset-0 opacity-[0.026] [background-image:linear-gradient(115deg,transparent_0%,rgba(244,239,231,.12)_48%,transparent_52%)]" />
     </div>
   )
 }
 
-function HeroPortrait() {
+function HeroPortrait({ y, scale, opacity }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 1.04, x: 80 }}
       animate={{ opacity: 1, scale: 1, x: 0 }}
-      transition={{ duration: 1.2, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 1.25, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
       className="pointer-events-none absolute inset-y-0 right-0 hidden w-[58vw] overflow-hidden lg:block"
     >
-      <div className="absolute inset-0 bg-[#080807]" />
-      <img
+      <div className="absolute inset-0 bg-[#050505]" />
+      <motion.img
         src="/forge-portrait.jpg"
         alt="Maurício Júnior em composição cinematográfica"
-        className="absolute inset-0 h-full w-full object-cover object-[48%_42%] opacity-80 saturate-[.72] contrast-[1.12] brightness-[.68] sepia-[.16]"
+        style={{ y, scale, opacity }}
+        className="absolute inset-0 h-[112%] w-full object-cover object-[48%_40%] saturate-[.68] contrast-[1.17] brightness-[.64] sepia-[.16]"
         onError={(event) => {
           event.currentTarget.style.display = 'none'
         }}
       />
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,#080807_0%,rgba(8,8,7,.82)_18%,rgba(8,8,7,.20)_52%,rgba(8,8,7,.65)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_58%_24%,rgba(199,161,90,.28),transparent_30%),linear-gradient(180deg,rgba(8,8,7,.12),rgba(8,8,7,.92))]" />
-      <div className="absolute bottom-20 right-20 rounded-[2rem] border border-[#f4efe7]/10 bg-[#080807]/45 p-5 backdrop-blur-xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#c7a15a]">Human Presence</p>
-        <p className="mt-3 max-w-xs text-sm leading-6 text-[#d8d0c3]">Foto real tratada como frame editorial: sombra, textura, luz e direção.</p>
-      </div>
+      <motion.div style={{ opacity }} className="absolute inset-0 bg-[linear-gradient(90deg,#050505_0%,rgba(5,5,5,.90)_20%,rgba(5,5,5,.28)_54%,rgba(5,5,5,.76)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_58%_24%,rgba(199,161,90,.18),transparent_29%),linear-gradient(180deg,rgba(5,5,5,.08),rgba(5,5,5,.96))]" />
+      <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#050505] to-transparent" />
     </motion.div>
   )
 }
@@ -194,8 +203,8 @@ function Manifesto() {
   return (
     <section id="manifesto" className="relative z-10 mx-auto max-w-[1500px] px-5 py-32 lg:px-8">
       <Reveal>
-        <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#11110f]/55 p-8 backdrop-blur-2xl md:p-14 lg:p-20">
-          <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-[#c7a15a]/10 blur-3xl" />
+        <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/65 p-8 backdrop-blur-2xl md:p-14 lg:p-20">
+          <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-[#c7a15a]/[0.07] blur-3xl" />
           <div className="grid gap-14 lg:grid-cols-[.85fr_1.15fr] lg:items-end">
             <div>
               <p className="mb-6 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">Manifesto</p>
@@ -205,7 +214,7 @@ function Manifesto() {
               <p className="text-xl leading-9 text-[#a89f91]">O Forge nasce da ideia de que uma boa interface tem ritmo: silêncio, tensão, respiro, impacto e clareza. Menos efeito genérico. Mais direção criativa.</p>
               <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-5">
                 {principles.map((item) => (
-                  <div key={item} className="rounded-2xl border border-[#f4efe7]/10 bg-[#080807]/55 px-4 py-5 text-center text-sm font-semibold text-[#d8d0c3]">{item}</div>
+                  <div key={item} className="rounded-2xl border border-[#f4efe7]/10 bg-[#050505]/60 px-4 py-5 text-center text-sm font-semibold text-[#d8d0c3]">{item}</div>
                 ))}
               </div>
             </div>
@@ -219,30 +228,35 @@ function Manifesto() {
 export default function App() {
   const hero = useRef(null)
   const { scrollYProgress } = useScroll({ target: hero, offset: ['start start', 'end start'] })
-  const y = useTransform(scrollYProgress, [0, 1], [0, 120])
-  const opacity = useTransform(scrollYProgress, [0, 0.85], [1, 0])
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.96])
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 130])
+  const heroTextY = useTransform(scrollYProgress, [0, 1], [0, 105])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.82], [1, 0])
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.96])
+  const portraitY = useTransform(scrollYProgress, [0, 1], [-45, 90])
+  const portraitScale = useTransform(scrollYProgress, [0, 1], [1.08, 1])
+  const portraitOpacity = useTransform(scrollYProgress, [0, 0.76], [0.88, 0])
 
   return (
-    <main id="top" className="min-h-screen overflow-hidden bg-[#080807] text-[#f4efe7] antialiased md:cursor-none">
+    <main id="top" className="min-h-screen overflow-hidden bg-[#050505] text-[#f4efe7] antialiased md:cursor-none">
       <Atmosphere />
       <GravityCursor />
       <Header />
 
       <section ref={hero} className="relative z-10 min-h-screen overflow-hidden px-5 pt-28 lg:px-8">
-        <HeroPortrait />
-        <motion.div style={{ y, opacity, scale }} className="relative z-10 mx-auto flex min-h-[calc(100vh-7rem)] max-w-[1500px] items-center">
+        <HeroPortrait y={portraitY} scale={portraitScale} opacity={portraitOpacity} />
+        <motion.div style={{ y: heroY, opacity: heroOpacity, scale: heroScale }} className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[#050505]" />
+        <motion.div style={{ y: heroTextY, opacity: heroOpacity, scale: heroScale }} className="relative z-10 mx-auto flex min-h-[calc(100vh-7rem)] max-w-[1500px] items-center">
           <div className="max-w-[880px] py-24">
-            <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="mb-7 text-xs font-semibold uppercase tracking-[0.45em] text-[#c7a15a]">
+            <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.85 }} className="mb-7 text-xs font-semibold uppercase tracking-[0.45em] text-[#c7a15a]">
               MJR Forge — Cinematic Front-end Experience
             </motion.p>
-            <motion.h1 initial={{ opacity: 0, y: 34 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.08 }} className="text-[14vw] font-semibold leading-[.82] tracking-[-.10em] text-[#f4efe7] sm:text-[6.7rem] lg:text-[8.4rem]">
+            <motion.h1 initial={{ opacity: 0, y: 34, filter: 'blur(12px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: 1.05, delay: 0.08, ease: [0.16, 1, 0.3, 1] }} className="text-[14vw] font-semibold leading-[.82] tracking-[-.10em] text-[#f4efe7] sm:text-[6.7rem] lg:text-[8.4rem]">
               Interfaces with presence.
             </motion.h1>
-            <motion.p initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.95, delay: 0.18 }} className="mt-8 max-w-2xl text-lg leading-9 text-[#d8d0c3] md:text-xl">
+            <motion.p initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.2 }} className="mt-8 max-w-2xl text-lg leading-9 text-[#d8d0c3] md:text-xl">
               Sou Maurício Júnior. Desenvolvedor Front-end React em formação, criando landing pages, dashboards e experiências web com estética, produto, narrativa visual e entrega real.
             </motion.p>
-            <motion.div initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.95, delay: 0.28 }} className="mt-10 flex flex-col gap-4 sm:flex-row">
+            <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.32 }} className="mt-10 flex flex-col gap-4 sm:flex-row">
               <Button href="#work">Explorar projetos</Button>
               <Button href={BRAND.whatsapp} secondary>Falar comigo</Button>
             </motion.div>
@@ -257,7 +271,7 @@ export default function App() {
         <div className="grid gap-5 lg:grid-cols-5">
           {milestones.map(([number, time, text], index) => (
             <Reveal key={time} delay={index * 0.07}>
-              <div className="group h-full min-h-[360px] rounded-[2.4rem] border border-[#f4efe7]/10 bg-[#11110f]/65 p-7 backdrop-blur-xl transition duration-500 hover:-translate-y-2 hover:border-[#c7a15a]/40 hover:bg-[#171612]/85">
+              <div className="group h-full min-h-[360px] rounded-[2.4rem] border border-[#f4efe7]/10 bg-[#0b0a08]/70 p-7 backdrop-blur-xl transition duration-500 hover:-translate-y-2 hover:border-[#c7a15a]/40 hover:bg-[#12100c]/85">
                 <p className="text-7xl font-semibold tracking-[-.08em] text-[#c7a15a]/25">{number}</p>
                 <p className="mt-16 text-xs font-semibold uppercase tracking-[.28em] text-[#c7a15a]">{time}</p>
                 <p className="mt-5 text-base leading-8 text-[#a89f91]">{text}</p>
@@ -272,8 +286,8 @@ export default function App() {
         <div className="grid gap-6">
           {projects.map((project, index) => (
             <Reveal key={project.title} delay={index * 0.08}>
-              <motion.article whileHover={{ y: -6 }} data-cursor="active" className="overflow-hidden rounded-[2.8rem] border border-[#f4efe7]/10 bg-[#11110f]/70 p-4 shadow-[0_40px_140px_rgba(0,0,0,.45)] backdrop-blur-2xl">
-                <div className="grid gap-8 rounded-[2.4rem] bg-gradient-to-br from-[#f4efe7]/[0.045] via-transparent to-[#c7a15a]/[0.06] p-7 md:p-10 lg:grid-cols-[0.7fr_0.95fr_0.7fr] lg:items-center">
+              <motion.article whileHover={{ y: -6 }} data-cursor="active" className="overflow-hidden rounded-[2.8rem] border border-[#f4efe7]/10 bg-[#0b0a08]/70 p-4 shadow-[0_40px_140px_rgba(0,0,0,.45)] backdrop-blur-2xl">
+                <div className="grid gap-8 rounded-[2.4rem] bg-gradient-to-br from-[#f4efe7]/[0.035] via-transparent to-[#c7a15a]/[0.035] p-7 md:p-10 lg:grid-cols-[0.7fr_0.95fr_0.7fr] lg:items-center">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#c7a15a]">{project.label}</p>
                     <h3 className="mt-4 text-5xl font-semibold tracking-[-0.06em] text-[#f4efe7] md:text-6xl">{project.title}</h3>
@@ -300,12 +314,12 @@ export default function App() {
 
       <section id="processo" className="relative z-10 mx-auto max-w-[1500px] px-5 py-32 lg:px-8">
         <Reveal>
-          <div className="rounded-[3rem] border border-[#f4efe7]/10 bg-[#11110f]/60 p-8 backdrop-blur-2xl md:p-14 lg:p-20">
+          <div className="rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/65 p-8 backdrop-blur-2xl md:p-14 lg:p-20">
             <p className="mb-6 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">Processo</p>
             <h2 className="max-w-5xl text-5xl font-semibold leading-[.95] tracking-[-.07em] text-[#f4efe7] md:text-7xl">Do briefing ao refinamento.</h2>
             <div className="mt-16 grid gap-4 md:grid-cols-5">
               {['Briefing', 'Direção', 'Build', 'Refino', 'Deploy'].map((item, index) => (
-                <div key={item} className="rounded-[2rem] border border-[#f4efe7]/10 bg-[#080807]/50 p-6">
+                <div key={item} className="rounded-[2rem] border border-[#f4efe7]/10 bg-[#050505]/50 p-6">
                   <p className="mb-10 text-sm font-semibold text-[#c7a15a]">0{index + 1}</p>
                   <h3 className="text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">{item}</h3>
                 </div>
@@ -317,9 +331,9 @@ export default function App() {
 
       <section id="contato" className="relative z-10 mx-auto max-w-6xl px-5 py-32 text-center lg:px-8">
         <Reveal>
-          <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#11110f]/70 p-8 backdrop-blur-2xl md:p-16">
+          <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/70 p-8 backdrop-blur-2xl md:p-16">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c7a15a] to-transparent" />
-            <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[#c7a15a]/10 blur-3xl" />
+            <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[#c7a15a]/[0.07] blur-3xl" />
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">Final Scene</p>
             <h2 className="mx-auto mt-6 max-w-4xl text-4xl font-semibold tracking-[-0.06em] text-[#f4efe7] md:text-6xl">Vamos construir algo memorável.</h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[#a89f91]">Aberto para estágio Front-end React, freelas de landing pages, dashboards e experiências digitais premium.</p>
