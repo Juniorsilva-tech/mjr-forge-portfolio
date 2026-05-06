@@ -225,6 +225,52 @@ function Manifesto() {
   )
 }
 
+function JourneyScene() {
+  return (
+    <section id="journey" className="relative z-10 mx-auto max-w-[1500px] px-5 py-32 lg:px-8">
+      <SectionTitle eyebrow="Journey" title="Uma trajetória em movimento." text="Agora a evolução vira cena: cada marco tem peso, ritmo e direção — não só cards empilhados." />
+      <Reveal>
+        <div className="relative overflow-hidden rounded-[3.2rem] border border-[#f4efe7]/10 bg-[#070706]/75 p-6 shadow-[0_50px_180px_rgba(0,0,0,.45)] backdrop-blur-2xl md:p-10 lg:p-14">
+          <div className="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-[#c7a15a]/[0.055] blur-[90px]" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#c7a15a]/40 to-transparent" />
+          <div className="hidden overflow-x-auto pb-4 lg:block">
+            <div className="relative flex min-w-[1220px] gap-5">
+              <div className="absolute left-8 right-8 top-[142px] h-px bg-gradient-to-r from-transparent via-[#c7a15a]/35 to-transparent" />
+              {milestones.map(([number, time, text], index) => (
+                <motion.article
+                  key={time}
+                  initial={{ opacity: 0, y: 55, filter: 'blur(16px)' }}
+                  whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  viewport={{ once: true, margin: '-80px' }}
+                  transition={{ duration: 1, delay: index * 0.09, ease: [0.16, 1, 0.3, 1] }}
+                  data-cursor="active"
+                  className="group relative min-h-[520px] flex-1 rounded-[2.4rem] border border-[#f4efe7]/10 bg-[#0c0b09]/70 p-8 transition duration-500 hover:-translate-y-3 hover:border-[#c7a15a]/45 hover:bg-[#12100c]/90"
+                >
+                  <span className="absolute left-8 top-[132px] h-5 w-5 rounded-full border border-[#c7a15a]/70 bg-[#050505] shadow-[0_0_36px_rgba(199,161,90,.28)]" />
+                  <p className="text-[7rem] font-semibold leading-none tracking-[-.12em] text-[#c7a15a]/16 transition group-hover:text-[#c7a15a]/26">{number}</p>
+                  <p className="mt-20 text-xs font-semibold uppercase tracking-[.32em] text-[#c7a15a]">{time}</p>
+                  <p className="mt-5 text-base leading-8 text-[#a89f91]">{text}</p>
+                </motion.article>
+              ))}
+            </div>
+          </div>
+          <div className="grid gap-4 lg:hidden">
+            {milestones.map(([number, time, text], index) => (
+              <Reveal key={time} delay={index * 0.06}>
+                <div className="rounded-[2rem] border border-[#f4efe7]/10 bg-[#0c0b09]/80 p-6">
+                  <p className="text-5xl font-semibold tracking-[-.08em] text-[#c7a15a]/25">{number}</p>
+                  <p className="mt-8 text-xs font-semibold uppercase tracking-[.28em] text-[#c7a15a]">{time}</p>
+                  <p className="mt-4 text-sm leading-7 text-[#a89f91]">{text}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </Reveal>
+    </section>
+  )
+}
+
 export default function App() {
   const hero = useRef(null)
   const { scrollYProgress } = useScroll({ target: hero, offset: ['start start', 'end start'] })
@@ -265,21 +311,7 @@ export default function App() {
       </section>
 
       <Manifesto />
-
-      <section id="journey" className="relative z-10 mx-auto max-w-[1500px] px-5 py-32 lg:px-8">
-        <SectionTitle eyebrow="Journey" title="Uma trajetória em movimento." text="A jornada não é uma lista de datas. É uma sequência de escolhas, projetos e evolução prática." />
-        <div className="grid gap-5 lg:grid-cols-5">
-          {milestones.map(([number, time, text], index) => (
-            <Reveal key={time} delay={index * 0.07}>
-              <div className="group h-full min-h-[360px] rounded-[2.4rem] border border-[#f4efe7]/10 bg-[#0b0a08]/70 p-7 backdrop-blur-xl transition duration-500 hover:-translate-y-2 hover:border-[#c7a15a]/40 hover:bg-[#12100c]/85">
-                <p className="text-7xl font-semibold tracking-[-.08em] text-[#c7a15a]/25">{number}</p>
-                <p className="mt-16 text-xs font-semibold uppercase tracking-[.28em] text-[#c7a15a]">{time}</p>
-                <p className="mt-5 text-base leading-8 text-[#a89f91]">{text}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
+      <JourneyScene />
 
       <section id="work" className="relative z-10 mx-auto max-w-[1500px] px-5 py-32 lg:px-8">
         <SectionTitle eyebrow="Selected Work" title="Projetos como peças editoriais." text="Cada projeto precisa explicar contexto, intenção e resultado — não apenas mostrar uma tela bonita." />
