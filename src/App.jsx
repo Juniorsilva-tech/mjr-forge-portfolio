@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import GravityCursor from './components/GravityCursor.jsx'
 import BrandMark from './components/BrandMark.jsx'
+import DynamicLight from './components/cinematic/DynamicLight.jsx'
+import FilmGrain from './components/cinematic/FilmGrain.jsx'
 import ProjectMockup from './components/ProjectMockup.jsx'
 
 const BRAND = {
@@ -106,5 +108,5 @@ function Contact() {
 }
 
 export default function App() {
-  return <main className="min-h-screen overflow-hidden bg-[#050505] text-[#f4efe7] antialiased md:cursor-none"><Atmosphere /><GravityCursor /><Header /><Hero /><Bridge label="manifesto" /><Manifesto /><Bridge label="timeline" align="right" /><JourneyScene /><Bridge label="selected work" /><Work /><Bridge label="process" align="right" /><Process /><Bridge label="final scene" /><Contact /><footer className="relative z-10 border-t border-[#f4efe7]/10 px-5 py-8 lg:px-8"><div className="mx-auto flex max-w-[1500px] flex-col gap-4 text-sm text-[#766f65] md:flex-row md:items-center md:justify-between"><p>© 2026 {BRAND.signature} — {BRAND.name}</p><p>React • UI premium • experiências digitais com intenção</p></div></footer></main>
+  return <main className="min-h-screen overflow-hidden bg-[#050505] text-[#f4efe7] antialiased md:cursor-none"><Atmosphere /><DynamicLight /><FilmGrain /><GravityCursor /><Header /><Hero /><Bridge label="manifesto" /><Manifesto /><Bridge label="timeline" align="right" /><JourneyScene /><Bridge label="selected work" /><Work /><Bridge label="process" align="right" /><Process /><Bridge label="final scene" /><Contact /><footer className="relative z-10 border-t border-[#f4efe7]/10 px-5 py-8 lg:px-8"><div className="mx-auto flex max-w-[1500px] flex-col gap-4 text-sm text-[#766f65] md:flex-row md:items-center md:justify-between"><p>© 2026 {BRAND.signature} — {BRAND.name}</p><p>React • UI premium • experiências digitais com intenção</p></div></footer></main>
 }

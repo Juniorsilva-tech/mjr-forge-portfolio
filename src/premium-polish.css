@@ -40,6 +40,66 @@ section::after {
     inset 0 1px 0 rgba(244, 239, 231, 0.05);
 }
 
+@keyframes forge-film-grain-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  25% {
+    transform: translate3d(-1.2%, 0.8%, 0) scale(1.01);
+  }
+  50% {
+    transform: translate3d(0.8%, -1.2%, 0) scale(0.995);
+  }
+  75% {
+    transform: translate3d(1.1%, 0.9%, 0) scale(1.005);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.forge-film-grain {
+  background-image:
+    radial-gradient(circle at 20% 24%, rgba(244, 239, 231, 0.1) 0 0.8px, transparent 0.9px),
+    radial-gradient(circle at 76% 62%, rgba(199, 161, 90, 0.08) 0 0.9px, transparent 1px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.014) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 5px);
+  background-size: 38px 38px, 52px 52px, 100% 100%, 100% 100%;
+  animation: forge-film-grain-drift 14s steps(6) infinite;
+  mix-blend-mode: soft-light;
+}
+
+.forge-film-grain--soft {
+  opacity: 0.45;
+  animation-duration: 18s;
+}
+
+.forge-light-ambient {
+  background:
+    radial-gradient(circle at 70% 16%, rgba(199, 161, 90, 0.035), transparent 26%),
+    radial-gradient(circle at 16% 82%, rgba(155, 94, 50, 0.03), transparent 28%);
+}
+
+.forge-light-orb {
+  width: min(48rem, 58vw);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(224, 189, 116, 0.11) 0%, rgba(224, 189, 116, 0.075) 20%, rgba(224, 189, 116, 0.035) 46%, transparent 72%);
+  filter: blur(14px);
+  opacity: 0.72;
+  will-change: transform;
+}
+
+.forge-light-secondary {
+  width: min(34rem, 44vw);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(155, 94, 50, 0.08) 0%, rgba(155, 94, 50, 0.03) 34%, transparent 72%);
+  filter: blur(22px);
+  opacity: 0.55;
+}
+
 @media (max-width: 767px) {
   section::after {
     width: calc(100vw - 2rem);
@@ -47,5 +107,28 @@ section::after {
 
   .forge-emerge-card:hover {
     transform: none;
+  }
+
+  .forge-film-grain {
+    animation-duration: 22s;
+    opacity: 0.75;
+  }
+
+  .forge-light-orb {
+    width: 72vw;
+    opacity: 0.52;
+    filter: blur(10px);
+  }
+
+  .forge-light-secondary {
+    width: 52vw;
+    opacity: 0.42;
+    filter: blur(16px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-film-grain {
+    animation: none;
   }
 }
