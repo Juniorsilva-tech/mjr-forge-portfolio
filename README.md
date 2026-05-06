@@ -1,6 +1,6 @@
 # MJR Forge Portfolio
 
-Portfólio profissional de **Maurício da Conceição Silva Júnior**, desenvolvido para apresentar minha atuação como **Front-end React** com foco em **UI premium, responsividade, automação e IA aplicada à entrega de interfaces**.
+Site pessoal e portfólio em evolução de **Maurício da Conceição Silva Júnior**, desenvolvido para apresentar minha trajetória, projetos, evolução técnica e atuação como **Front-end React** com foco em **UI premium, responsividade, automação e IA aplicada à entrega de interfaces**.
 
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
@@ -12,20 +12,22 @@ Portfólio profissional de **Maurício da Conceição Silva Júnior**, desenvolv
 
 ## Live Demo
 
-**Deploy:** https://mjr-forge-portfolio.vercel.app  
+**Site:** https://mjr-forge-portfolio.vercel.app  
 **GitHub:** https://github.com/Juniorsilva-tech
 
 ---
 
 ## Sobre o Projeto
 
-O **MJR Forge Portfolio** foi criado para funcionar como uma vitrine profissional de Front-end, demonstrando não apenas projetos, mas também posicionamento, identidade visual, experiência de produto e capacidade de construir interfaces modernas com React.
+O **MJR Forge Portfolio** é meu site pessoal principal. Ele não é apenas uma landing page estática: é uma vitrine viva que será atualizada conforme eu evoluo, crio novos projetos, melhoro minha stack e avanço na minha carreira como desenvolvedor.
 
-A proposta do projeto é comunicar três frentes principais:
+A proposta do site é centralizar minha apresentação profissional e mostrar, de forma clara e visualmente forte:
 
-- busca por **estágio ou primeira oportunidade como Desenvolvedor Front-end React**;
-- atuação com **freelas de landing pages, dashboards e interfaces modernas**;
-- uso de **automação e IA aplicada** como vantagem no processo de criação, QA e refinamento visual.
+- minha busca por **estágio ou primeira oportunidade como Desenvolvedor Front-end React**;
+- meus projetos públicos e demos técnicas;
+- minha evolução em UI/UX, React e automações;
+- minha disponibilidade para **freelas de landing pages, dashboards e interfaces modernas**;
+- meu posicionamento com **automação e IA aplicada** como apoio ao processo de criação, QA e refinamento visual.
 
 ---
 
@@ -33,18 +35,27 @@ A proposta do projeto é comunicar três frentes principais:
 
 > Front-end React com UI premium, automação e IA aplicada à entrega.
 
-Este portfólio foi pensado para transmitir uma identidade visual forte, mas sem depender de templates prontos. A interface combina estética dark premium, animações, composição visual cinematográfica e foco em apresentação profissional.
+O projeto foi pensado para transmitir uma identidade visual forte, mas sem depender de templates prontos. A interface combina estética dark premium, animações, composição visual cinematográfica e foco em apresentação profissional.
+
+---
+
+## Natureza do Projeto
+
+Este repositório representa meu **site de portfólio em evolução contínua**.
+
+Ele será atualizado conforme novos projetos forem criados, melhorados ou publicados. Por isso, o objetivo principal não é ser um produto fechado, mas sim uma base viva da minha presença profissional como desenvolvedor.
 
 ---
 
 ## Principais Features
 
+- Site pessoal e portfólio profissional.
 - Hero section cinematográfica com identidade visual própria.
 - Background animado em Canvas com estética sci-fi premium.
 - Cursor customizado com comportamento fluido.
 - Interface responsiva para desktop e mobile.
 - Animações com Framer Motion.
-- Seções focadas em contratação, projetos, Jarvis e contato.
+- Seções focadas em contratação, projetos, evolução técnica e contato.
 - Componentização com React.
 - Estilização com Tailwind CSS.
 - Deploy em produção via Vercel.
@@ -96,7 +107,7 @@ mjr-forge-portfolio/
 
 ### Hero
 
-Apresenta a marca **MJR Forge**, o posicionamento profissional e a primeira impressão visual do portfólio.
+Apresenta a marca **MJR Forge**, meu posicionamento profissional e a primeira impressão visual do portfólio.
 
 ### Impacto Real
 
@@ -106,13 +117,9 @@ Destaca construção prática, responsividade, QA, UI premium e mentalidade de p
 
 Explica de forma objetiva por que meu perfil pode ser considerado para estágio ou primeira oportunidade formal.
 
-### Jarvis Coding OS
-
-Apresenta o Jarvis como workflow próprio de apoio à criação, QA e refinamento de projetos web, sem expor detalhes internos sensíveis.
-
 ### Projetos
 
-Mostra frentes de construção prática, incluindo dashboards, sistemas de loja, landing pages e experimentos com automação.
+Mostra frentes de construção prática, incluindo dashboards, sistemas de loja, landing pages, automações e experimentos técnicos.
 
 ### Contato
 
@@ -164,12 +171,14 @@ Este projeto foi desenvolvido para praticar e demonstrar:
 - responsividade;
 - organização de projeto Front-end;
 - deploy com Vercel;
+- evolução contínua de portfólio;
 - posicionamento profissional para mercado e freelas.
 
 ---
 
 ## Melhorias Futuras
 
+- Atualizar o site conforme novos projetos forem criados.
 - Adicionar screenshots reais dos projetos.
 - Adicionar estudos de caso com problema, solução e resultado.
 - Otimizar ainda mais o background animado em dispositivos fracos.
@@ -177,6 +186,7 @@ Este projeto foi desenvolvido para praticar e demonstrar:
 - Melhorar SEO e Open Graph.
 - Adicionar métricas Lighthouse.
 - Evoluir mockups conceituais para prints reais.
+- Criar versão em inglês para oportunidades internacionais.
 
 ---
 
@@ -185,7 +195,7 @@ Este projeto foi desenvolvido para praticar e demonstrar:
 **Maurício da Conceição Silva Júnior**
 
 - GitHub: https://github.com/Juniorsilva-tech
-- Portfólio: https://mjr-forge-portfolio.vercel.app
+- Site: https://mjr-forge-portfolio.vercel.app
 - Email: mauriciojr07052006@gmail.com
 - WhatsApp: +55 24 99262-5175
 
@@ -193,4 +203,4 @@ Este projeto foi desenvolvido para praticar e demonstrar:
 
 ## Licença
 
-Projeto desenvolvido para fins de portfólio, estudo e apresentação profissional.
+Projeto desenvolvido para fins de portfólio, estudo, evolução técnica e apresentação profissional.
