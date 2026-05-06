@@ -1,0 +1,76 @@
+@keyframes forge-side-drift {
+  0%, 100% { transform: translate3d(-3%, 0, 0) scale(1); opacity: 0.18; }
+  50% { transform: translate3d(4%, -2%, 0) scale(1.08); opacity: 0.34; }
+}
+
+@keyframes forge-rise-fog {
+  0%, 100% { transform: translate3d(0, 8%, 0) scale(0.98); opacity: 0.16; }
+  50% { transform: translate3d(0, -4%, 0) scale(1.04); opacity: 0.34; }
+}
+
+#manifesto,
+#journey,
+#work,
+#processo,
+#contato {
+  isolation: isolate;
+}
+
+#manifesto::before,
+#journey::before,
+#work::before,
+#processo::before,
+#contato::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 999px;
+  filter: blur(90px);
+}
+
+#manifesto::before {
+  left: 8%;
+  top: -8%;
+  width: 42vw;
+  height: 42vw;
+  background: rgba(199, 161, 90, 0.075);
+  animation: forge-rise-fog 14s ease-in-out infinite;
+}
+
+#journey::before {
+  right: -16%;
+  top: 18%;
+  width: 58vw;
+  height: 34vw;
+  background: rgba(155, 94, 50, 0.07);
+  animation: forge-side-drift 16s ease-in-out infinite;
+}
+
+#work::before {
+  left: -14%;
+  top: 10%;
+  width: 62vw;
+  height: 40vw;
+  background: radial-gradient(circle, rgba(199, 161, 90, 0.08), transparent 66%);
+  animation: forge-depth-breathe 18s ease-in-out infinite;
+}
+
+#processo::before {
+  right: 0;
+  bottom: 10%;
+  width: 48vw;
+  height: 28vw;
+  background: rgba(244, 239, 231, 0.035);
+  animation: forge-rise-fog 15s ease-in-out infinite reverse;
+}
+
+#contato::before {
+  left: 50%;
+  top: 5%;
+  width: 46vw;
+  height: 46vw;
+  background: radial-gradient(circle, rgba(199, 161, 90, 0.12), transparent 62%);
+  transform: translateX(-50%);
+  animation: forge-depth-breathe 13s ease-in-out infinite;
+}
