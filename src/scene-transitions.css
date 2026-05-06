@@ -8,12 +8,39 @@
   50% { transform: translate3d(0, -4%, 0) scale(1.04); opacity: 0.34; }
 }
 
+@keyframes forge-depth-entry {
+  from { opacity: 0.2; transform: scale(0.88) translate3d(0, 70px, 0); filter: blur(22px); }
+  to { opacity: 1; transform: scale(1) translate3d(0, 0, 0); filter: blur(0); }
+}
+
+@keyframes forge-rise-entry {
+  from { opacity: 0.18; transform: translate3d(0, 120px, 0) scale(0.96); filter: blur(24px); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+}
+
+@keyframes forge-side-entry {
+  from { opacity: 0.22; transform: translate3d(12vw, 0, 0) scale(0.98); filter: blur(18px); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+}
+
+@keyframes forge-expand-entry {
+  from { opacity: 0.18; transform: scale(0.82); filter: blur(26px); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+@keyframes forge-final-entry {
+  from { opacity: 0.16; transform: translate3d(0, 80px, 0) scale(0.9); filter: blur(30px); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+}
+
 #manifesto,
 #journey,
 #work,
 #processo,
 #contato {
   isolation: isolate;
+  view-timeline-name: --forge-scene;
+  view-timeline-axis: block;
 }
 
 #manifesto::before,
@@ -28,6 +55,24 @@
   border-radius: 999px;
   filter: blur(90px);
 }
+
+#manifesto > *,
+#journey > *,
+#work > *,
+#processo > *,
+#contato > * {
+  animation-duration: 1ms;
+  animation-fill-mode: both;
+  animation-timeline: --forge-scene;
+  animation-range: entry 8% cover 34%;
+  transform-origin: center center;
+}
+
+#manifesto > * { animation-name: forge-depth-entry; }
+#journey > * { animation-name: forge-side-entry; animation-range: entry 4% cover 22%; }
+#work > * { animation-name: forge-expand-entry; animation-range: entry 10% cover 38%; }
+#processo > * { animation-name: forge-rise-entry; animation-range: entry 10% cover 36%; }
+#contato > * { animation-name: forge-final-entry; animation-range: entry 8% cover 42%; }
 
 #manifesto::before {
   left: 8%;
@@ -73,4 +118,26 @@
   background: radial-gradient(circle, rgba(199, 161, 90, 0.12), transparent 62%);
   transform: translateX(-50%);
   animation: forge-depth-breathe 13s ease-in-out infinite;
+}
+
+@supports not (animation-timeline: view()) {
+  #manifesto > *,
+  #journey > *,
+  #work > *,
+  #processo > *,
+  #contato > * {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #manifesto > *,
+  #journey > *,
+  #work > *,
+  #processo > *,
+  #contato > * {
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
 }
