@@ -54,6 +54,7 @@ section::after {
 }
 
 .forge-film-grain {
+  pointer-events: none;
   background-image:
     radial-gradient(circle at 20% 24%, rgba(244, 239, 231, 0.1) 0 0.8px, transparent 0.9px),
     radial-gradient(circle at 76% 62%, rgba(199, 161, 90, 0.08) 0 0.9px, transparent 1px),
@@ -69,12 +70,14 @@ section::after {
 }
 
 .forge-light-ambient {
+  pointer-events: none;
   background:
     radial-gradient(circle at 70% 16%, rgba(199, 161, 90, calc(0.03 * var(--forge-decorative-opacity))), transparent 26%),
     radial-gradient(circle at 16% 82%, rgba(155, 94, 50, calc(0.026 * var(--forge-decorative-opacity))), transparent 28%);
 }
 
 .forge-light-orb {
+  pointer-events: none;
   width: min(48rem, 58vw);
   aspect-ratio: 1;
   border-radius: 999px;
@@ -86,6 +89,7 @@ section::after {
 }
 
 .forge-light-secondary {
+  pointer-events: none;
   width: min(34rem, 44vw);
   aspect-ratio: 1;
   border-radius: 999px;

@@ -68,28 +68,15 @@ export default function DynamicLight() {
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[1] overflow-hidden">
       <div className="forge-light-ambient absolute inset-0" />
-
-      {performance.dynamicLight &&
-        (isInteractive ? (
-          <motion.div
-            className="forge-light-orb absolute left-0 top-0"
-            style={{
-              x: smoothX,
-              y: smoothY,
-              translateX: '-50%',
-              translateY: '-50%',
-            }}
-          />
-        ) : (
-          <div
-            className="forge-light-orb absolute"
-            style={{
-              left: '72%',
-              top: '18%',
-              transform: 'translate(-50%, -50%)',
-            }}
-          />
-        ))}
+      <motion.div
+        className="forge-light-orb absolute left-0 top-0"
+        style={{
+          x: smoothX,
+          y: smoothY,
+          translateX: '-50%',
+          translateY: '-50%',
+        }}
+      />
 
       <div className="forge-light-secondary absolute bottom-[-18vh] left-[-8vw]" />
     </div>

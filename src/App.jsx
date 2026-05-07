@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import BrandMark from './components/BrandMark.jsx'
 import GravityCursor from './components/GravityCursor.jsx'
@@ -731,13 +731,17 @@ function Contact() {
 }
 
 function AppShell() {
-  const { mode, setMode, resolvedMode, fps } = usePerformanceMode()
+  const { mode, setMode, resolvedMode } = usePerformanceMode()
   const prefersReducedMotion = useReducedMotion()
   const isCompactViewport = useCompactViewport()
-  const performanceProfile = getPerformanceProfile(resolvedMode, {
-    prefersReducedMotion,
-    isCompactViewport,
-  })
+  const performanceProfile = useMemo(
+    () =>
+      getPerformanceProfile(resolvedMode, {
+        prefersReducedMotion,
+        isCompactViewport,
+      }),
+    [isCompactViewport, prefersReducedMotion, resolvedMode],
+  )
 
   useEffect(() => {
     document.documentElement.dataset.cursorMode = performanceProfile.cursorEnabled ? 'custom' : 'native'
@@ -789,7 +793,6 @@ function AppShell() {
           mode={mode}
           setMode={setMode}
           resolvedMode={performanceProfile.key}
-          fps={fps}
         />
       </main>
     </PerformanceProfileContext.Provider>

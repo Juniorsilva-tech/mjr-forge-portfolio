@@ -1,8 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import {
+  AUTO_PERFORMANCE_CONFIG,
+  clampAutoMode,
+  getAutoPerformanceTarget,
+  getInitialAutoMode,
+  isMeaningfulAutoShift,
+  readPerformanceSignals,
+} from '../lib/performance.js'
 
 const STORAGE_KEY = 'mjr-performance-mode'
-const FPS_LOW_THRESHOLD = 42
-const FPS_SAMPLE_SIZE = 90
+const FPS_SERVER_SNAPSHOT = () => null
 
 const MODES = [
   { value: 'auto', label: 'Auto' },
@@ -11,57 +18,106 @@ const MODES = [
   { value: 'high', label: 'High' },
 ]
 
-export function detectPerformanceMode(fps = null) {
-  if (typeof window === 'undefined') return 'medium'
-
-  const memory = navigator.deviceMemory || 4
-  const cores = navigator.hardwareConcurrency || 4
-  const width = window.innerWidth || 1024
-  const dpr = window.devicePixelRatio || 1
-  const isMobile = width < 768
-  const isTablet = width >= 768 && width < 1024
-  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
-
-  if (reducedMotion) return 'low'
-  if (fps && fps < FPS_LOW_THRESHOLD) return 'low'
-  if (isMobile) return 'low'
-  if (memory <= 4 || cores <= 4) return 'low'
-  if (isTablet || dpr > 2.2) return 'medium'
-  if (memory >= 8 && cores >= 8 && width >= 1280 && (!fps || fps >= 52)) return 'high'
-
-  return 'medium'
+export function detectPerformanceMode() {
+  return clampAutoMode(getInitialAutoMode())
 }
 
-function useFpsMonitor(enabled) {
-  const [fps, setFps] = useState(null)
+const fpsMonitorStore = {
+  fps: null,
+  frameCount: 0,
+  frameSum: 0,
+  lastFrameAt: 0,
+  listeners: new Set(),
+  rafId: 0,
+  sampleStartedAt: 0,
+}
 
-  useEffect(() => {
-    if (!enabled || typeof window === 'undefined') return undefined
+function getFpsSnapshot() {
+  return fpsMonitorStore.fps
+}
 
-    let raf = 0
-    let last = performance.now()
-    const samples = []
+function emitFps(nextFps) {
+  if (fpsMonitorStore.fps === nextFps) return
+  fpsMonitorStore.fps = nextFps
+  fpsMonitorStore.listeners.forEach(listener => listener())
+}
 
-    const tick = now => {
-      const delta = now - last
-      last = now
+function resetFpsMonitorState() {
+  fpsMonitorStore.frameCount = 0
+  fpsMonitorStore.frameSum = 0
+  fpsMonitorStore.lastFrameAt = 0
+  fpsMonitorStore.sampleStartedAt = 0
+}
 
-      if (delta > 0) samples.push(1000 / delta)
+function stopFpsMonitor() {
+  if (fpsMonitorStore.rafId) {
+    window.cancelAnimationFrame(fpsMonitorStore.rafId)
+    fpsMonitorStore.rafId = 0
+  }
 
-      if (samples.length >= FPS_SAMPLE_SIZE) {
-        const average = Math.round(samples.reduce((sum, value) => sum + value, 0) / samples.length)
-        setFps(average)
-        samples.length = 0
-      }
+  resetFpsMonitorState()
 
-      raf = requestAnimationFrame(tick)
+  if (fpsMonitorStore.fps !== null) {
+    emitFps(null)
+  }
+}
+
+function stepFpsMonitor(now) {
+  if (!fpsMonitorStore.sampleStartedAt) {
+    fpsMonitorStore.sampleStartedAt = now
+    fpsMonitorStore.lastFrameAt = now
+    fpsMonitorStore.rafId = window.requestAnimationFrame(stepFpsMonitor)
+    return
+  }
+
+  const delta = now - fpsMonitorStore.lastFrameAt
+  fpsMonitorStore.lastFrameAt = now
+
+  if (delta > 0 && delta < 1000) {
+    fpsMonitorStore.frameSum += 1000 / delta
+    fpsMonitorStore.frameCount += 1
+  }
+
+  if (now - fpsMonitorStore.sampleStartedAt >= AUTO_PERFORMANCE_CONFIG.measurementIntervalMs) {
+    const nextFps =
+      fpsMonitorStore.frameCount > 0
+        ? Math.round(fpsMonitorStore.frameSum / fpsMonitorStore.frameCount)
+        : null
+
+    emitFps(nextFps)
+    fpsMonitorStore.sampleStartedAt = now
+    fpsMonitorStore.frameSum = 0
+    fpsMonitorStore.frameCount = 0
+  }
+
+  fpsMonitorStore.rafId = window.requestAnimationFrame(stepFpsMonitor)
+}
+
+function ensureFpsMonitor() {
+  if (typeof window === 'undefined') return
+  if (fpsMonitorStore.rafId || fpsMonitorStore.listeners.size === 0) return
+
+  resetFpsMonitorState()
+  fpsMonitorStore.rafId = window.requestAnimationFrame(stepFpsMonitor)
+}
+
+function subscribeToFps(listener) {
+  fpsMonitorStore.listeners.add(listener)
+  ensureFpsMonitor()
+
+  return () => {
+    fpsMonitorStore.listeners.delete(listener)
+    if (fpsMonitorStore.listeners.size === 0) {
+      stopFpsMonitor()
     }
+  }
+}
 
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [enabled])
+export function usePerformanceFps(enabled) {
+  const subscribe = useMemo(() => (enabled ? subscribeToFps : () => () => {}), [enabled])
+  const getSnapshot = useMemo(() => (enabled ? getFpsSnapshot : FPS_SERVER_SNAPSHOT), [enabled])
 
-  return fps
+  return useSyncExternalStore(subscribe, getSnapshot, FPS_SERVER_SNAPSHOT)
 }
 
 export function usePerformanceMode() {
@@ -69,26 +125,105 @@ export function usePerformanceMode() {
     if (typeof window === 'undefined') return 'auto'
     return localStorage.getItem(STORAGE_KEY) || 'auto'
   })
-
-  const fps = useFpsMonitor(mode === 'auto')
-  const [autoMode, setAutoMode] = useState(() => detectPerformanceMode())
+  const [resolvedMode, setResolvedMode] = useState(() => detectPerformanceMode())
+  const resolvedModeRef = useRef(resolvedMode)
+  const switchCooldownRef = useRef(0)
+  const streakModeRef = useRef(null)
+  const streakCountRef = useRef(0)
 
   useEffect(() => {
+    resolvedModeRef.current = resolvedMode
+  }, [resolvedMode])
+
+  useEffect(() => {
+    if (mode !== 'auto') {
+      streakModeRef.current = null
+      streakCountRef.current = 0
+      switchCooldownRef.current = 0
+      setResolvedMode(current => (current === mode ? current : mode))
+      return undefined
+    }
+
     if (typeof window === 'undefined') return undefined
 
-    const update = () => setAutoMode(detectPerformanceMode(fps))
-    update()
+    const applyResolvedMode = nextMode => {
+      setResolvedMode(current => {
+        if (current === nextMode) return current
+        resolvedModeRef.current = nextMode
+        return nextMode
+      })
+    }
 
-    window.addEventListener('resize', update, { passive: true })
+    const syncSignals = () => {
+      const signals = readPerformanceSignals()
+      const current = resolvedModeRef.current
+      const next = clampAutoMode(current, signals)
+
+      streakModeRef.current = null
+      streakCountRef.current = 0
+      applyResolvedMode(next)
+    }
+
+    const handleMeasurement = () => {
+      const fps = getFpsSnapshot()
+      const signals = readPerformanceSignals()
+      const currentMode = clampAutoMode(
+        resolvedModeRef.current || getInitialAutoMode(signals),
+        signals,
+      )
+
+      if (currentMode !== resolvedModeRef.current) {
+        streakModeRef.current = null
+        streakCountRef.current = 0
+        applyResolvedMode(currentMode)
+        return
+      }
+
+      const nextTarget = clampAutoMode(getAutoPerformanceTarget(fps), signals)
+
+      if (!nextTarget || nextTarget === currentMode || !isMeaningfulAutoShift(currentMode, nextTarget, fps)) {
+        streakModeRef.current = null
+        streakCountRef.current = 0
+        return
+      }
+
+      if (performance.now() - switchCooldownRef.current < AUTO_PERFORMANCE_CONFIG.switchCooldownMs) {
+        streakModeRef.current = null
+        streakCountRef.current = 0
+        return
+      }
+
+      if (streakModeRef.current === nextTarget) {
+        streakCountRef.current += 1
+      } else {
+        streakModeRef.current = nextTarget
+        streakCountRef.current = 1
+      }
+
+      const requiredSamples = AUTO_PERFORMANCE_CONFIG.requiredSamples[nextTarget]
+      if (streakCountRef.current < requiredSamples) return
+
+      streakModeRef.current = null
+      streakCountRef.current = 0
+      switchCooldownRef.current = performance.now()
+      applyResolvedMode(nextTarget)
+    }
 
     const media = window.matchMedia?.('(prefers-reduced-motion: reduce)')
-    media?.addEventListener?.('change', update)
+    switchCooldownRef.current = 0
+    applyResolvedMode(clampAutoMode(getInitialAutoMode(readPerformanceSignals())))
+
+    const unsubscribe = subscribeToFps(handleMeasurement)
+
+    window.addEventListener('resize', syncSignals, { passive: true })
+    media?.addEventListener?.('change', syncSignals)
 
     return () => {
-      window.removeEventListener('resize', update)
-      media?.removeEventListener?.('change', update)
+      unsubscribe()
+      window.removeEventListener('resize', syncSignals)
+      media?.removeEventListener?.('change', syncSignals)
     }
-  }, [fps])
+  }, [mode])
 
   const setMode = nextMode => {
     setModeState(nextMode)
@@ -97,13 +232,12 @@ export function usePerformanceMode() {
     }
   }
 
-  const resolvedMode = useMemo(() => (mode === 'auto' ? autoMode : mode), [mode, autoMode])
-
-  return { mode, setMode, resolvedMode, autoMode, fps }
+  return { mode, setMode, resolvedMode }
 }
 
-export default function PerformanceModeToggle({ mode, setMode, resolvedMode, fps }) {
+export default function PerformanceModeToggle({ mode, setMode, resolvedMode }) {
   const [open, setOpen] = useState(false)
+  const fps = usePerformanceFps(mode === 'auto')
   const isAutoLow = mode === 'auto' && resolvedMode === 'low'
 
   return (

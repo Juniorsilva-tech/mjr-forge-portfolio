@@ -5,62 +5,79 @@ import { usePerformanceProfile } from '../lib/performance.js'
 const mockups = {
   princessmel: {
     title: 'Princessmel Editorial',
-    subtitle: 'moda cristã · WhatsApp · vitrine',
+    subtitle: 'moda crista / WhatsApp / vitrine',
     stats: [
       ['01', 'brand'],
       ['24h', 'lead'],
       ['CTA', 'direct'],
     ],
-    lines: ['Curadoria visual', 'Produtos em destaque', 'Contato sem fricção'],
+    lines: ['Curadoria visual', 'Produtos em destaque', 'Contato sem friccao'],
   },
   retailflow: {
     title: 'RetailFlow SaaS',
-    subtitle: 'clientes · pedidos · financeiro',
+    subtitle: 'clientes / pedidos / financeiro',
     stats: [
-      ['05', 'views'],
+      ['03', 'views'],
       ['real', 'shots'],
       ['SaaS', 'ready'],
     ],
-    lines: ['Dashboard operacional', 'Visão comercial clara', 'Fluxo de produto legível'],
+    lines: ['Dashboard operacional', 'Visao comercial clara', 'Fluxo de produto legivel'],
   },
   jarvis: {
     title: 'Jarvis Workflow',
-    subtitle: 'generate · QA · repair',
+    subtitle: 'generate / QA / repair',
     stats: [
       ['90', 'score'],
       ['06', 'steps'],
       ['PASS', 'build'],
     ],
-    lines: ['Planner cria direção', 'QA valida interface', 'Repair corrige falhas'],
+    lines: ['Planner cria direcao', 'QA valida interface', 'Repair corrige falhas'],
   },
 }
 
 const screenshotMeta = {
   'retailflow-dashboard-01': {
     label: 'Overview',
-    caption: 'Visão principal com métricas, atalhos e leitura rápida do estado da operação.',
+    caption: 'Visao principal com metricas, atalhos e leitura rapida do estado da operacao.',
+    featured: true,
   },
   'retailflow-dashboard-02': {
     label: 'Clientes',
-    caption: 'Gestão de clientes com foco em organização de base e consulta direta.',
+    caption: 'Gestao de clientes com foco em organizacao de base e consulta direta.',
+    featured: false,
   },
   'retailflow-dashboard-03': {
     label: 'Pedidos',
     caption: 'Fluxo de pedidos desenhado para acompanhar andamento, volume e prioridade.',
+    featured: true,
   },
   'retailflow-dashboard-04': {
     label: 'Financeiro',
     caption: 'Camada financeira clara para acompanhar receitas, pagamentos e status.',
+    featured: false,
   },
   'retailflow-dashboard-05': {
-    label: 'Relatórios',
-    caption: 'Painel analítico para leitura de performance e tomada de decisão.',
+    label: 'Relatorios',
+    caption: 'Painel analitico para leitura de performance e tomada de decisao.',
+    featured: true,
   },
 }
 
 function getScreenshotMeta(source) {
   const fileName = source.split('/').pop()?.replace('.png', '') ?? ''
-  return screenshotMeta[fileName] ?? { label: 'Painel', caption: 'Interface em destaque.' }
+
+  return screenshotMeta[fileName] ?? {
+    label: 'Painel',
+    caption: 'Interface em destaque.',
+    featured: false,
+  }
+}
+
+function getFeaturedShots(shots) {
+  if (shots.length <= 3) return shots
+
+  const featuredShots = shots.filter(shot => shot.featured)
+  return featuredShots.length > 0 ? featuredShots.slice(0, 3) : shots.slice(0, 3)
 }
 
 function PlaceholderTile({ label }) {
@@ -136,79 +153,60 @@ function ScreenshotLayout({ screenshots, motionEnabled }) {
       })),
     [screenshots],
   )
+  const featuredShots = useMemo(() => getFeaturedShots(normalizedShots), [normalizedShots])
   const [activeIndex, setActiveIndex] = useState(0)
 
   useEffect(() => {
     setActiveIndex(0)
-  }, [screenshots])
+  }, [featuredShots])
 
-  const activeShot = normalizedShots[activeIndex] ?? normalizedShots[0]
+  const activeShot = featuredShots[activeIndex] ?? featuredShots[0]
 
   return (
-    <div className="mt-6 grid gap-3 xl:grid-cols-[minmax(0,1.16fr)_280px]">
-      <div className="overflow-hidden rounded-[2rem] border border-[#f4efe7]/10 bg-[#050505]/72 shadow-[0_24px_80px_rgba(0,0,0,.34)]">
-        <div className="relative">
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={activeShot.source}
-              src={activeShot.source}
-              alt={`RetailFlow ${activeShot.label}`}
-              className="aspect-[16/10] w-full object-cover object-top"
-              loading="lazy"
-              initial={motionEnabled ? { opacity: 0.7, scale: 1.015 } : false}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={motionEnabled ? { opacity: 0.7, scale: 0.995 } : undefined}
-              transition={{ duration: motionEnabled ? 0.32 : 0 }}
-            />
-          </AnimatePresence>
+    <div className="mt-6 space-y-4">
+      <div className="overflow-hidden rounded-[2rem] border border-[#f4efe7]/10 bg-[#050505]/78 shadow-[0_24px_80px_rgba(0,0,0,.34)]">
+        <div className="p-3 sm:p-4">
+          <div className="relative overflow-hidden rounded-[1.55rem] border border-[#f4efe7]/10 bg-[radial-gradient(circle_at_top,rgba(244,239,231,.06),rgba(5,5,5,.92)_72%)]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeShot.source}
+                initial={motionEnabled ? { opacity: 0.7, scale: 1.015 } : false}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={motionEnabled ? { opacity: 0.7, scale: 0.995 } : undefined}
+                transition={{ duration: motionEnabled ? 0.32 : 0 }}
+                className="relative aspect-[16/9] p-2 sm:p-3"
+              >
+                <img
+                  src={activeShot.source}
+                  alt={`RetailFlow ${activeShot.label}`}
+                  className="h-full w-full object-contain object-top"
+                  loading="eager"
+                  decoding="async"
+                />
+              </motion.div>
+            </AnimatePresence>
 
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0)_38%,rgba(5,5,5,.86)_100%)]" />
-          <div className="absolute left-4 right-4 top-4 flex items-start justify-between gap-3">
-            <span className="rounded-full border border-[#f4efe7]/10 bg-[#050505]/65 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#c7a15a] backdrop-blur-[var(--forge-panel-blur)]">
-              RetailFlow interface
-            </span>
-            <span className="rounded-full border border-[#f4efe7]/10 bg-[#050505]/65 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#d8d0c3] backdrop-blur-[var(--forge-panel-blur)]">
-              {activeShot.label}
-            </span>
-          </div>
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0)_44%,rgba(5,5,5,.9)_100%)]" />
+            <div className="absolute left-4 right-4 top-4 flex items-start justify-between gap-3">
+              <span className="rounded-full border border-[#f4efe7]/10 bg-[#050505]/65 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#c7a15a] backdrop-blur-[var(--forge-panel-blur)]">
+                RetailFlow interface
+              </span>
+              <span className="rounded-full border border-[#f4efe7]/10 bg-[#050505]/65 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#d8d0c3] backdrop-blur-[var(--forge-panel-blur)]">
+                {activeShot.label}
+              </span>
+            </div>
 
-          <div className="absolute bottom-4 left-4 right-4">
-            <p className="max-w-xl text-sm font-semibold text-[#f4efe7] sm:text-base">
-              {activeShot.caption}
-            </p>
-          </div>
-        </div>
-
-        <div className="border-t border-[#f4efe7]/10 px-4 py-3">
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {normalizedShots.map((shot, shotIndex) => {
-              const selected = shotIndex === activeIndex
-
-              return (
-                <button
-                  key={shot.source}
-                  type="button"
-                  onClick={() => setActiveIndex(shotIndex)}
-                  className={`group min-w-[108px] rounded-[1rem] border px-3 py-2 text-left transition ${
-                    selected
-                      ? 'border-[#c7a15a]/35 bg-[#c7a15a]/10'
-                      : 'border-[#f4efe7]/10 bg-[#f4efe7]/[0.03] hover:border-[#f4efe7]/20 hover:bg-[#f4efe7]/[0.05]'
-                  }`}
-                  aria-pressed={selected}
-                >
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#c7a15a]">
-                    {String(shotIndex + 1).padStart(2, '0')}
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-[#f4efe7]">{shot.label}</p>
-                </button>
-              )
-            })}
+            <div className="absolute bottom-4 left-4 right-4">
+              <p className="max-w-2xl text-sm font-semibold text-[#f4efe7] sm:text-base">
+                {activeShot.caption}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-2">
-        {normalizedShots.map((shot, shotIndex) => {
+      <div className="grid gap-3 sm:grid-cols-3">
+        {featuredShots.map((shot, shotIndex) => {
           const selected = shotIndex === activeIndex
 
           return (
@@ -216,23 +214,30 @@ function ScreenshotLayout({ screenshots, motionEnabled }) {
               key={shot.source}
               type="button"
               onClick={() => setActiveIndex(shotIndex)}
-              className={`overflow-hidden rounded-[1.35rem] border bg-[#050505]/72 text-left shadow-[0_18px_60px_rgba(0,0,0,.22)] transition ${
+              className={`overflow-hidden rounded-[1.45rem] border bg-[#050505]/74 text-left shadow-[0_18px_60px_rgba(0,0,0,.22)] transition ${
                 selected
-                  ? 'border-[#c7a15a]/35'
+                  ? 'border-[#c7a15a]/35 bg-[#0d0b08]'
                   : 'border-[#f4efe7]/10 hover:border-[#f4efe7]/20'
               }`}
               aria-label={`Abrir screenshot ${shot.label}`}
             >
-              <img
-                src={shot.source}
-                alt={shot.label}
-                className="aspect-[16/11] w-full object-cover object-top"
-                loading="lazy"
-              />
-              <div className="border-t border-[#f4efe7]/10 px-3 py-2">
+              <div className="border-b border-[#f4efe7]/10 bg-[radial-gradient(circle_at_top,rgba(244,239,231,.05),rgba(5,5,5,.92)_74%)] p-2">
+                <img
+                  src={shot.source}
+                  alt={shot.label}
+                  className="aspect-[16/10] w-full object-contain object-top"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div className="px-3 py-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8f877b]">
+                  {String(shotIndex + 1).padStart(2, '0')}
+                </p>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#c7a15a]">
                   {shot.label}
                 </p>
+                <p className="mt-2 text-sm leading-6 text-[#d8d0c3]">{shot.caption}</p>
               </div>
             </button>
           )
@@ -253,7 +258,11 @@ export default function ProjectMockup({ project, index = 0 }) {
       initial={performance.motionEnabled ? { opacity: 0, y: 28, scale: 0.98 } : false}
       whileInView={performance.motionEnabled ? { opacity: 1, y: 0, scale: 1 } : undefined}
       viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: performance.sceneDuration, delay: performance.motionEnabled ? 0.08 : 0, ease: [0.16, 1, 0.3, 1] }}
+      transition={{
+        duration: performance.sceneDuration,
+        delay: performance.motionEnabled ? 0.08 : 0,
+        ease: [0.16, 1, 0.3, 1],
+      }}
       whileHover={
         performance.hoverLift
           ? {

@@ -1,5 +1,102 @@
 import { createContext, useContext } from 'react'
 
+export const AUTO_PERFORMANCE_CONFIG = {
+  measurementIntervalMs: 2000,
+  switchCooldownMs: 4000,
+  thresholds: {
+    low: 35,
+    mediumMax: 50,
+    high: 55,
+  },
+  requiredSamples: {
+    low: 3,
+    medium: 3,
+    high: 4,
+  },
+  transitionGuard: {
+    lowToMediumMin: 38,
+    mediumToLowMax: 33,
+    mediumToHighMin: 58,
+    highToMediumMax: 48,
+  },
+}
+
+export function readPerformanceSignals() {
+  if (typeof window === 'undefined') {
+    return {
+      cores: 4,
+      dpr: 1,
+      isMobile: false,
+      isTablet: false,
+      memory: 4,
+      prefersReducedMotion: false,
+      width: 1024,
+    }
+  }
+
+  const width = window.innerWidth || 1024
+
+  return {
+    memory: navigator.deviceMemory || 4,
+    cores: navigator.hardwareConcurrency || 4,
+    width,
+    dpr: window.devicePixelRatio || 1,
+    isMobile: width < 768,
+    isTablet: width >= 768 && width < 1024,
+    prefersReducedMotion: window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false,
+  }
+}
+
+export function getInitialAutoMode(signals = readPerformanceSignals()) {
+  if (signals.prefersReducedMotion) return 'low'
+
+  if (signals.isMobile) {
+    if (signals.memory >= 6 && signals.cores >= 6 && signals.dpr <= 3) {
+      return 'medium'
+    }
+
+    return 'low'
+  }
+
+  if (signals.memory <= 4 || signals.cores <= 4) return 'low'
+  if (signals.isTablet || signals.dpr > 2.2) return 'medium'
+  if (signals.memory >= 8 && signals.cores >= 8 && signals.width >= 1280) return 'high'
+
+  return 'medium'
+}
+
+export function clampAutoMode(mode, signals = readPerformanceSignals()) {
+  if (signals.prefersReducedMotion) return 'low'
+  if (signals.isMobile && mode === 'high') return 'medium'
+
+  return mode
+}
+
+export function getAutoPerformanceTarget(fps) {
+  if (typeof fps !== 'number') return null
+
+  if (fps < AUTO_PERFORMANCE_CONFIG.thresholds.low) return 'low'
+  if (fps <= AUTO_PERFORMANCE_CONFIG.thresholds.mediumMax) return 'medium'
+  if (fps > AUTO_PERFORMANCE_CONFIG.thresholds.high) return 'high'
+
+  return null
+}
+
+export function isMeaningfulAutoShift(currentMode, nextMode, fps) {
+  if (!currentMode || !nextMode || currentMode === nextMode || typeof fps !== 'number') {
+    return false
+  }
+
+  const { transitionGuard } = AUTO_PERFORMANCE_CONFIG
+
+  if (currentMode === 'low' && nextMode === 'medium') return fps >= transitionGuard.lowToMediumMin
+  if (currentMode === 'medium' && nextMode === 'low') return fps <= transitionGuard.mediumToLowMax
+  if (currentMode === 'medium' && nextMode === 'high') return fps >= transitionGuard.mediumToHighMin
+  if (currentMode === 'high' && nextMode === 'medium') return fps <= transitionGuard.highToMediumMax
+
+  return true
+}
+
 export const PERFORMANCE_PROFILES = {
   low: {
     key: 'low',

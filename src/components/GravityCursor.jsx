@@ -65,15 +65,17 @@ export default function GravityCursor() {
     }
   }, [enabled, x, y])
 
-  if (!enabled) return null
-
   return (
     <>
       <motion.div
         className="pointer-events-none fixed left-0 top-0 z-[999] h-20 w-20 rounded-full"
         style={{ x: haloX, y: haloY, translateX: '-50%', translateY: '-50%' }}
-        animate={{ scale: active ? 1.1 : pressed ? 0.92 : 1, opacity: active ? 0.34 : 0.18 }}
+        animate={{
+          scale: !enabled ? 0.72 : active ? 1.1 : pressed ? 0.92 : 1,
+          opacity: !enabled ? 0 : active ? 0.34 : 0.18,
+        }}
         transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+        aria-hidden="true"
       >
         <div className="absolute inset-0 rounded-full border border-[#c7a15a]/18 bg-[radial-gradient(circle,rgba(199,161,90,.1),transparent_68%)]" />
       </motion.div>
@@ -81,8 +83,13 @@ export default function GravityCursor() {
       <motion.div
         className="pointer-events-none fixed left-0 top-0 z-[1000] h-3 w-3 rounded-full bg-[#f4efe7] shadow-[0_0_24px_rgba(244,239,231,.22)]"
         style={{ x: smoothX, y: smoothY, translateX: '-50%', translateY: '-50%' }}
-        animate={{ scale: pressed ? 0.74 : active ? 1.35 : 1, backgroundColor: active ? '#c7a15a' : '#f4efe7' }}
+        animate={{
+          scale: !enabled ? 0.72 : pressed ? 0.74 : active ? 1.35 : 1,
+          opacity: enabled ? 1 : 0,
+          backgroundColor: active ? '#c7a15a' : '#f4efe7',
+        }}
         transition={{ type: 'spring', stiffness: 540, damping: 26 }}
+        aria-hidden="true"
       />
     </>
   )

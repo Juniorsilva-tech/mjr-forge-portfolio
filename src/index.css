@@ -76,6 +76,13 @@ a {
   --forge-shadow-strength: 1;
 }
 
+.forge-film-grain,
+.forge-light-ambient,
+.forge-light-orb,
+.forge-light-secondary {
+  pointer-events: none;
+}
+
 .forge-depth-stage {
   transform-style: preserve-3d;
   perspective: 1200px;
