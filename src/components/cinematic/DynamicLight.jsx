@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion'
+import { usePerformanceProfile } from '../../lib/performance.js'
 
 const DESKTOP_QUERY = '(hover: hover) and (pointer: fine) and (min-width: 1024px)'
 
 export default function DynamicLight() {
+  const performance = usePerformanceProfile()
   const prefersReducedMotion = useReducedMotion()
   const [isInteractive, setIsInteractive] = useState(false)
   const x = useMotionValue(0)
@@ -15,13 +17,14 @@ export default function DynamicLight() {
     if (typeof window === 'undefined') return undefined
 
     const media = window.matchMedia(DESKTOP_QUERY)
-    const syncMode = () => setIsInteractive(media.matches && !prefersReducedMotion)
+    const syncMode = () =>
+      setIsInteractive(media.matches && !prefersReducedMotion && performance.dynamicLight)
 
     syncMode()
     media.addEventListener('change', syncMode)
 
     return () => media.removeEventListener('change', syncMode)
-  }, [prefersReducedMotion])
+  }, [performance.dynamicLight, prefersReducedMotion])
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined
@@ -66,26 +69,27 @@ export default function DynamicLight() {
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[1] overflow-hidden">
       <div className="forge-light-ambient absolute inset-0" />
 
-      {isInteractive ? (
-        <motion.div
-          className="forge-light-orb absolute left-0 top-0"
-          style={{
-            x: smoothX,
-            y: smoothY,
-            translateX: '-50%',
-            translateY: '-50%',
-          }}
-        />
-      ) : (
-        <div
-          className="forge-light-orb absolute"
-          style={{
-            left: '72%',
-            top: '18%',
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-      )}
+      {performance.dynamicLight &&
+        (isInteractive ? (
+          <motion.div
+            className="forge-light-orb absolute left-0 top-0"
+            style={{
+              x: smoothX,
+              y: smoothY,
+              translateX: '-50%',
+              translateY: '-50%',
+            }}
+          />
+        ) : (
+          <div
+            className="forge-light-orb absolute"
+            style={{
+              left: '72%',
+              top: '18%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+        ))}
 
       <div className="forge-light-secondary absolute bottom-[-18vh] left-[-8vw]" />
     </div>

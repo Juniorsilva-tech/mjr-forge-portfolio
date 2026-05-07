@@ -26,8 +26,8 @@ export function detectPerformanceMode(fps = null) {
   if (fps && fps < FPS_LOW_THRESHOLD) return 'low'
   if (isMobile) return 'low'
   if (memory <= 4 || cores <= 4) return 'low'
-  if (isTablet || dpr > 2.5) return 'medium'
-  if (memory >= 8 && cores >= 8 && width >= 1200 && (!fps || fps >= 52)) return 'high'
+  if (isTablet || dpr > 2.2) return 'medium'
+  if (memory >= 8 && cores >= 8 && width >= 1280 && (!fps || fps >= 52)) return 'high'
 
   return 'medium'
 }
@@ -49,8 +49,8 @@ function useFpsMonitor(enabled) {
       if (delta > 0) samples.push(1000 / delta)
 
       if (samples.length >= FPS_SAMPLE_SIZE) {
-        const avg = Math.round(samples.reduce((sum, value) => sum + value, 0) / samples.length)
-        setFps(avg)
+        const average = Math.round(samples.reduce((sum, value) => sum + value, 0) / samples.length)
+        setFps(average)
         samples.length = 0
       }
 
@@ -74,6 +74,8 @@ export function usePerformanceMode() {
   const [autoMode, setAutoMode] = useState(() => detectPerformanceMode())
 
   useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+
     const update = () => setAutoMode(detectPerformanceMode(fps))
     update()
 
@@ -90,54 +92,63 @@ export function usePerformanceMode() {
 
   const setMode = nextMode => {
     setModeState(nextMode)
-    localStorage.setItem(STORAGE_KEY, nextMode)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, nextMode)
+    }
   }
 
-  const resolvedMode = useMemo(() => {
-    return mode === 'auto' ? autoMode : mode
-  }, [mode, autoMode])
+  const resolvedMode = useMemo(() => (mode === 'auto' ? autoMode : mode), [mode, autoMode])
 
   return { mode, setMode, resolvedMode, autoMode, fps }
 }
 
 export default function PerformanceModeToggle({ mode, setMode, resolvedMode, fps }) {
   const [open, setOpen] = useState(false)
-  const lowAuto = mode === 'auto' && resolvedMode === 'low'
+  const isAutoLow = mode === 'auto' && resolvedMode === 'low'
 
   return (
     <div className="fixed bottom-4 right-4 z-[80] max-w-[calc(100vw-2rem)]">
-      {lowAuto && (
-        <div className="mb-2 rounded-2xl border border-cyan-300/20 bg-black/55 px-3 py-2 text-[11px] font-bold text-cyan-100 shadow-2xl shadow-black/40 backdrop-blur-xl">
-          Modo Low ativado para melhor fluidez.
+      {isAutoLow && (
+        <div className="mb-2 max-w-[280px] rounded-[1.35rem] border border-[#f4efe7]/10 bg-[#0a0907]/88 px-3.5 py-2.5 text-[11px] font-semibold text-[#d8d0c3] shadow-[0_18px_45px_rgba(0,0,0,.35)] backdrop-blur-[var(--forge-panel-blur)]">
+          Auto priorizou fluidez neste dispositivo.
         </div>
       )}
 
       <button
         type="button"
-        onClick={() => setOpen(value => !value)}
-        className="ml-auto flex h-11 w-11 items-center justify-center rounded-full border border-cyan-300/25 bg-black/55 text-xs font-black uppercase text-cyan-100 shadow-2xl shadow-black/40 backdrop-blur-xl md:hidden"
+        onClick={() => setOpen(current => !current)}
+        className="ml-auto flex h-11 w-11 items-center justify-center rounded-full border border-[#f4efe7]/10 bg-[#0a0907]/88 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f4efe7] shadow-[0_18px_45px_rgba(0,0,0,.35)] backdrop-blur-[var(--forge-panel-blur)] md:hidden"
         aria-label="Alternar modo de performance"
+        aria-expanded={open}
       >
         {resolvedMode.slice(0, 1).toUpperCase()}
       </button>
 
-      <div className={`${open ? 'mt-2 block' : 'hidden'} rounded-2xl border border-white/10 bg-black/50 px-3 py-3 shadow-2xl shadow-black/40 backdrop-blur-xl md:block`}>
-        <div className="mb-2 flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.22em] text-white/55">
+      <div
+        className={`${open ? 'mt-2 block' : 'hidden'} rounded-[1.6rem] border border-[#f4efe7]/10 bg-[#0a0907]/90 px-3 py-3 shadow-[0_22px_60px_rgba(0,0,0,.4)] backdrop-blur-[var(--forge-panel-blur)] md:block`}
+      >
+        <div className="mb-3 flex items-center justify-between gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8f877b]">
           <span>Performance</span>
-          <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-cyan-200">
-            {resolvedMode}{fps ? ` · ${fps}fps` : ''}
+          <span className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 px-2.5 py-1 text-[#c7a15a]">
+            {resolvedMode}
+            {fps ? ` · ${fps}fps` : ''}
           </span>
         </div>
 
         <div className="grid grid-cols-4 gap-1.5">
           {MODES.map(item => {
             const active = mode === item.value
+
             return (
               <button
                 key={item.value}
                 type="button"
                 onClick={() => setMode(item.value)}
-                className={`rounded-xl px-2.5 py-1.5 text-xs font-black transition ${active ? 'border border-cyan-300/40 bg-cyan-300/15 text-cyan-100 shadow-lg shadow-cyan-500/10' : 'border border-white/10 bg-white/[0.03] text-white/55 hover:border-white/20 hover:bg-white/[0.07] hover:text-white/80'}`}
+                className={`rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition ${
+                  active
+                    ? 'border-[#c7a15a]/35 bg-[#c7a15a]/12 text-[#f4efe7]'
+                    : 'border-[#f4efe7]/10 bg-[#f4efe7]/[0.03] text-[#8f877b] hover:border-[#f4efe7]/20 hover:bg-[#f4efe7]/[0.05] hover:text-[#d8d0c3]'
+                }`}
                 aria-pressed={active}
               >
                 {item.label}
