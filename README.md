@@ -1,38 +1,94 @@
 # MJR Forge
 
-Portfólio de Maurício Junior com direção cinematográfica contida, foco em React, UI premium, dashboards e experiências digitais modernas.
+> Portfólio Front-end React com UI premium, direção visual cinematográfica e apresentação de produtos digitais modernos.
+
+![MJR Forge Hero](public/Screenshot/hero%20forge%20.png)
+
+## Visão geral
+
+O **MJR Forge** é meu portfólio principal como desenvolvedor Front-end React. O projeto foi criado para apresentar minha identidade profissional, meus projetos e minha capacidade de construir interfaces modernas com acabamento visual forte, responsividade e leitura de produto.
+
+A proposta não é ser apenas um site pessoal, mas uma vitrine de **UI premium**, **motion design**, **dashboards**, **landing pages** e experiências digitais com foco em clareza, performance e impacto visual.
+
+---
 
 ## Posicionamento
 
-Creative Front-end Developer focado em React, UI premium, dashboards e experiências digitais modernas.
+**Front-end React Developer focado em UI premium, dashboards SaaS e interfaces modernas.**
+
+O projeto comunica:
+
+- repertório visual em interfaces digitais;
+- domínio de React, Tailwind CSS e Framer Motion;
+- cuidado com hierarquia, contraste, spacing e responsividade;
+- apresentação de projetos com aparência de produto real;
+- motion e atmosfera como suporte à experiência, não como distração.
+
+---
 
 ## Links
 
-- Deploy: https://mjr-forge-portfolio.vercel.app
-- Repositório: https://github.com/Juniorsilva-tech/mjr-forge-portfolio
-- GitHub pessoal: https://github.com/Juniorsilva-tech
+- **Deploy:** https://mjr-forge-portfolio.vercel.app
+- **Repositório:** https://github.com/Juniorsilva-tech/mjr-forge-portfolio
+- **GitHub pessoal:** https://github.com/Juniorsilva-tech
+
+---
 
 ## Stack
 
-- React
-- Vite
-- Tailwind CSS
-- Framer Motion
-- JavaScript
-- Vercel
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-0F172A?style=for-the-badge&logo=tailwind-css&logoColor=38BDF8)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-111827?style=for-the-badge&logo=framer&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-111827?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
-## Visão
+---
 
-O Forge não foi desenhado como portfólio comum. A proposta é apresentar repertório de front-end, leitura de produto, direção visual e capacidade de construir interfaces com identidade própria sem sacrificar clareza ou performance.
+## Projeto em destaque no portfólio
 
-O site foi pensado para comunicar:
+### RetailFlow Dashboard
 
-- posicionamento profissional em Front-end React;
-- domínio de UI premium, dashboards e landing pages;
-- cuidado com legibilidade, responsividade e acabamento;
-- uso de atmosfera e motion como suporte, não como ruído.
+O Forge apresenta o **RetailFlow Dashboard**, uma demo funcional de dashboard SaaS voltada para gestão comercial, clientes, pedidos, pagamentos e relatórios.
 
-## Estrutura
+![RetailFlow Dashboard](public/Screenshot/retailflow-dashboard-01.png)
+
+![RetailFlow Clientes](public/Screenshot/retailflow-Clientes.png)
+
+---
+
+## Diferenciais visuais
+
+- Hero cinematográfico com estética premium e identidade própria.
+- Apresentação de projetos com mockups e screenshots reais.
+- Motion design com Framer Motion aplicado de forma moderada.
+- UI escura com contraste, profundidade e atmosfera visual.
+- Performance adaptativa com perfis de renderização.
+- Layout responsivo para desktop e mobile.
+
+---
+
+## Performance
+
+O projeto inclui um sistema de performance com perfis:
+
+- `Auto`
+- `Low`
+- `Medium`
+- `High`
+
+Esse sistema ajuda a controlar camadas visuais, motion, profundidade e efeitos para preservar a experiência em dispositivos diferentes.
+
+Também considera:
+
+- `prefers-reduced-motion`;
+- redução de efeitos em mobile;
+- controle de FPS sem `setState` por frame;
+- interface mais leve em dispositivos fracos.
+
+---
+
+## Estrutura do projeto
 
 ```txt
 mjr-forge-portfolio/
@@ -40,6 +96,10 @@ mjr-forge-portfolio/
 |-- public/
 |   |-- favicon.svg
 |   |-- forge-portrait.jpg
+|   |-- Screenshot/
+|   |   |-- hero forge .png
+|   |   |-- retailflow-dashboard-01.png
+|   |   `-- retailflow-Clientes.png
 |   `-- retailflow/
 `-- src/
     |-- App.jsx
@@ -58,34 +118,38 @@ mjr-forge-portfolio/
         `-- cinematic/
 ```
 
-## Performance
+---
 
-- Perfis `Auto`, `Low`, `Medium` e `High`.
-- Detector de FPS sem `setState` por frame.
-- Respeito a `prefers-reduced-motion`.
-- Redução de câmera e profundidade em mobile.
-- Sem bibliotecas extras para galeria ou spatial system.
-
-## Projetos destacados
+## Projetos apresentados
 
 ### RetailFlow Dashboard
 
-Dashboard SaaS demo com screenshots reais, foco em operação, clientes, pedidos, financeiro e relatórios.
+Dashboard SaaS demo com foco em operação, clientes, pedidos, financeiro e relatórios. A apresentação prioriza percepção de produto real e interface administrativa moderna.
 
 ### Princessmel
 
-Landing page editorial para loja de moda cristã, com foco em curadoria, atmosfera e conversão via WhatsApp.
+Landing page editorial para loja de moda cristã, com foco em curadoria visual, atmosfera e conversão via WhatsApp.
 
 ### Jarvis Workflow
 
-Workflow privado de apoio a QA visual, organização de interface e aceleração de entrega.
+Workflow privado de apoio a QA visual, organização de interface e aceleração de entrega front-end.
 
-## Como rodar
+---
+
+## Como rodar localmente
 
 ```bash
 npm install
 npm run dev
 ```
+
+Acesse:
+
+```txt
+http://localhost:5173
+```
+
+---
 
 ## Build
 
@@ -93,3 +157,27 @@ npm run dev
 npm run build
 npm run preview
 ```
+
+---
+
+## Objetivo profissional do projeto
+
+Este projeto foi criado para demonstrar capacidade prática em:
+
+- Front-end React;
+- UI/UX premium;
+- apresentação de produtos digitais;
+- motion design aplicado;
+- responsividade;
+- performance visual;
+- construção de portfólio profissional.
+
+---
+
+## Autor
+
+**Maurício da Conceição Silva Júnior**
+
+- GitHub: https://github.com/Juniorsilva-tech
+- Portfólio: https://mjr-forge-portfolio.vercel.app
+- Email: mauriciojr07052006@gmail.com
