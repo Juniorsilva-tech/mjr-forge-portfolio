@@ -27,6 +27,7 @@
 #manifesto,
 #journey,
 #work,
+#professional,
 #processo,
 #contato {
   isolation: isolate;
@@ -35,6 +36,7 @@
 #manifesto::before,
 #journey::before,
 #work::before,
+#professional::before,
 #processo::before,
 #contato::before {
   content: '';
@@ -73,6 +75,15 @@
   animation: forge-rise-fog 20s ease-in-out infinite;
 }
 
+#professional::before {
+  left: 10%;
+  top: 18%;
+  width: 44vw;
+  height: 26vw;
+  background: radial-gradient(circle, rgba(244, 239, 231, 0.03), transparent 70%);
+  animation: forge-side-drift 18s ease-in-out infinite;
+}
+
 #processo::before {
   right: 0;
   bottom: 10%;
@@ -102,6 +113,7 @@
 .forge-root[data-motion='reduce'] #manifesto::before,
 .forge-root[data-motion='reduce'] #journey::before,
 .forge-root[data-motion='reduce'] #work::before,
+.forge-root[data-motion='reduce'] #professional::before,
 .forge-root[data-motion='reduce'] #processo::before,
 .forge-root[data-motion='reduce'] #contato::before {
   animation: none !important;
@@ -111,6 +123,7 @@
   #manifesto::before,
   #journey::before,
   #work::before,
+  #professional::before,
   #processo::before,
   #contato::before {
     animation: none !important;

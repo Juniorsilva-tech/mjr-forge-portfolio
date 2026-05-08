@@ -1,6 +1,10 @@
 # MJR Forge
 
-Portfólio de Maurício Júnior com direção "Cinematic Product Portfolio": React, UI premium, dashboards e experiências digitais modernas com foco em clareza, ritmo visual e acabamento profissional.
+Portfólio de Maurício Junior com direção cinematográfica contida, foco em React, UI premium, dashboards e experiências digitais modernas.
+
+## Posicionamento
+
+Creative Front-end Developer focado em React, UI premium, dashboards e experiências digitais modernas.
 
 ## Links
 
@@ -17,73 +21,56 @@ Portfólio de Maurício Júnior com direção "Cinematic Product Portfolio": Rea
 - JavaScript
 - Vercel
 
-## Visão do projeto
+## Visão
 
-O MJR Forge é o portfólio principal de apresentação profissional de Maurício Júnior. A proposta não é apenas exibir telas, mas demonstrar repertório de front-end, direção visual, leitura de produto e capacidade de construir interfaces com identidade própria.
+O Forge não foi desenhado como portfólio comum. A proposta é apresentar repertório de front-end, leitura de produto, direção visual e capacidade de construir interfaces com identidade própria sem sacrificar clareza ou performance.
 
-O site foi desenhado para comunicar:
+O site foi pensado para comunicar:
 
-- posicionamento como Creative Front-end Developer focado em React;
+- posicionamento profissional em Front-end React;
 - domínio de UI premium, dashboards e landing pages;
-- atenção a performance, responsividade e experiência;
-- maturidade visual sem exagero de efeitos.
+- cuidado com legibilidade, responsividade e acabamento;
+- uso de atmosfera e motion como suporte, não como ruído.
 
-## Diferenciais visuais
-
-- Direção cinematográfica minimalista, sem cair em estética gamer ou cyberpunk.
-- Hierarquia editorial com tipografia ampla, ritmo de spacing e contraste controlado.
-- Uso de luz, grão, profundidade e overlays como acabamento, não como distração.
-- Mockups e screenshots reais para reforçar leitura de produto.
-
-## Arquitetura geral
+## Estrutura
 
 ```txt
 mjr-forge-portfolio/
-├── index.html
-├── public/
-│   ├── favicon.svg
-│   ├── forge-portrait.jpg
-│   └── retailflow/
-├── src/
-│   ├── App.jsx
-│   ├── index.css
-│   ├── premium-polish.css
-│   ├── scene-transitions.css
-│   ├── lib/
-│   │   └── performance.js
-│   └── components/
-│       ├── BrandMark.jsx
-│       ├── GravityCursor.jsx
-│       ├── PerformanceModeToggle.jsx
-│       ├── ProjectMockup.jsx
-│       └── cinematic/
+|-- index.html
+|-- public/
+|   |-- favicon.svg
+|   |-- forge-portrait.jpg
+|   `-- retailflow/
+`-- src/
+    |-- App.jsx
+    |-- index.css
+    |-- premium-polish.css
+    |-- scene-transitions.css
+    |-- lib/
+    |   |-- performance.js
+    |   `-- useSpatialJourney.js
+    `-- components/
+        |-- BrandMark.jsx
+        |-- GravityCursor.jsx
+        |-- PerformanceModeToggle.jsx
+        |-- ProjectMockup.jsx
+        |-- SpatialSection.jsx
+        `-- cinematic/
 ```
-
-- `App.jsx`: composição principal, conteúdo, seções e integração do modo de performance.
-- `src/lib/performance.js`: perfis `auto`, `low`, `medium` e `high`.
-- `ProjectMockup.jsx`: vitrine dos projetos, incluindo screenshots reais do RetailFlow.
-- `index.css`, `premium-polish.css` e `scene-transitions.css`: base visual, profundidade, grão, luz e refinamentos.
 
 ## Performance
 
-- Modo de performance com resolução automática e opção manual: `Auto`, `Low`, `Medium` e `High`.
-- Controle de motion, blur, sombras, overlays, grain e camadas decorativas.
+- Perfis `Auto`, `Low`, `Medium` e `High`.
+- Detector de FPS sem `setState` por frame.
 - Respeito a `prefers-reduced-motion`.
-- Redução de efeitos em mobile e dispositivos mais fracos.
-- Sem dependências extras para carousel ou vitrine de screenshots.
+- Redução de câmera e profundidade em mobile.
+- Sem bibliotecas extras para galeria ou spatial system.
 
-## Responsividade
-
-- Layout pensado para desktop e mobile sem scroll artificial.
-- Navegação mobile simples e leve.
-- Seção de Work adaptada para grid e rail horizontal de screenshots.
-- CTAs e blocos de conteúdo com leitura consistente em telas menores.
-
-## Projetos
+## Projetos destacados
 
 ### RetailFlow Dashboard
 
-Dashboard SaaS demo com screenshots reais, foco em operação, clientes, pedidos, financeiro e relatórios. A apresentação prioriza leitura de produto e percepção de sistema real.
+Dashboard SaaS demo com screenshots reais, foco em operação, clientes, pedidos, financeiro e relatórios.
 
 ### Princessmel
 
@@ -92,14 +79,6 @@ Landing page editorial para loja de moda cristã, com foco em curadoria, atmosfe
 ### Jarvis Workflow
 
 Workflow privado de apoio a QA visual, organização de interface e aceleração de entrega.
-
-## Próximos refinamentos
-
-- Adicionar estudos de caso mais completos com problema, solução e resultado.
-- Evoluir o conteúdo textual com métricas e contexto de cada projeto.
-- Expandir SEO com imagem OG dedicada do portfólio.
-- Refinar testes e auditorias de acessibilidade.
-- Considerar versão bilíngue quando o portfólio estiver mais consolidado.
 
 ## Como rodar
 

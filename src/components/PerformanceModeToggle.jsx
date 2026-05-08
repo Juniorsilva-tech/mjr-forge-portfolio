@@ -181,13 +181,20 @@ export function usePerformanceMode() {
 
       const nextTarget = clampAutoMode(getAutoPerformanceTarget(fps), signals)
 
-      if (!nextTarget || nextTarget === currentMode || !isMeaningfulAutoShift(currentMode, nextTarget, fps)) {
+      if (
+        !nextTarget ||
+        nextTarget === currentMode ||
+        !isMeaningfulAutoShift(currentMode, nextTarget, fps)
+      ) {
         streakModeRef.current = null
         streakCountRef.current = 0
         return
       }
 
-      if (performance.now() - switchCooldownRef.current < AUTO_PERFORMANCE_CONFIG.switchCooldownMs) {
+      if (
+        performance.now() - switchCooldownRef.current <
+        AUTO_PERFORMANCE_CONFIG.switchCooldownMs
+      ) {
         streakModeRef.current = null
         streakCountRef.current = 0
         return
@@ -243,7 +250,7 @@ export default function PerformanceModeToggle({ mode, setMode, resolvedMode }) {
   return (
     <div className="fixed bottom-4 right-4 z-[80] max-w-[calc(100vw-2rem)]">
       {isAutoLow && (
-        <div className="mb-2 max-w-[280px] rounded-[1.35rem] border border-[#f4efe7]/10 bg-[#0a0907]/88 px-3.5 py-2.5 text-[11px] font-semibold text-[#d8d0c3] shadow-[0_18px_45px_rgba(0,0,0,.35)] backdrop-blur-[var(--forge-panel-blur)]">
+        <div className="mb-2 max-w-[280px] rounded-[1.35rem] border border-[#f4efe7]/10 bg-[#0a0907]/96 px-3.5 py-2.5 text-[11px] font-semibold text-[#d8d0c3] shadow-[0_18px_45px_rgba(0,0,0,.35)]">
           Auto priorizou fluidez neste dispositivo.
         </div>
       )}
@@ -251,7 +258,7 @@ export default function PerformanceModeToggle({ mode, setMode, resolvedMode }) {
       <button
         type="button"
         onClick={() => setOpen(current => !current)}
-        className="ml-auto flex h-11 w-11 items-center justify-center rounded-full border border-[#f4efe7]/10 bg-[#0a0907]/88 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f4efe7] shadow-[0_18px_45px_rgba(0,0,0,.35)] backdrop-blur-[var(--forge-panel-blur)] md:hidden"
+        className="ml-auto flex h-11 w-11 items-center justify-center rounded-full border border-[#f4efe7]/10 bg-[#0a0907]/96 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f4efe7] shadow-[0_18px_45px_rgba(0,0,0,.35)] md:hidden"
         aria-label="Alternar modo de performance"
         aria-expanded={open}
       >
@@ -259,13 +266,13 @@ export default function PerformanceModeToggle({ mode, setMode, resolvedMode }) {
       </button>
 
       <div
-        className={`${open ? 'mt-2 block' : 'hidden'} rounded-[1.6rem] border border-[#f4efe7]/10 bg-[#0a0907]/90 px-3 py-3 shadow-[0_22px_60px_rgba(0,0,0,.4)] backdrop-blur-[var(--forge-panel-blur)] md:block`}
+        className={`${open ? 'mt-2 block' : 'hidden'} rounded-[1.6rem] border border-[#f4efe7]/10 bg-[#0a0907]/96 px-3 py-3 shadow-[0_22px_60px_rgba(0,0,0,.4)] md:block`}
       >
         <div className="mb-3 flex items-center justify-between gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8f877b]">
           <span>Performance</span>
           <span className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 px-2.5 py-1 text-[#c7a15a]">
             {resolvedMode}
-            {fps ? ` · ${fps}fps` : ''}
+            {fps ? ` - ${fps}fps` : ''}
           </span>
         </div>
 

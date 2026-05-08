@@ -74,6 +74,25 @@ a {
   --forge-decorative-opacity: 1;
   --forge-surface-glow-opacity: 0.08;
   --forge-shadow-strength: 1;
+  --forge-camera-pan-x: 0px;
+  --forge-camera-pan-y: 0px;
+  --forge-camera-scale: 1;
+  --forge-camera-environment-x: 0px;
+  --forge-camera-environment-y: 0px;
+  --forge-camera-structure-x: 0px;
+  --forge-camera-structure-y: 0px;
+  --forge-journey-progress: 0;
+  --forge-scene-shift: 0px;
+  --forge-scene-travel-y: 0px;
+  --forge-scene-travel-z: 0px;
+  --forge-scene-rotate-y: 0deg;
+  --forge-scene-rotate-x: 0deg;
+  --forge-scene-blur: 0px;
+  --forge-scene-dissolve-strength: 0;
+  --project-accent: rgba(199, 161, 90, 0.18);
+  --project-secondary: rgba(244, 239, 231, 0.06);
+  --project-tint: rgba(244, 239, 231, 0.03);
+  --project-outline: rgba(244, 239, 231, 0.08);
 }
 
 .forge-film-grain,
@@ -86,6 +105,198 @@ a {
 .forge-depth-stage {
   transform-style: preserve-3d;
   perspective: 1200px;
+}
+
+.forge-spatial-orbit {
+  transform: translate3d(var(--forge-camera-pan-x), var(--forge-camera-pan-y), 0)
+    scale(var(--forge-camera-scale));
+  transform-origin: 50% 22vh;
+  transition: transform 1600ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.forge-spatial-scene {
+  --scene-presence: 0;
+  --scene-progress: 0;
+  --scene-signed: 0;
+  --scene-depth-progress: 1;
+  --scene-side: 0;
+  isolation: isolate;
+  perspective: 1600px;
+}
+
+.forge-spatial-track {
+  position: relative;
+  overflow: clip;
+  border-radius: 3rem;
+}
+
+.forge-scene-environment,
+.forge-scene-structure,
+.forge-scene-transition {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.forge-scene-environment {
+  z-index: 0;
+  transform-style: preserve-3d;
+  opacity: calc(0.16 + var(--scene-presence) * 0.72);
+  transform:
+    translate3d(
+      calc(var(--forge-camera-environment-x) + (var(--scene-side) * (1 - var(--scene-presence)) * var(--forge-scene-shift))),
+      calc(var(--forge-camera-environment-y) + ((0.5 - var(--scene-progress)) * var(--forge-scene-travel-y))),
+      calc((var(--scene-presence) - 1) * var(--forge-scene-travel-z))
+    )
+    scale(calc(0.955 + var(--scene-presence) * 0.045));
+  filter: blur(calc((1 - var(--scene-presence)) * var(--forge-scene-blur)));
+  will-change: transform, opacity, filter;
+}
+
+.forge-scene-atmosphere,
+.forge-scene-fog,
+.forge-scene-grid,
+.forge-scene-frame,
+.forge-scene-vanishing-line,
+.forge-scene-transition-mask,
+.forge-scene-transition-noise {
+  position: absolute;
+  pointer-events: none;
+}
+
+.forge-scene-atmosphere {
+  inset: clamp(0.75rem, 3vw, 2rem);
+  border-radius: clamp(2rem, 3vw, 3rem);
+  background:
+    radial-gradient(
+      circle at var(--scene-highlight-x) var(--scene-highlight-y),
+      var(--scene-accent),
+      transparent 28%
+    ),
+    linear-gradient(var(--scene-gradient-angle), rgba(255, 255, 255, 0.015), transparent 34%),
+    linear-gradient(180deg, transparent 16%, rgba(5, 5, 5, 0.28) 100%);
+  opacity: calc(0.2 + var(--scene-presence) * 0.34);
+  filter: blur(8px);
+}
+
+.forge-scene-fog {
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 8%, rgba(255, 255, 255, 0.025), transparent 22%),
+    linear-gradient(
+      var(--scene-dissolve-angle),
+      rgba(5, 5, 5, 0.62) 0%,
+      rgba(5, 5, 5, 0.16) 34%,
+      rgba(5, 5, 5, 0) 58%
+    );
+  opacity: calc((1 - var(--scene-presence)) * 0.52);
+}
+
+.forge-scene-structure {
+  z-index: 1;
+  opacity: calc(0.14 + var(--scene-presence) * 0.34);
+  transform:
+    translate3d(
+      calc(var(--forge-camera-structure-x) + (var(--scene-side) * (1 - var(--scene-presence)) * 10px)),
+      calc(var(--forge-camera-structure-y) + ((0.5 - var(--scene-progress)) * 8px)),
+      calc((var(--scene-presence) - 1) * 18px)
+    )
+    scale(calc(0.975 + var(--scene-presence) * 0.025));
+  will-change: transform, opacity;
+}
+
+.forge-scene-grid {
+  inset: 8% 6%;
+  border-radius: clamp(2rem, 3vw, 3rem);
+  background-image:
+    linear-gradient(var(--scene-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--scene-grid-line) 1px, transparent 1px);
+  background-size: 92px 92px;
+  mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.7) 14%, black 76%, transparent 100%);
+  opacity: 0.48;
+}
+
+.forge-scene-frame {
+  inset: clamp(0.75rem, 2vw, 1.5rem);
+  border-radius: clamp(2rem, 3vw, 3rem);
+  border: 1px solid rgba(244, 239, 231, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 0 0 1px rgba(255, 255, 255, 0.012);
+  opacity: 0.66;
+}
+
+.forge-scene-vanishing-line {
+  left: 14%;
+  right: 14%;
+  top: 15%;
+  height: 1px;
+  background:
+    linear-gradient(
+      var(--scene-structure-angle),
+      transparent,
+      var(--scene-grid-glow),
+      transparent
+    );
+  opacity: 0.58;
+  transform:
+    translate3d(calc(var(--scene-side) * 4%), calc(var(--scene-signed) * 10px), 0)
+    scaleX(calc(0.88 + var(--scene-presence) * 0.12));
+}
+
+.forge-scene-content {
+  position: relative;
+  z-index: 3;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  transform:
+    translate3d(
+      calc(var(--scene-side) * (1 - var(--scene-presence)) * 8px),
+      calc((0.5 - var(--scene-progress)) * 8px),
+      calc((var(--scene-presence) - 1) * 8px)
+    )
+    scale(calc(0.99 + var(--scene-presence) * 0.01))
+    rotateY(calc(var(--scene-side) * (1 - var(--scene-presence)) * 0.4deg))
+    rotateX(calc(var(--scene-signed) * 0.2deg));
+  opacity: calc(0.9 + var(--scene-presence) * 0.1);
+}
+
+.forge-scene-transition {
+  z-index: 2;
+  opacity: calc(0.12 + (1 - var(--scene-presence)) * 0.28);
+}
+
+.forge-scene-transition-mask {
+  inset: 0;
+  background:
+    linear-gradient(
+      var(--scene-dissolve-angle),
+      rgba(5, 5, 5, 0.22) 0%,
+      rgba(5, 5, 5, 0) 42%,
+      rgba(255, 255, 255, 0.02) 58%,
+      rgba(5, 5, 5, 0.24) 100%
+    );
+  clip-path: inset(
+    calc((1 - var(--scene-presence)) * 12%)
+    calc((1 - var(--scene-presence)) * 3%)
+    calc((1 - var(--scene-presence)) * 8%)
+    calc((1 - var(--scene-presence)) * 3%)
+    round 3rem
+  );
+  opacity: calc(var(--forge-scene-dissolve-strength) * (1 - var(--scene-presence)));
+}
+
+.forge-scene-transition-noise {
+  inset: 2%;
+  border-radius: 2.5rem;
+  background-image:
+    radial-gradient(circle at 20% 24%, rgba(255, 255, 255, 0.045) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 76% 62%, rgba(255, 255, 255, 0.03) 0 1px, transparent 1.1px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 6px);
+  background-size: 34px 34px, 42px 42px, 100% 100%;
+  mix-blend-mode: soft-light;
+  opacity: calc((1 - var(--scene-presence)) * 0.08);
 }
 
 .forge-depth-stage::before,
@@ -137,7 +348,73 @@ a {
     inset 0 1px 0 rgba(244, 239, 231, 0.05);
 }
 
+.forge-project-storyboard {
+  position: relative;
+  isolation: isolate;
+}
+
+.forge-project-storyboard::before,
+.forge-project-storyboard::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+
+.forge-project-storyboard::before {
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 80% 16%, var(--project-accent), transparent 26%),
+    radial-gradient(circle at 16% 84%, var(--project-secondary), transparent 30%),
+    linear-gradient(145deg, var(--project-tint), transparent 46%, rgba(5, 5, 5, 0.78) 100%);
+  opacity: 0.78;
+}
+
+.forge-project-storyboard::after {
+  inset: 1rem;
+  border-radius: calc(2.3rem - 1rem);
+  border: 1px solid var(--project-outline);
+  opacity: 0.42;
+}
+
 @media (max-width: 767px) {
+  .forge-spatial-orbit {
+    transform: none;
+  }
+
+  .forge-spatial-scene {
+    perspective: none;
+  }
+
+  .forge-spatial-track {
+    border-radius: 2rem;
+  }
+
+  .forge-scene-environment,
+  .forge-scene-structure,
+  .forge-scene-content {
+    transform: none;
+  }
+
+  .forge-scene-environment {
+    filter: blur(calc((1 - var(--scene-presence)) * 5px));
+  }
+
+  .forge-scene-atmosphere,
+  .forge-scene-grid,
+  .forge-scene-frame,
+  .forge-scene-transition-mask {
+    border-radius: 2rem;
+  }
+
+  .forge-scene-structure {
+    opacity: 0.22;
+  }
+
+  .forge-scene-transition {
+    opacity: calc((1 - var(--scene-presence)) * 0.16);
+  }
+
   .forge-depth-stage::before,
   .forge-depth-stage::after {
     inset: 12%;
@@ -161,6 +438,18 @@ a {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .forge-spatial-orbit,
+  .forge-scene-environment,
+  .forge-scene-structure,
+  .forge-scene-content {
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .forge-scene-transition {
+    opacity: 0 !important;
   }
 
   .forge-depth-stage::before,
