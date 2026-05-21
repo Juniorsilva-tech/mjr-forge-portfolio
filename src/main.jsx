@@ -5,8 +5,7 @@ import './index.css'
 import './scene-transitions.css'
 import './premium-polish.css'
 import './mobile-menu-forge.css'
-import './mobile-polish.css'
-import './forge-motion-visible.css'
+import './forge-theme.css'
 import './performance-menu.js'
 
 createRoot(document.getElementById('root')).render(
