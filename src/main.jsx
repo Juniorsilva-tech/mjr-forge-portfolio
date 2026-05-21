@@ -7,6 +7,7 @@ import './premium-polish.css'
 import './mobile-menu-forge.css'
 import './mobile-polish.css'
 import './forge-motion-visible.css'
+import './performance-menu.js'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
