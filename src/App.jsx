@@ -1,1055 +1,624 @@
-import { useEffect, useMemo, useState } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import Lenis from 'lenis'
 import BrandMark from './components/BrandMark.jsx'
-import PerformanceModeToggle, { usePerformanceMode } from './components/PerformanceModeToggle.jsx'
-import ProjectMockup from './components/ProjectMockup.jsx'
-import SpatialSection from './components/SpatialSection.jsx'
-import DynamicLight from './components/cinematic/DynamicLight.jsx'
-import {
-  PerformanceProfileContext,
-  getPerformanceProfile,
-  usePerformanceProfile,
-} from './lib/performance.js'
-import { useSpatialJourney } from './lib/useSpatialJourney.js'
 
 const BRAND = {
   name: 'MJR Forge',
   signature: 'Mauricio Junior',
-  email: 'mauriciojr07052006@gmail.com',
   whatsapp: 'https://wa.me/5524992625175',
   github: 'https://github.com/Juniorsilva-tech',
 }
 
-const nav = [
+const NAV = [
   ['Manifesto', '#manifesto'],
   ['Jornada', '#journey'],
   ['Projetos', '#work'],
-  ['Contato', '#contato'],
+  ['Processo', '#process'],
+  ['Contato', '#contact'],
 ]
 
-const principles = ['Silêncio', 'Presença', 'Ritmo', 'Produto', 'Refino']
-
-const milestones = [
-  ['01', 'Março 2026', 'ADS com foco real em web. Estudo virando prática, deploy e projeto visível.'],
-  ['02', 'MJR Forge', 'Portfólio como laboratório de identidade, UI e direção visual aplicada.'],
-  ['03', 'RetailFlow', 'Dashboard SaaS com CRUD, clientes, pedidos, métricas e visão de produto.'],
-  ['04', 'Princessmel', 'Projeto real para loja cristã com vitrine digital, estética e conversão.'],
-  ['05', 'Jarvis', 'Workflow privado de QA visual e aceleração de interface com IA aplicada.'],
-]
-
-const projects = [
+const PROJECTS = [
   {
-    slug: 'princessmel',
-    label: 'Real Case',
+    title: 'RetailFlow',
+    eyebrow: 'dashboard operacional',
+    text: 'Painel SaaS para pequenos negócios, com leitura de clientes, pedidos, pagamentos e métricas em uma interface premium.',
+    tags: ['React', 'Dashboard', 'Produto'],
+    href: 'https://retailflow-dashboard.vercel.app',
+  },
+  {
     title: 'Princessmel',
-    status: 'Em construção',
-    summary: 'Editorial warm',
-    text: 'Landing page e presença digital para loja de moda cristã, com foco em curadoria, respiração visual e CTA direto via WhatsApp.',
-    note: 'Apresentado como direção visual e base real de produto, ainda em evolução.',
-    tags: ['Landing Page', 'Branding', 'UI Editorial', 'WhatsApp'],
+    eyebrow: 'presença editorial',
+    text: 'Landing page para marca real com vitrine, narrativa visual, respiração e conversão direta por WhatsApp.',
+    tags: ['Landing Page', 'UI Editorial', 'Marca'],
   },
   {
-    slug: 'retailflow',
-    label: 'SaaS Demo',
-    title: 'RetailFlow Dashboard',
-    status: 'Projeto navegável',
-    summary: 'Business precise',
-    text: 'Dashboard para pequenos negócios com clientes, pedidos, financeiro e relatórios, desenhado para parecer produto real e pronto para operação.',
-    note: 'Caso mais maduro em termos de interface, fluxo operacional e prova visual de produto.',
-    tags: ['React', 'Dashboard', 'CRUD', 'Vercel'],
-    demo: 'https://retailflow-dashboard.vercel.app',
-    repo: 'https://github.com/Juniorsilva-tech/retailflow-dashboard',
-    screenshots: [
-      '/retailflow/retailflow-dashboard-01.png',
-      '/retailflow/retailflow-dashboard-02.png',
-      '/retailflow/retailflow-dashboard-03.png',
-      '/retailflow/retailflow-dashboard-04.png',
-      '/retailflow/retailflow-dashboard-05.png',
-    ],
-  },
-  {
-    slug: 'jarvis',
-    label: 'Private System',
-    title: 'Jarvis Workflow',
-    status: 'Em finalização',
-    summary: 'Silent automation',
-    text: 'Sistema privado para organizar, revisar e acelerar criação de interfaces com QA visual, automação e leitura operacional.',
-    note: 'Exibido como sistema autoral em finalização, com foco em processo e automação aplicada.',
-    tags: ['Automation', 'QA Visual', 'AI Workflow', 'React UI'],
+    title: 'Jarvis',
+    eyebrow: 'sistema interno',
+    text: 'Workflow autoral de automação, QA visual e aceleração de criação de interfaces com IA aplicada.',
+    tags: ['Automação', 'IA', 'QA Visual'],
   },
 ]
 
-const professionalHighlights = [
-  {
-    title: 'Front-end React',
-    text: 'Interfaces modernas com arquitetura clara, legibilidade e manutenção viável.',
-  },
-  {
-    title: 'UI premium',
-    text: 'Direção visual controlada, acabamento editorial e consistência entre layout, ritmo e marca.',
-  },
-  {
-    title: 'Dashboards',
-    text: 'Painéis para operação e leitura de métricas com foco em clareza e uso real.',
-  },
-  {
-    title: 'Landing pages',
-    text: 'Páginas para apresentação, conversão e narrativa visual com CTA objetivo.',
-  },
-  {
-    title: 'Automação',
-    text: 'Fluxos que aceleram build, QA e revisão sem sacrificar estabilidade.',
-  },
-  {
-    title: 'IA aplicada',
-    text: 'Uso pragmático de IA para validação, refinamento e aceleração de entrega.',
-  },
+const PROCESS = [
+  ['01', 'Matéria bruta', 'Entendo o problema, contexto, público e objetivo real antes da primeira tela.'],
+  ['02', 'Molde visual', 'Defino direção, hierarquia, ritmo e linguagem para a interface não nascer genérica.'],
+  ['03', 'Construção', 'Transformo a ideia em componentes, layout responsivo e experiência navegável.'],
+  ['04', 'Refino', 'Ajusto contraste, espaçamento, microinterações, legibilidade, performance e mobile.'],
+  ['05', 'Entrega', 'Deploy limpo, apresentação clara e próximos passos para evoluir o produto.'],
 ]
 
-const SCENES = {
-  hero: {
-    sceneKey: 'hero',
-    direction: 'left',
-    accent: 'rgba(199, 161, 90, 0.18)',
-    secondary: 'rgba(110, 68, 42, 0.16)',
-    gridLine: 'rgba(199, 161, 90, 0.08)',
-    gridGlow: 'rgba(199, 161, 90, 0.2)',
-    highlightX: '76%',
-    highlightY: '16%',
-    cameraX: '-28px',
-    cameraY: '-12px',
-    cameraScale: '1.006',
-    gradientAngle: '118deg',
-    dissolveAngle: '128deg',
-    background:
-      'linear-gradient(122deg, #050505 0%, #080706 34%, #14100d 63%, #050505 100%)',
-    mesh:
-      'radial-gradient(circle at 74% 16%, rgba(199,161,90,0.18), transparent 30%), radial-gradient(circle at 18% 84%, rgba(155,94,50,0.15), transparent 28%), linear-gradient(180deg, rgba(255,255,255,0.02), transparent 54%)',
-    grid:
-      'linear-gradient(rgba(199,161,90,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(199,161,90,0.05) 1px, transparent 1px)',
-  },
-  manifesto: {
-    sceneKey: 'manifesto',
-    direction: 'right',
-    accent: 'rgba(214, 174, 118, 0.16)',
-    secondary: 'rgba(244, 239, 231, 0.08)',
-    gridLine: 'rgba(244, 239, 231, 0.05)',
-    gridGlow: 'rgba(214, 174, 118, 0.18)',
-    highlightX: '26%',
-    highlightY: '28%',
-    cameraX: '22px',
-    cameraY: '-6px',
-    cameraScale: '1.003',
-    gradientAngle: '244deg',
-    dissolveAngle: '236deg',
-    background:
-      'linear-gradient(132deg, #050505 0%, #120f0b 28%, #1a140e 56%, #070707 100%)',
-    mesh:
-      'radial-gradient(circle at 28% 24%, rgba(214,174,118,0.18), transparent 28%), radial-gradient(circle at 78% 76%, rgba(244,239,231,0.08), transparent 32%)',
-    grid:
-      'linear-gradient(rgba(244,239,231,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(214,174,118,0.04) 1px, transparent 1px)',
-  },
-  journey: {
-    sceneKey: 'journey',
-    direction: 'center',
-    accent: 'rgba(165, 112, 68, 0.16)',
-    secondary: 'rgba(244, 239, 231, 0.06)',
-    gridLine: 'rgba(185, 139, 93, 0.05)',
-    gridGlow: 'rgba(165, 112, 68, 0.16)',
-    highlightX: '50%',
-    highlightY: '18%',
-    cameraX: '0px',
-    cameraY: '-10px',
-    cameraScale: '1.004',
-    gradientAngle: '180deg',
-    dissolveAngle: '180deg',
-    background:
-      'linear-gradient(145deg, #060606 0%, #0d0a08 25%, #19120d 58%, #070707 100%)',
-    mesh:
-      'radial-gradient(circle at 50% 18%, rgba(165,112,68,0.18), transparent 30%), radial-gradient(circle at 14% 72%, rgba(244,239,231,0.06), transparent 22%), radial-gradient(circle at 86% 72%, rgba(122,84,46,0.12), transparent 26%)',
-    grid:
-      'linear-gradient(rgba(185,139,93,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(185,139,93,0.05) 1px, transparent 1px)',
-  },
-  work: {
-    sceneKey: 'work',
-    direction: 'right',
-    accent: 'rgba(87, 125, 214, 0.14)',
-    secondary: 'rgba(20, 39, 76, 0.14)',
-    gridLine: 'rgba(121, 164, 255, 0.04)',
-    gridGlow: 'rgba(87, 125, 214, 0.14)',
-    highlightX: '72%',
-    highlightY: '18%',
-    cameraX: '18px',
-    cameraY: '-10px',
-    cameraScale: '1.004',
-    gradientAngle: '238deg',
-    dissolveAngle: '230deg',
-    background:
-      'linear-gradient(138deg, #050608 0%, #0a111d 28%, #111b2a 58%, #060709 100%)',
-    mesh:
-      'radial-gradient(circle at 76% 18%, rgba(87,125,214,0.22), transparent 28%), radial-gradient(circle at 20% 80%, rgba(26,53,102,0.18), transparent 30%), linear-gradient(180deg, rgba(255,255,255,0.015), transparent 56%)',
-    grid:
-      'linear-gradient(rgba(121,164,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(121,164,255,0.05) 1px, transparent 1px)',
-  },
-  professional: {
-    sceneKey: 'professional',
-    direction: 'left',
-    accent: 'rgba(199, 161, 90, 0.14)',
-    secondary: 'rgba(244, 239, 231, 0.07)',
-    gridLine: 'rgba(199, 161, 90, 0.04)',
-    gridGlow: 'rgba(199, 161, 90, 0.16)',
-    highlightX: '24%',
-    highlightY: '24%',
-    cameraX: '-18px',
-    cameraY: '-6px',
-    cameraScale: '1.002',
-    gradientAngle: '118deg',
-    dissolveAngle: '122deg',
-    background:
-      'linear-gradient(140deg, #050505 0%, #0a0907 24%, #141210 52%, #050505 100%)',
-    mesh:
-      'radial-gradient(circle at 22% 24%, rgba(199,161,90,0.16), transparent 26%), radial-gradient(circle at 82% 74%, rgba(244,239,231,0.05), transparent 30%)',
-    grid:
-      'linear-gradient(rgba(199,161,90,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(199,161,90,0.03) 1px, transparent 1px)',
-  },
-  process: {
-    sceneKey: 'process',
-    direction: 'center',
-    accent: 'rgba(98, 122, 140, 0.14)',
-    secondary: 'rgba(44, 56, 69, 0.18)',
-    gridLine: 'rgba(98, 122, 140, 0.05)',
-    gridGlow: 'rgba(98, 122, 140, 0.14)',
-    highlightX: '50%',
-    highlightY: '20%',
-    cameraX: '0px',
-    cameraY: '-16px',
-    cameraScale: '1.006',
-    gradientAngle: '180deg',
-    dissolveAngle: '186deg',
-    background:
-      'linear-gradient(142deg, #050505 0%, #090c10 24%, #12171d 56%, #050505 100%)',
-    mesh:
-      'radial-gradient(circle at 50% 18%, rgba(98,122,140,0.16), transparent 28%), radial-gradient(circle at 18% 82%, rgba(55,74,95,0.14), transparent 24%), radial-gradient(circle at 82% 80%, rgba(244,239,231,0.05), transparent 22%)',
-    grid:
-      'linear-gradient(rgba(98,122,140,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(98,122,140,0.04) 1px, transparent 1px)',
-  },
-  contact: {
-    sceneKey: 'contact',
-    direction: 'right',
-    accent: 'rgba(214, 180, 122, 0.2)',
-    secondary: 'rgba(244, 239, 231, 0.08)',
-    gridLine: 'rgba(214, 180, 122, 0.05)',
-    gridGlow: 'rgba(214, 180, 122, 0.18)',
-    highlightX: '66%',
-    highlightY: '18%',
-    cameraX: '18px',
-    cameraY: '-10px',
-    cameraScale: '1.004',
-    gradientAngle: '238deg',
-    dissolveAngle: '238deg',
-    background:
-      'linear-gradient(138deg, #050505 0%, #0d0a08 26%, #17110c 58%, #050505 100%)',
-    mesh:
-      'radial-gradient(circle at 68% 18%, rgba(214,180,122,0.22), transparent 30%), radial-gradient(circle at 28% 82%, rgba(244,239,231,0.06), transparent 26%)',
-    grid:
-      'linear-gradient(rgba(214,180,122,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(214,180,122,0.04) 1px, transparent 1px)',
-  },
-}
-
-const PROJECT_TONES = {
-  princessmel: {
-    '--project-accent': 'rgba(214, 176, 122, 0.18)',
-    '--project-secondary': 'rgba(132, 89, 48, 0.14)',
-    '--project-tint': 'rgba(99, 63, 32, 0.1)',
-    '--project-outline': 'rgba(244, 223, 190, 0.08)',
-  },
-  retailflow: {
-    '--project-accent': 'rgba(93, 140, 255, 0.2)',
-    '--project-secondary': 'rgba(23, 51, 109, 0.18)',
-    '--project-tint': 'rgba(13, 26, 48, 0.14)',
-    '--project-outline': 'rgba(127, 170, 255, 0.1)',
-  },
-  jarvis: {
-    '--project-accent': 'rgba(133, 152, 160, 0.12)',
-    '--project-secondary': 'rgba(40, 51, 58, 0.16)',
-    '--project-tint': 'rgba(11, 14, 17, 0.24)',
-    '--project-outline': 'rgba(166, 178, 185, 0.08)',
-  },
-}
-
-function useCompactViewport() {
-  const [isCompactViewport, setIsCompactViewport] = useState(false)
+function useReducedMotionPreference() {
+  const [reduced, setReduced] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined
 
-    const media = window.matchMedia('(max-width: 767px)')
-    const syncViewport = () => setIsCompactViewport(media.matches)
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const sync = () => setReduced(media.matches)
+    sync()
+    media.addEventListener('change', sync)
 
-    syncViewport()
-    media.addEventListener('change', syncViewport)
-
-    return () => media.removeEventListener('change', syncViewport)
+    return () => media.removeEventListener('change', sync)
   }, [])
 
-  return isCompactViewport
+  return reduced
 }
 
-function getSceneVariants(type, intensity = 1) {
-  const yDepth = Math.round(22 * intensity)
-  const yRise = Math.round(28 * intensity)
-  const xShift = Math.round(30 * intensity)
-  const yFinal = Math.round(18 * intensity)
+function useLenis(reducedMotion) {
+  useEffect(() => {
+    if (typeof window === 'undefined' || reducedMotion) {
+      ScrollTrigger.update()
+      return undefined
+    }
 
-  return {
-    depth: {
-      hidden: { opacity: 0, y: yDepth, scale: 0.985 },
-      visible: { opacity: 1, y: 0, scale: 1 },
-    },
-    rise: {
-      hidden: { opacity: 0, y: yRise },
-      visible: { opacity: 1, y: 0 },
-    },
-    left: {
-      hidden: { opacity: 0, x: xShift, scale: 0.992 },
-      visible: { opacity: 1, x: 0, scale: 1 },
-    },
-    expand: {
-      hidden: { opacity: 0, scale: 0.985 },
-      visible: { opacity: 1, scale: 1 },
-    },
-    final: {
-      hidden: { opacity: 0, y: yFinal, scale: 0.988 },
-      visible: { opacity: 1, y: 0, scale: 1 },
-    },
-  }[type]
+    gsap.registerPlugin(ScrollTrigger)
+
+    const existing = window.__mjrLenis
+    if (existing) {
+      existing.destroy()
+      window.__mjrLenis = null
+    }
+
+    const lenis = new Lenis({
+      duration: 1.18,
+      easing: t => Math.min(1, 1.001 - 2 ** (-10 * t)),
+      smoothWheel: true,
+      syncTouch: false,
+      wheelMultiplier: 0.86,
+    })
+
+    window.__mjrLenis = lenis
+
+    const updateScrollTrigger = () => ScrollTrigger.update()
+    lenis.on('scroll', updateScrollTrigger)
+
+    const raf = time => {
+      lenis.raf(time * 1000)
+    }
+
+    gsap.ticker.add(raf)
+    gsap.ticker.lagSmoothing(0)
+    ScrollTrigger.refresh()
+
+    return () => {
+      lenis.off('scroll', updateScrollTrigger)
+      gsap.ticker.remove(raf)
+      lenis.destroy()
+      if (window.__mjrLenis === lenis) window.__mjrLenis = null
+      ScrollTrigger.update()
+    }
+  }, [reducedMotion])
 }
 
-function Scene({ type = 'rise', children, className = '', delay = 0 }) {
-  const performance = usePerformanceProfile()
+function ForgeCanvas({ reducedMotion }) {
+  const canvasRef = useRef(null)
 
-  if (!performance.motionEnabled) {
-    return <div className={className}>{children}</div>
-  }
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+
+    const canvas = canvasRef.current
+    if (!canvas) return undefined
+
+    const ctx = canvas.getContext('2d', { alpha: true })
+    if (!ctx) return undefined
+
+    let width = 0
+    let height = 0
+    let dpr = 1
+    let raf = 0
+    let last = performance.now()
+    let accumulator = 0
+    const embers = []
+    const ash = []
+
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.15 : 1.65)
+      width = window.innerWidth
+      height = window.innerHeight
+      canvas.width = Math.round(width * dpr)
+      canvas.height = Math.round(height * dpr)
+      canvas.style.width = `${width}px`
+      canvas.style.height = `${height}px`
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    }
+
+    const spawn = (time, kind = 'ember') => {
+      const sourceRoll = Math.random()
+      const fromHero = sourceRoll < 0.46
+      const fromLower = sourceRoll > 0.76
+      const baseX = fromHero ? width * (0.58 + Math.random() * 0.34) : fromLower ? width * Math.random() : width * (0.12 + Math.random() * 0.76)
+      const baseY = fromHero ? height * (0.16 + Math.random() * 0.42) : fromLower ? height * (0.76 + Math.random() * 0.18) : height * (0.42 + Math.random() * 0.42)
+      const spark = Math.random() < 0.14
+
+      embers.push({
+        x: baseX,
+        y: baseY,
+        vx: (-0.16 + Math.random() * 0.32) * (spark ? 1.8 : 1),
+        vy: (-0.28 - Math.random() * 0.92) * (spark ? 1.35 : 1),
+        size: spark ? 1.9 + Math.random() * 2.8 : 0.55 + Math.random() * 1.65,
+        life: 1900 + Math.random() * 3300,
+        age: 0,
+        sway: Math.random() * Math.PI * 2,
+        spark,
+        born: time,
+        kind,
+      })
+    }
+
+    const spawnAsh = () => {
+      if (ash.length > 90) return
+      ash.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: -0.06 + Math.random() * 0.12,
+        vy: -0.05 + Math.random() * 0.12,
+        size: 0.65 + Math.random() * 1.4,
+        alpha: 0.04 + Math.random() * 0.08,
+        drift: Math.random() * Math.PI * 2,
+      })
+    }
+
+    const drawThermalField = time => {
+      ctx.globalCompositeOperation = 'source-over'
+      ctx.clearRect(0, 0, width, height)
+
+      const pulse = (Math.sin(time * 0.00072) + 1) / 2
+      const ignition = (Math.sin(time * 0.00046 + 1.8) + 1) / 2
+
+      const base = ctx.createLinearGradient(0, 0, width, height)
+      base.addColorStop(0, 'rgba(0,0,4,0.82)')
+      base.addColorStop(0.38, 'rgba(4,3,10,0.72)')
+      base.addColorStop(0.7, 'rgba(8,3,6,0.68)')
+      base.addColorStop(1, 'rgba(1,1,4,0.86)')
+      ctx.fillStyle = base
+      ctx.fillRect(0, 0, width, height)
+
+      const hearth = ctx.createRadialGradient(width * 0.72, height * 0.28, 0, width * 0.72, height * 0.28, Math.max(width, height) * 0.76)
+      hearth.addColorStop(0, `rgba(236,92,24,${0.14 + pulse * 0.11})`)
+      hearth.addColorStop(0.2, `rgba(150,30,12,${0.12 + ignition * 0.06})`)
+      hearth.addColorStop(0.5, 'rgba(52,9,9,0.07)')
+      hearth.addColorStop(1, 'rgba(0,0,0,0)')
+      ctx.fillStyle = hearth
+      ctx.fillRect(0, 0, width, height)
+
+      const blueBase = ctx.createRadialGradient(width * 0.5, height * 0.72, 0, width * 0.5, height * 0.72, Math.max(width, height) * 0.62)
+      blueBase.addColorStop(0, `rgba(18,48,108,${0.08 + ignition * 0.06})`)
+      blueBase.addColorStop(0.4, 'rgba(15,22,56,0.06)')
+      blueBase.addColorStop(1, 'rgba(0,0,0,0)')
+      ctx.fillStyle = blueBase
+      ctx.fillRect(0, 0, width, height)
+
+      const fissure = ctx.createLinearGradient(width * 0.05, height * 0.68, width * 0.92, height * 0.46)
+      fissure.addColorStop(0, 'rgba(0,0,0,0)')
+      fissure.addColorStop(0.42, `rgba(235,111,35,${0.045 + pulse * 0.05})`)
+      fissure.addColorStop(0.54, `rgba(48,112,210,${0.025 + ignition * 0.035})`)
+      fissure.addColorStop(1, 'rgba(0,0,0,0)')
+      ctx.fillStyle = fissure
+      ctx.fillRect(0, 0, width, height)
+    }
+
+    const drawAsh = time => {
+      ctx.globalCompositeOperation = 'screen'
+      for (const flake of ash) {
+        flake.x += flake.vx + Math.sin(time * 0.0007 + flake.drift) * 0.08
+        flake.y += flake.vy
+        if (flake.y < -8) flake.y = height + 8
+        if (flake.y > height + 8) flake.y = -8
+        if (flake.x < -8) flake.x = width + 8
+        if (flake.x > width + 8) flake.x = -8
+        ctx.fillStyle = `rgba(160,143,130,${flake.alpha})`
+        ctx.fillRect(flake.x, flake.y, flake.size, flake.size)
+      }
+    }
+
+    const drawEmbers = (delta, time) => {
+      if (!reducedMotion) {
+        accumulator += delta * (width < 768 ? 0.038 : 0.07)
+        while (accumulator >= 1) {
+          spawn(time)
+          accumulator -= 1
+        }
+      }
+
+      ctx.globalCompositeOperation = 'lighter'
+
+      for (let i = embers.length - 1; i >= 0; i -= 1) {
+        const ember = embers[i]
+        ember.age += delta
+        const progress = Math.min(ember.age / ember.life, 1)
+        if (progress >= 1) {
+          embers.splice(i, 1)
+          continue
+        }
+
+        ember.x += ember.vx + Math.sin(time * 0.002 + ember.sway) * 0.22
+        ember.y += ember.vy
+        ember.vx *= 0.997
+        ember.vy *= 0.995
+
+        const blue = [49, 105, 202]
+        const hot = [255, 150, 60]
+        const red = [192, 44, 18]
+        const dead = [118, 94, 84]
+        const heat = progress < 0.16 ? mixColor(blue, hot, progress / 0.16) : progress < 0.55 ? mixColor(hot, red, (progress - 0.16) / 0.39) : mixColor(red, dead, (progress - 0.55) / 0.45)
+        const flicker = 0.78 + Math.sin(time * 0.009 + ember.sway) * 0.18
+        const alpha = Math.pow(1 - progress, 1.15) * flicker
+
+        ctx.shadowColor = `rgba(${heat[0]},${heat[1]},${heat[2]},${alpha})`
+        ctx.shadowBlur = ember.spark ? 16 : 9
+        ctx.fillStyle = `rgba(${heat[0]},${heat[1]},${heat[2]},${alpha})`
+
+        if (ember.spark) {
+          ctx.save()
+          ctx.translate(ember.x, ember.y)
+          ctx.rotate(-0.22)
+          ctx.fillRect(-ember.size * 2.8, -0.5, ember.size * 5.6, 1)
+          ctx.restore()
+        } else if (progress > 0.76) {
+          const offset = (progress - 0.76) * 30
+          for (let shard = 0; shard < 2; shard += 1) {
+            const angle = ember.sway + shard * Math.PI
+            ctx.fillRect(ember.x + Math.cos(angle) * offset, ember.y + Math.sin(angle) * offset, Math.max(0.7, ember.size * 0.42), Math.max(0.7, ember.size * 0.42))
+          }
+        } else {
+          ctx.beginPath()
+          ctx.arc(ember.x, ember.y, ember.size, 0, Math.PI * 2)
+          ctx.fill()
+        }
+      }
+      ctx.shadowBlur = 0
+    }
+
+    const draw = time => {
+      const delta = Math.min(time - last, 34)
+      last = time
+      drawThermalField(time)
+      drawAsh(time)
+      drawEmbers(delta, time)
+      raf = window.requestAnimationFrame(draw)
+    }
+
+    resize()
+    window.addEventListener('resize', resize, { passive: true })
+    for (let i = 0; i < 52; i += 1) spawnAsh()
+    for (let i = 0; i < (window.innerWidth < 768 ? 18 : 34); i += 1) spawn(last)
+    raf = window.requestAnimationFrame(draw)
+
+    return () => {
+      window.cancelAnimationFrame(raf)
+      window.removeEventListener('resize', resize)
+    }
+  }, [reducedMotion])
+
+  return <canvas ref={canvasRef} className="pointer-events-none fixed inset-0 z-0 h-full w-full" aria-hidden="true" />
+}
+
+function Cursor({ reducedMotion }) {
+  const dotRef = useRef(null)
+  const ringRef = useRef(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || reducedMotion || window.matchMedia('(pointer: coarse)').matches) return undefined
+
+    document.documentElement.dataset.cursorMode = 'custom'
+    const dotX = gsap.quickTo(dotRef.current, 'x', { duration: 0.24, ease: 'power3.out' })
+    const dotY = gsap.quickTo(dotRef.current, 'y', { duration: 0.24, ease: 'power3.out' })
+    const ringX = gsap.quickTo(ringRef.current, 'x', { duration: 0.62, ease: 'power3.out' })
+    const ringY = gsap.quickTo(ringRef.current, 'y', { duration: 0.62, ease: 'power3.out' })
+
+    const move = event => {
+      dotX(event.clientX)
+      dotY(event.clientY)
+      ringX(event.clientX)
+      ringY(event.clientY)
+    }
+    const enter = event => {
+      if (event.target.closest('a,button,[data-forge-card]')) {
+        gsap.to(ringRef.current, { scale: 1.9, opacity: 0.34, duration: 0.45, ease: 'power3.out' })
+        gsap.to(dotRef.current, { scale: 0.5, duration: 0.35, ease: 'power3.out' })
+      }
+    }
+    const leave = () => {
+      gsap.to(ringRef.current, { scale: 1, opacity: 0.22, duration: 0.45, ease: 'power3.out' })
+      gsap.to(dotRef.current, { scale: 1, duration: 0.35, ease: 'power3.out' })
+    }
+
+    window.addEventListener('mousemove', move, { passive: true })
+    document.addEventListener('mouseover', enter)
+    document.addEventListener('mouseout', leave)
+
+    return () => {
+      delete document.documentElement.dataset.cursorMode
+      window.removeEventListener('mousemove', move)
+      document.removeEventListener('mouseover', enter)
+      document.removeEventListener('mouseout', leave)
+      gsap.killTweensOf([dotRef.current, ringRef.current])
+    }
+  }, [reducedMotion])
 
   return (
-    <motion.div
-      variants={getSceneVariants(type, performance.key === 'high' ? 1 : 0.76)}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: performance.viewportAmount, margin: '-80px' }}
-      transition={{
-        duration: performance.sceneDuration,
-        delay: delay * performance.sceneDelayFactor,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-function Bridge({ label, align = 'left' }) {
-  const performance = usePerformanceProfile()
-
-  return (
-    <div className="relative z-10 mx-auto max-w-[1500px] px-5 lg:px-8" aria-hidden="true">
-      <div className="relative h-24 overflow-hidden">
-        <div className="absolute left-0 right-0 top-1/2 h-px bg-gradient-to-r from-transparent via-[#c7a15a]/30 to-transparent" />
-
-        {performance.motionEnabled ? (
-          <>
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              whileInView={{ width: '34%', opacity: 1 }}
-              viewport={{ once: true, amount: 0.6 }}
-              transition={{ duration: performance.sceneDuration + 0.28, ease: [0.16, 1, 0.3, 1] }}
-              className={`absolute top-1/2 h-px bg-[#c7a15a]/80 ${align === 'right' ? 'right-0' : 'left-0'}`}
-            />
-
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: performance.sceneDuration }}
-              className={`absolute top-1/2 -translate-y-1/2 rounded-full border border-[#f4efe7]/10 bg-[#0a0908]/92 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#c7a15a] ${align === 'right' ? 'right-0' : 'left-0'}`}
-            >
-              {label}
-            </motion.div>
-          </>
-        ) : (
-          <div
-            className={`absolute top-1/2 -translate-y-1/2 rounded-full border border-[#f4efe7]/10 bg-[#0a0908]/92 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#c7a15a] ${align === 'right' ? 'right-0' : 'left-0'}`}
-          >
-            {label}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function Icon({ name, className = '' }) {
-  const icons = {
-    arrow: ['M5 12h14', 'M13 5l7 7-7 7'],
-    menu: ['M4 6h16', 'M4 12h16', 'M4 18h16'],
-    close: ['M6 6l12 12', 'M18 6L6 18'],
-  }
-
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      {(icons[name] || icons.arrow).map((path, index) => (
-        <path key={index} d={path} />
-      ))}
-    </svg>
-  )
-}
-
-function Button({ href, children, secondary = false }) {
-  const isExternal = href?.startsWith('http')
-
-  return (
-    <a
-      href={href}
-      target={isExternal ? '_blank' : undefined}
-      rel={isExternal ? 'noreferrer' : undefined}
-      data-cursor="active"
-      className={`group inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-semibold transition duration-300 sm:w-auto ${
-        secondary
-          ? 'border border-[#f4efe7]/10 bg-[#080807]/55 text-[#f4efe7] hover:border-[#c7a15a]/40 hover:bg-[#c7a15a]/8'
-          : 'bg-[#c7a15a] text-[#080807] shadow-[0_20px_90px_rgba(199,161,90,.18)] hover:bg-[#f4efe7]'
-      }`}
-    >
-      {children}
-      <Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-1" />
-    </a>
+    <>
+      <div ref={ringRef} className="pointer-events-none fixed left-0 top-0 z-[100] hidden h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8842e]/50 opacity-20 mix-blend-screen md:block" />
+      <div ref={dotRef} className="pointer-events-none fixed left-0 top-0 z-[101] hidden h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f0a24a] shadow-[0_0_24px_rgba(232,132,46,.8)] md:block" />
+    </>
   )
 }
 
 function Header() {
   const [open, setOpen] = useState(false)
-
   return (
-    <header className="fixed left-0 right-0 top-0 z-50 border-b border-[#f4efe7]/10 bg-[#050505]/92">
-      <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-3 px-5 py-4 lg:px-8">
-        <a href="#top" className="flex min-w-0 items-center gap-3" data-cursor="active">
+    <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-[#030305]/80 backdrop-blur-2xl">
+      <div className="mx-auto flex max-w-[1560px] items-center justify-between px-5 py-4 lg:px-8">
+        <a href="#top" className="flex items-center gap-3">
           <BrandMark />
-
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-[#f4efe7]">{BRAND.name}</p>
-            <p className="mt-1 truncate text-[10px] uppercase tracking-[0.26em] text-[#a89f91]">
-              {BRAND.signature}
-            </p>
+          <div>
+            <p className="text-sm font-semibold text-[#f6efe8]">{BRAND.name}</p>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.34em] text-[#a89d92]">{BRAND.signature}</p>
           </div>
         </a>
-
-        <nav className="hidden items-center gap-1 rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 p-1 md:flex">
-          {nav.map(([label, href]) => (
-            <a
-              key={href}
-              href={href}
-              data-cursor="active"
-              className="rounded-full px-4 py-2 text-xs font-semibold text-[#a89f91] transition hover:bg-[#c7a15a]/10 hover:text-[#f4efe7]"
-            >
-              {label}
-            </a>
+        <nav className="hidden items-center gap-7 md:flex">
+          {NAV.map(([label, href]) => (
+            <a key={href} href={href} className="text-xs font-semibold text-[#a89d92] transition hover:text-[#f6efe8]">{label}</a>
           ))}
         </nav>
-
-        <a
-          href={BRAND.whatsapp}
-          target="_blank"
-          rel="noreferrer"
-          data-cursor="active"
-          className="hidden rounded-full bg-[#c7a15a] px-5 py-2.5 text-xs font-semibold text-[#080807] transition hover:bg-[#f4efe7] md:inline-flex"
-        >
-          Vamos conversar
-        </a>
-
-        <button
-          type="button"
-          onClick={() => setOpen(current => !current)}
-          className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 p-2 md:hidden"
-          aria-label="Abrir menu"
-          aria-expanded={open}
-        >
-          <Icon name={open ? 'close' : 'menu'} className="h-5 w-5" />
+        <button onClick={() => setOpen(value => !value)} className="rounded-full border border-white/10 bg-white/5 px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] md:hidden">
+          {open ? 'Fechar' : 'Menu'}
         </button>
       </div>
-
       {open && (
-        <div className="border-t border-[#f4efe7]/10 bg-[#080807]/98 px-5 py-4 md:hidden">
-          {nav.map(([label, href]) => (
-            <a
-              key={href}
-              href={href}
-              onClick={() => setOpen(false)}
-              className="mb-2 block rounded-2xl bg-[#f4efe7]/5 px-4 py-3 text-sm font-semibold text-[#f4efe7]"
-            >
-              {label}
-            </a>
+        <div className="mx-5 mb-4 rounded-[1.5rem] border border-white/10 bg-[#050507]/95 p-3 backdrop-blur-2xl md:hidden">
+          {NAV.map(([label, href]) => (
+            <a key={href} href={href} onClick={() => setOpen(false)} className="mb-2 block rounded-2xl bg-white/[0.04] px-4 py-3 text-sm font-semibold text-[#f6efe8]">{label}</a>
           ))}
-
-          <a
-            href={BRAND.whatsapp}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-4 inline-flex w-full items-center justify-center rounded-2xl bg-[#c7a15a] px-4 py-3 text-sm font-semibold text-[#080807]"
-          >
-            Vamos conversar
-          </a>
         </div>
       )}
     </header>
   )
 }
 
-function Atmosphere({ sceneThemeKey = 'hero' }) {
-  const performance = usePerformanceProfile()
-  const isCompactViewport = useCompactViewport()
-  const animated = performance.atmosphereMotion && !isCompactViewport
-  const theme = SCENES[sceneThemeKey] ?? SCENES.hero
-
-  return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050505]">
-      <AnimatePresence mode="sync">
-        <motion.div
-          key={theme.sceneKey}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: animated ? 1.2 : 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0"
-        >
-          <div className="absolute inset-0" style={{ background: theme.background }} />
-          <motion.div
-            className="absolute inset-0"
-            style={{ background: theme.mesh }}
-            animate={animated ? { scale: [1, 1.035, 1], x: [0, 10, 0], y: [0, -6, 0] } : undefined}
-            transition={animated ? { duration: 18, repeat: Infinity, ease: 'easeInOut' } : undefined}
-          />
-          <div
-            className="absolute inset-0 opacity-[0.28] mix-blend-screen"
-            style={{ backgroundImage: theme.grid, backgroundSize: '78px 78px' }}
-          />
-        </motion.div>
-      </AnimatePresence>
-
-      <motion.div
-        className="absolute -right-[16vw] -top-[18vh] h-[65vh] w-[62vw] rounded-full blur-[92px]"
-        style={{ background: theme.accent }}
-        animate={
-          animated
-            ? { opacity: [0.16, 0.34, 0.16], scale: [1, 1.04, 1], x: [0, -12, 0] }
-            : { opacity: 0.16, scale: 1, x: 0 }
-        }
-        transition={animated ? { duration: 16, repeat: Infinity, ease: 'easeInOut' } : { duration: 0 }}
-      />
-
-      <motion.div
-        className="absolute -bottom-[20vh] -left-[18vw] h-[70vh] w-[56vw] rounded-full blur-[100px]"
-        style={{ background: theme.secondary }}
-        animate={
-          animated
-            ? { opacity: [0.14, 0.28, 0.14], scale: [1.01, 1, 1.01], x: [0, 14, 0] }
-            : { opacity: 0.14, scale: 1, x: 0 }
-        }
-        transition={animated ? { duration: 18, repeat: Infinity, ease: 'easeInOut' } : { duration: 0 }}
-      />
-
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `radial-gradient(circle at center, transparent 0%, rgba(0,0,0,.28) 42%, rgba(0,0,0,${
-            0.72 + 0.14 * performance.overlayOpacity
-          }) 100%)`,
-        }}
-      />
-      <div className="absolute inset-0 opacity-[0.015] [background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.18)_0px,rgba(255,255,255,.18)_1px,transparent_1px,transparent_8px)]" />
-    </div>
-  )
-}
-
 function Hero() {
   return (
-    <SpatialSection
-      id="top"
-      scene={SCENES.hero}
-      className="min-h-screen overflow-hidden px-5 pb-16 pt-24 sm:pt-28 lg:px-8"
-      shellClassName="forge-scene-focus"
-    >
-      <div className="forge-depth-stage relative mx-auto grid min-h-[calc(100vh-6.5rem)] max-w-[1500px] items-center gap-10 lg:min-h-[calc(100vh-7rem)] lg:grid-cols-[0.95fr_1.05fr] lg:gap-12">
-        <Scene type="depth">
-          <div className="relative z-10 max-w-[880px]">
-            <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.34em] text-[#c7a15a] sm:mb-7 sm:text-xs sm:tracking-[0.45em]">
-              MJR Forge - Front-end, UI premium e direção de produto
-            </p>
-
-            <h1 className="max-w-[11ch] text-[16vw] font-semibold leading-[0.88] tracking-[-0.09em] text-[#f4efe7] sm:text-[6rem] sm:leading-[0.84] lg:max-w-none lg:text-[8.4rem]">
-              Interfaces premium para produtos, marcas e negócios reais.
-            </h1>
-
-            <p className="mt-6 max-w-2xl text-base leading-8 text-[#d8d0c3] sm:mt-8 sm:text-lg md:text-xl md:leading-9">
-              Creative Front-end Developer focado em React, UI premium, dashboards e
-              experiências digitais modernas.
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-2">
-              {['React', 'Dashboards', 'Landing Pages', 'UI Systems'].map(item => (
-                <span
-                  key={item}
-                  className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#d8d0c3] sm:px-4 sm:text-[11px] sm:tracking-[0.18em]"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:gap-4">
-              <Button href="#work">Explorar projetos</Button>
-              <Button href={BRAND.whatsapp} secondary>
-                Falar comigo
-              </Button>
-            </div>
-          </div>
-        </Scene>
-
-        <Scene type="left" delay={0.12}>
-          <div className="relative ml-auto w-full max-w-[560px]">
-            <div className="absolute -inset-4 rounded-[2.5rem] bg-[#c7a15a]/8 blur-[52px] sm:-inset-8 sm:rounded-[3rem]" />
-
-            <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/70 p-3 shadow-[0_50px_160px_rgba(0,0,0,.55)]">
-              <img
-                src="/forge-portrait.jpg"
-                alt="Mauricio Junior"
-                className="h-[420px] w-full rounded-[2.2rem] object-cover object-[50%_42%] saturate-[.72] contrast-[1.12] brightness-[.72] sepia-[.12] sm:h-[560px] sm:rounded-[2.4rem] lg:h-[620px]"
-              />
-
-              <div className="absolute inset-3 rounded-[2.2rem] bg-[linear-gradient(180deg,transparent_35%,rgba(5,5,5,.92)_100%)] sm:rounded-[2.4rem]" />
-
-              <div className="absolute bottom-5 left-5 right-5 rounded-[1.6rem] border border-[#f4efe7]/10 bg-[#050505]/82 p-4 sm:bottom-8 sm:left-8 sm:right-8 sm:rounded-3xl sm:p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#c7a15a]">
-                  Design Engineering
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[#d8d0c3]">
-                  Interfaces com ritmo, presença e intenção para produtos digitais com leitura real.
-                </p>
-              </div>
-            </div>
-          </div>
-        </Scene>
+    <section id="top" className="relative z-10 flex min-h-screen items-center overflow-hidden px-5 pt-28 lg:px-8">
+      <div className="hero-video absolute inset-0 z-[-1] opacity-60">
+        <video className="h-full w-full object-cover opacity-40" autoPlay muted loop playsInline poster="/forge-portrait.jpg">
+          <source src="/forge-loop.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_64%_42%,rgba(232,132,46,.22),transparent_28%),linear-gradient(90deg,rgba(3,3,5,.92),rgba(3,3,5,.38),rgba(3,3,5,.9))]" />
       </div>
-    </SpatialSection>
-  )
-}
-
-function SectionTitle({ eyebrow, title, text, type = 'rise' }) {
-  return (
-    <Scene type={type} className="mb-14 grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
-      <div>
-        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">
-          {eyebrow}
-        </p>
-        <h2 className="max-w-4xl text-4xl font-semibold leading-[0.98] tracking-[-0.055em] text-[#f4efe7] md:text-6xl">
-          {title}
-        </h2>
+      <div className="mx-auto grid w-full max-w-[1560px] items-end gap-12 lg:grid-cols-[1.08fr_.92fr]">
+        <div className="max-w-[980px] pb-20">
+          <p className="hero-kicker mb-8 text-[11px] font-bold uppercase tracking-[0.48em] text-[#e8842e]">Front-end, UI premium e direção de produto</p>
+          <h1 className="hero-title text-[17vw] font-semibold leading-[0.86] tracking-[-0.095em] text-[#f6efe8] sm:text-[7rem] lg:text-[9.4rem]">
+            Interfaces que transformam ideias em <span className="text-[#e8842e] drop-shadow-[0_0_34px_rgba(232,132,46,.34)]">resultado real.</span>
+          </h1>
+          <p className="hero-copy mt-8 max-w-2xl text-lg leading-8 text-[#d7ccc1]">Eu crio experiências digitais com presença, ritmo, automação e acabamento de produto — como peças forjadas para vender, guiar e impressionar.</p>
+          <div className="hero-actions mt-9 flex flex-col gap-4 sm:flex-row">
+            <a href="#work" className="group rounded-full border border-[#e8842e]/45 bg-[#e8842e]/14 px-8 py-4 text-center text-sm font-semibold text-[#f6efe8] shadow-[0_0_60px_rgba(232,132,46,.22)] transition hover:bg-[#e8842e] hover:text-[#080604]">Explorar projetos →</a>
+            <a href={BRAND.whatsapp} target="_blank" rel="noreferrer" className="rounded-full border border-white/12 bg-white/[0.04] px-8 py-4 text-center text-sm font-semibold text-[#f6efe8] transition hover:border-[#e8842e]/40">Falar comigo →</a>
+          </div>
+        </div>
+        <div className="forge-core hidden pb-20 lg:block">
+          <div className="relative ml-auto aspect-square max-w-[520px] rounded-full border border-[#e8842e]/20 bg-[radial-gradient(circle_at_50%_50%,rgba(232,132,46,.22),transparent_32%),radial-gradient(circle_at_50%_58%,rgba(42,92,190,.15),transparent_46%)] shadow-[0_0_140px_rgba(232,132,46,.16)]">
+            <div className="absolute inset-[18%] rounded-full border border-white/10 bg-[#050507]/70 blur-[1px]" />
+            <div className="absolute inset-[30%] rounded-full bg-[#e8842e]/20 blur-3xl" />
+            <div className="absolute left-1/2 top-1/2 h-px w-[130%] -translate-x-1/2 -translate-y-1/2 rotate-[-17deg] bg-gradient-to-r from-transparent via-[#e8842e]/70 to-transparent" />
+          </div>
+        </div>
       </div>
-
-      {text && <p className="max-w-2xl text-lg leading-8 text-[#a89f91]">{text}</p>}
-    </Scene>
+      <div className="scroll-indicator absolute bottom-8 left-1/2 hidden -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.34em] text-[#a89d92] md:block">Role para acender</div>
+    </section>
   )
 }
 
 function Manifesto() {
   return (
-    <SpatialSection
-      id="manifesto"
-      scene={SCENES.manifesto}
-      className="mx-auto max-w-[1500px] px-5 py-20 lg:px-8"
-      shellClassName="forge-scene-focus"
-    >
-      <Scene type="depth">
-        <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/88 p-8 shadow-[0_40px_140px_rgba(0,0,0,.45)] md:p-14 lg:p-20">
-          <div className="grid gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
-            <div>
-              <p className="mb-6 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">
-                Manifesto
-              </p>
-              <h2 className="text-5xl font-semibold leading-[0.95] tracking-[-0.07em] text-[#f4efe7] md:text-7xl">
-                O site não precisa gritar. Precisa conduzir.
-              </h2>
-            </div>
-
-            <div>
-              <p className="text-xl leading-9 text-[#a89f91]">
-                O Forge parte da ideia de que uma boa interface tem ritmo: silêncio, tensão,
-                respiro, impacto e clareza. Menos efeito aleatório. Mais direção visual.
-              </p>
-
-              <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-5">
-                {principles.map((item, index) => (
-                  <Scene key={item} type="rise" delay={index * 0.04}>
-                    <div className="rounded-2xl border border-[#f4efe7]/10 bg-[#050505]/60 px-4 py-5 text-center text-sm font-semibold text-[#d8d0c3]">
-                      {item}
-                    </div>
-                  </Scene>
-                ))}
-              </div>
-            </div>
-          </div>
+    <section id="manifesto" className="cinema-section relative z-10 mx-auto max-w-[1560px] px-5 py-28 lg:px-8 lg:py-40">
+      <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr]">
+        <p className="section-kicker text-xs font-bold uppercase tracking-[0.48em] text-[#e8842e]">Manifesto</p>
+        <div>
+          <h2 className="split-title text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Código é ferramenta. Propósito é o que fica.</h2>
+          <p className="mt-8 max-w-3xl text-lg leading-9 text-[#d7ccc1]">A alma da forja não é fogo na tela. É transformação: ideia bruta entrando, método aquecendo, interface ganhando forma e produto saindo pronto para uso real.</p>
         </div>
-      </Scene>
-    </SpatialSection>
+      </div>
+    </section>
   )
 }
 
-function JourneyScene() {
+function Journey() {
   return (
-    <SpatialSection
-      id="journey"
-      scene={SCENES.journey}
-      className="mx-auto max-w-[1500px] px-5 py-20 lg:px-8"
-      shellClassName="forge-scene-focus"
-    >
-      <SectionTitle
-        type="left"
-        eyebrow="Jornada / ritmo"
-        title="A jornada atravessa a tela."
-        text="Uma trilha horizontal dentro do scroll natural, com leitura progressiva, direção e respiro cinematográfico."
-      />
-
-      <div className="overflow-x-auto pb-4">
-        <div className="flex min-w-max gap-5 pr-5">
-          {milestones.map(([number, time, text], index) => (
-            <Scene key={time} type="left" delay={index * 0.07}>
-              <article
-                data-cursor="active"
-                className="forge-emerge-card forge-scene-focus relative h-[360px] w-[82vw] max-w-[360px] rounded-[2.2rem] border border-[#f4efe7]/10 bg-[#0c0b09]/88 p-6 shadow-[0_40px_140px_rgba(0,0,0,.42)] sm:h-[420px] sm:w-[360px] sm:rounded-[2.4rem] sm:p-8"
-              >
-                <p className="text-[6rem] font-semibold leading-none tracking-[-0.12em] text-[#c7a15a]/18">
-                  {number}
-                </p>
-                <p className="mt-12 text-xs font-semibold uppercase tracking-[0.32em] text-[#c7a15a] sm:mt-20">
-                  {time}
-                </p>
-                <p className="mt-5 text-base leading-8 text-[#a89f91]">{text}</p>
-              </article>
-            </Scene>
+    <section id="journey" className="camera-section relative z-10 overflow-hidden border-y border-white/10 bg-black/20 px-5 py-28 lg:px-8 lg:py-0">
+      <div className="camera-stage mx-auto grid max-w-[1560px] gap-12 lg:min-h-screen lg:grid-cols-[.82fr_1.18fr] lg:items-center">
+        <div>
+          <p className="section-kicker mb-5 text-xs font-bold uppercase tracking-[0.48em] text-[#e8842e]">Jornada</p>
+          <h2 className="camera-title text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Da faísca ao domínio.</h2>
+          <p className="mt-7 max-w-xl text-base leading-8 text-[#d7ccc1]">O movimento aqui é câmera: aproxima, revela camadas, atravessa calor e estabiliza quando a peça toma forma.</p>
+        </div>
+        <div className="camera-cards grid gap-4">
+          {PROCESS.map(([step, title, text]) => (
+            <article key={step} className="camera-card rounded-[2rem] border border-white/10 bg-[#080807]/70 p-6 shadow-[0_30px_100px_rgba(0,0,0,.35)] backdrop-blur-xl">
+              <p className="mb-5 text-xs font-bold text-[#e8842e]">{step}</p>
+              <h3 className="text-2xl font-semibold text-[#f6efe8]">{title}</h3>
+              <p className="mt-3 leading-7 text-[#a89d92]">{text}</p>
+            </article>
           ))}
         </div>
       </div>
-    </SpatialSection>
+    </section>
   )
 }
 
 function Work() {
-  const performance = usePerformanceProfile()
-
   return (
-    <SpatialSection
-      id="work"
-      scene={SCENES.work}
-      className="mx-auto max-w-[1500px] px-5 py-20 lg:px-8"
-      shellClassName="forge-scene-focus"
-    >
-      <SectionTitle
-        type="expand"
-        eyebrow="Projetos selecionados"
-        title="Projetos com leitura de produto e atmosfera própria."
-        text="Três atmosferas com leitura clara de produto: business frio, editorial quente e automação silenciosa."
-      />
-
-      <div className="grid gap-8">
-        {projects.map((project, index) => (
-          <Scene
-            key={project.title}
-            type={index % 2 === 0 ? 'depth' : 'left'}
-            delay={index * 0.08}
-          >
-            <motion.article
-              whileHover={performance.hoverLift ? { y: -Math.max(2, performance.hoverLift - 2) } : undefined}
-              data-cursor="active"
-              style={PROJECT_TONES[project.slug] ?? PROJECT_TONES.jarvis}
-              className="forge-emerge-card forge-project-storyboard overflow-hidden rounded-[2.3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/88 p-3 shadow-[0_40px_140px_rgba(0,0,0,.45)] sm:rounded-[2.8rem] sm:p-4"
-            >
-              <div className="relative grid gap-8 rounded-[2rem] bg-gradient-to-br from-[#f4efe7]/[0.025] via-transparent to-transparent p-5 sm:rounded-[2.4rem] sm:p-7 md:p-10 lg:grid-cols-[0.5fr_0.72fr_1.14fr] lg:items-start lg:gap-10">
-                <div className="relative z-10">
-                  <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#c7a15a]">
-                    {project.label}
-                  </p>
-                  <p className="mt-3 inline-flex rounded-full border border-[#f4efe7]/10 bg-[#0f0f0e]/88 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b7afa3]">
-                    {project.status}
-                  </p>
-                  <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8f877b]">
-                    {project.summary}
-                  </p>
-                  <h3 className="mt-4 text-[2.8rem] font-semibold tracking-[-0.06em] text-[#f4efe7] md:text-6xl">
-                    {project.title}
-                  </h3>
-                </div>
-
-                <div className="relative z-10">
-                  <p className="max-w-[42ch] text-base leading-8 text-[#b5ada1] md:text-lg">{project.text}</p>
-                  <p className="mt-4 max-w-[42ch] text-sm leading-7 text-[#8f877b]">
-                    {project.note}
-                  </p>
-
-                  <div className="mt-6 flex flex-wrap gap-2.5">
-                    {project.tags.map(tag => (
-                      <span
-                        key={tag}
-                        className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/[0.04] px-3.5 py-1.5 text-[11px] font-semibold text-[#d8d0c3]"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  {(project.demo || project.repo) && (
-                    <div className="mt-8 flex flex-wrap gap-3">
-                      {project.demo && <Button href={project.demo}>Demo</Button>}
-                      {project.repo && (
-                        <Button href={project.repo} secondary>
-                          GitHub
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <ProjectMockup index={index} project={project} />
+    <section id="work" className="relative z-10 mx-auto max-w-[1560px] px-5 py-28 lg:px-8 lg:py-40">
+      <div className="mb-14 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+        <div>
+          <p className="section-kicker mb-5 text-xs font-bold uppercase tracking-[0.48em] text-[#e8842e]">Projetos</p>
+          <h2 className="split-title text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Peças forjadas para gerar impacto.</h2>
+        </div>
+        <p className="max-w-xl text-base leading-8 text-[#d7ccc1]">Cada card reage como material aquecido: borda viva, profundidade, microbrasa e foco no resultado.</p>
+      </div>
+      <div className="grid gap-5 lg:grid-cols-3">
+        {PROJECTS.map(project => (
+          <a key={project.title} href={project.href || '#contact'} data-forge-card className="forge-card group relative min-h-[420px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#080807]/72 p-7 shadow-[0_30px_120px_rgba(0,0,0,.38)] backdrop-blur-xl">
+            <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100" style={{ background: 'radial-gradient(circle at 70% 20%, rgba(232,132,46,.22), transparent 30%), linear-gradient(180deg, transparent, rgba(232,132,46,.08))' }} />
+            <div className="relative z-10">
+              <p className="text-[10px] font-bold uppercase tracking-[0.34em] text-[#e8842e]">{project.eyebrow}</p>
+              <h3 className="mt-7 text-4xl font-semibold tracking-[-0.05em] text-[#f6efe8]">{project.title}</h3>
+              <p className="mt-6 leading-8 text-[#d7ccc1]">{project.text}</p>
+              <div className="mt-8 flex flex-wrap gap-2">
+                {project.tags.map(tag => <span key={tag} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#a89d92]">{tag}</span>)}
               </div>
-            </motion.article>
-          </Scene>
+            </div>
+            <span className="absolute bottom-7 left-7 right-7 h-px bg-gradient-to-r from-[#e8842e]/70 via-white/10 to-transparent" />
+          </a>
         ))}
       </div>
-    </SpatialSection>
+    </section>
   )
 }
 
-function ProfessionalLayer() {
+function ProcessSection() {
   return (
-    <SpatialSection
-      id="professional"
-      scene={SCENES.professional}
-      className="mx-auto max-w-[1500px] px-5 py-20 lg:px-8"
-      shellClassName="forge-scene-focus"
-    >
-      <SectionTitle
-        type="rise"
-        eyebrow="Camada profissional"
-        title="Front-end React com UI premium, dashboards e foco em entrega."
-        text="Camada objetiva para recrutadores e clientes que precisam entender escopo, direção e disponibilidade com leitura rápida."
-      />
-
-      <Scene type="depth">
-        <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/86 p-8 shadow-[0_40px_140px_rgba(0,0,0,.45)] md:p-14">
-          <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr]">
-            <div className="flex flex-col justify-between gap-8">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">
-                  Posicionamento
-                </p>
-                <h3 className="mt-4 text-4xl font-semibold tracking-[-0.06em] text-[#f4efe7] md:text-5xl">
-                  Disponível para estágio e freelas com construção cuidadosa.
-                </h3>
-                <p className="mt-6 max-w-xl text-lg leading-8 text-[#a89f91]">
-                  Desenvolvimento front-end com React, dashboards, páginas de conversão,
-                  refinamento visual e automação aplicada ao processo.
-                </p>
-              </div>
-
-              <div className="rounded-[2rem] border border-[#f4efe7]/10 bg-[#050505]/55 p-5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#c7a15a]">
-                  Disponível agora
-                </p>
-                <p className="mt-3 text-base leading-7 text-[#d8d0c3]">
-                  Aberto para estágio Front-end React, landing pages, dashboards e projetos
-                  digitais com direção visual e foco em produto.
-                </p>
-              </div>
+    <section id="process" className="relative z-10 border-y border-white/10 bg-[#030305]/55 px-5 py-28 lg:px-8 lg:py-36">
+      <div className="mx-auto max-w-[1560px]">
+        <p className="section-kicker mb-5 text-xs font-bold uppercase tracking-[0.48em] text-[#e8842e]">Processo</p>
+        <h2 className="split-title max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Um método forjado para resultados sólidos.</h2>
+        <div className="process-line mt-14 grid gap-4 md:grid-cols-5">
+          {PROCESS.map(([step, title, text]) => (
+            <div key={step} className="process-step rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-5">
+              <p className="text-xs font-bold text-[#e8842e]">{step}</p>
+              <h3 className="mt-8 text-xl font-semibold text-[#f6efe8]">{title}</h3>
+              <p className="mt-4 text-sm leading-7 text-[#a89d92]">{text}</p>
             </div>
-
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {professionalHighlights.map((item, index) => (
-                <Scene key={item.title} type="rise" delay={index * 0.04}>
-                  <article className="forge-emerge-card h-full rounded-[2rem] border border-[#f4efe7]/10 bg-[#050505]/45 p-5">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#c7a15a]">
-                      {String(index + 1).padStart(2, '0')}
-                    </p>
-                    <h4 className="mt-5 text-2xl font-semibold tracking-[-0.05em] text-[#f4efe7]">
-                      {item.title}
-                    </h4>
-                    <p className="mt-4 text-sm leading-7 text-[#a89f91]">{item.text}</p>
-                  </article>
-                </Scene>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
-      </Scene>
-    </SpatialSection>
-  )
-}
-
-function Process() {
-  return (
-    <SpatialSection
-      id="processo"
-      scene={SCENES.process}
-      className="mx-auto max-w-[1500px] px-5 py-20 lg:px-8"
-      shellClassName="forge-scene-focus"
-    >
-      <Scene type="rise">
-        <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/84 p-8 md:p-14 lg:p-20">
-          <p className="mb-6 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">
-            Processo
-          </p>
-          <h2 className="max-w-5xl text-5xl font-semibold leading-[0.95] tracking-[-0.07em] text-[#f4efe7] md:text-7xl">
-            Do briefing ao refinamento.
-          </h2>
-
-          <div className="mt-16 grid gap-4 md:grid-cols-5">
-            {['Briefing', 'Direção', 'Build', 'Refino', 'Deploy'].map((item, index) => (
-              <Scene key={item} type="rise" delay={index * 0.06}>
-                <div className="forge-emerge-card rounded-[2rem] border border-[#f4efe7]/10 bg-[#050505]/50 p-6">
-                  <p className="mb-10 text-sm font-semibold text-[#c7a15a]">0{index + 1}</p>
-                  <h3 className="text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
-                    {item}
-                  </h3>
-                </div>
-              </Scene>
-            ))}
-          </div>
-        </div>
-      </Scene>
-    </SpatialSection>
+      </div>
+    </section>
   )
 }
 
 function Contact() {
   return (
-    <SpatialSection
-      id="contato"
-      scene={SCENES.contact}
-      className="mx-auto max-w-6xl px-5 py-20 text-center lg:px-8"
-      shellClassName="forge-scene-focus"
-    >
-      <Scene type="final">
-        <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/86 p-8 md:p-16">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c7a15a] to-transparent" />
-
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">
-            Cena final
-          </p>
-          <h2 className="mx-auto mt-6 max-w-4xl text-4xl font-semibold tracking-[-0.06em] text-[#f4efe7] md:text-6xl">
-            Disponível para estágio e projetos selecionados.
-          </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[#a89f91]">
-            Aberto para estágio Front-end React, freelas de landing pages, dashboards e
-            experiências digitais com direção visual e visão de produto.
-          </p>
-
-          <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
-            <Button href={BRAND.whatsapp}>WhatsApp</Button>
-            <Button href={`mailto:${BRAND.email}`} secondary>
-              E-mail
-            </Button>
-            <Button href={BRAND.github} secondary>
-              GitHub
-            </Button>
-          </div>
+    <section id="contact" className="relative z-10 mx-auto max-w-[1560px] px-5 py-28 lg:px-8 lg:py-40">
+      <div className="contact-core rounded-[2.5rem] border border-[#e8842e]/20 bg-[radial-gradient(circle_at_74%_20%,rgba(232,132,46,.2),transparent_32%),rgba(8,8,8,.78)] p-8 shadow-[0_40px_160px_rgba(0,0,0,.5)] backdrop-blur-xl md:p-14">
+        <p className="section-kicker mb-5 text-xs font-bold uppercase tracking-[0.48em] text-[#e8842e]">Contato</p>
+        <h2 className="split-title max-w-5xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Traga a ideia bruta. Eu forjo a interface.</h2>
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+          <a href={BRAND.whatsapp} target="_blank" rel="noreferrer" className="rounded-full bg-[#e8842e] px-8 py-4 text-center text-sm font-bold text-[#080604] transition hover:bg-[#f6efe8]">Começar conversa →</a>
+          <a href={BRAND.github} target="_blank" rel="noreferrer" className="rounded-full border border-white/12 bg-white/[0.04] px-8 py-4 text-center text-sm font-bold text-[#f6efe8]">Ver GitHub →</a>
         </div>
-      </Scene>
-    </SpatialSection>
+      </div>
+    </section>
   )
 }
 
-function AppShell() {
-  const { mode, setMode, resolvedMode } = usePerformanceMode()
-  const prefersReducedMotion = useReducedMotion()
-  const isCompactViewport = useCompactViewport()
-  const [activeSceneKey, setActiveSceneKey] = useState('hero')
-  const performanceProfile = useMemo(
-    () =>
-      getPerformanceProfile(resolvedMode, {
-        prefersReducedMotion,
-        isCompactViewport,
-      }),
-    [isCompactViewport, prefersReducedMotion, resolvedMode],
-  )
+function App() {
+  const rootRef = useRef(null)
+  const reducedMotion = useReducedMotionPreference()
+  const isMobile = useMemo(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches, [])
 
-  useSpatialJourney(performanceProfile, setActiveSceneKey)
+  useLenis(reducedMotion)
 
   useEffect(() => {
-    document.documentElement.dataset.cursorMode = performanceProfile.cursorEnabled ? 'custom' : 'native'
-    document.documentElement.dataset.performanceMode = performanceProfile.key
-    document.documentElement.dataset.motion = performanceProfile.motionEnabled ? 'full' : 'reduce'
+    if (typeof window === 'undefined' || reducedMotion) return undefined
 
-    return () => {
-      delete document.documentElement.dataset.cursorMode
-      delete document.documentElement.dataset.performanceMode
-      delete document.documentElement.dataset.motion
-    }
-  }, [performanceProfile])
+    gsap.registerPlugin(ScrollTrigger)
+
+    const ctx = gsap.context(() => {
+      gsap.set(['.hero-kicker', '.hero-title', '.hero-copy', '.hero-actions'], { opacity: 0, y: 28 })
+      gsap.timeline({ defaults: { ease: 'power3.out' } })
+        .to('.hero-kicker', { opacity: 1, y: 0, duration: 0.9, delay: 0.32 })
+        .to('.hero-title', { opacity: 1, y: 0, duration: 1.25 }, '-=0.42')
+        .to('.hero-copy', { opacity: 1, y: 0, duration: 0.9 }, '-=0.48')
+        .to('.hero-actions', { opacity: 1, y: 0, duration: 0.82 }, '-=0.42')
+
+      gsap.to('.scroll-indicator', {
+        opacity: 0,
+        y: -12,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: '#manifesto', start: 'top 88%', end: 'top 72%', scrub: 0.8 },
+      })
+
+      gsap.utils.toArray('.section-kicker').forEach(el => {
+        gsap.fromTo(el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 86%' } })
+      })
+
+      gsap.utils.toArray('.split-title').forEach(el => {
+        gsap.fromTo(el, { opacity: 0, y: 34, scale: 0.985 }, { opacity: 1, y: 0, scale: 1, duration: 1.05, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 84%' } })
+      })
+
+      gsap.utils.toArray('[data-forge-card]').forEach(card => {
+        gsap.fromTo(card, { opacity: 0, y: 48, scale: 0.965 }, { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 86%' } })
+      })
+
+      gsap.fromTo('.process-step', { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 0.85, stagger: 0.14, ease: 'power3.out', scrollTrigger: { trigger: '.process-line', start: 'top 82%' } })
+
+      if (!isMobile) {
+        const cards = gsap.utils.toArray('.camera-card')
+        const cameraTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: '.camera-section',
+            start: 'top top',
+            end: '+=220%',
+            pin: true,
+            scrub: 1.1,
+            anticipatePin: 1,
+          },
+        })
+        cameraTl.fromTo('.camera-title', { y: 80, scale: 0.94, opacity: 0.35 }, { y: 0, scale: 1, opacity: 1, duration: 1.2, ease: 'power3.out' })
+        cards.forEach((card, index) => {
+          cameraTl.fromTo(card, { y: 110, opacity: 0, scale: 0.92 }, { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: 'power3.out' }, index * 0.2)
+        })
+        cameraTl.to('.camera-stage', { scale: 0.965, y: -24, duration: 0.9, ease: 'power3.inOut' })
+      } else {
+        gsap.fromTo('.camera-card', { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.75, stagger: 0.16, ease: 'power3.out', scrollTrigger: { trigger: '.camera-cards', start: 'top 82%' } })
+      }
+
+      gsap.to('.forge-core', { y: -38, scale: 1.04, ease: 'power3.inOut', scrollTrigger: { trigger: '#top', start: 'top top', end: 'bottom top', scrub: 1.2 } })
+      gsap.to('.contact-core', { boxShadow: '0 0 160px rgba(232,132,46,.2)', duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: '.contact-core', start: 'top 70%' } })
+    }, rootRef)
+
+    return () => ctx.revert()
+  }, [reducedMotion, isMobile])
 
   return (
-    <PerformanceProfileContext.Provider value={performanceProfile}>
-      <main
-        className="forge-root min-h-screen overflow-hidden bg-[#050505] text-[#f4efe7] antialiased"
-        data-performance-mode={performanceProfile.key}
-        data-motion={performanceProfile.motionEnabled ? 'full' : 'reduce'}
-        style={performanceProfile.cssVariables}
-      >
-        <Atmosphere sceneThemeKey={activeSceneKey} />
-        <DynamicLight />
-        <Header />
-
-        <div className="forge-spatial-orbit">
-          <Hero />
-          <Bridge label="manifesto" />
-          <Manifesto />
-          <Bridge label="timeline" align="right" />
-          <JourneyScene />
-          <Bridge label="projetos" />
-          <Work />
-          <Bridge label="camada profissional" align="right" />
-          <ProfessionalLayer />
-          <Bridge label="process" />
-          <Process />
-          <Bridge label="cena final" align="right" />
-          <Contact />
-
-          <footer className="relative z-10 border-t border-[#f4efe7]/10 px-5 py-8 lg:px-8">
-            <div className="mx-auto flex max-w-[1500px] flex-col gap-4 text-sm text-[#766f65] md:flex-row md:items-center md:justify-between">
-              <p>
-                &copy; 2026 {BRAND.signature} - {BRAND.name}
-              </p>
-              <p>React - UI premium - dashboards - automação aplicada à entrega</p>
-            </div>
-          </footer>
-        </div>
-
-        <PerformanceModeToggle
-          mode={mode}
-          setMode={setMode}
-          resolvedMode={performanceProfile.key}
-        />
-      </main>
-    </PerformanceProfileContext.Provider>
+    <main ref={rootRef} className="forge-root relative min-h-screen overflow-x-hidden bg-[#030305] text-[#f6efe8]">
+      <ForgeCanvas reducedMotion={reducedMotion} />
+      <Cursor reducedMotion={reducedMotion} />
+      <div className="pointer-events-none fixed inset-0 z-[1] bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,.24)_45%,rgba(0,0,0,.78)_100%)]" />
+      <Header />
+      <div className="relative z-10">
+        <Hero />
+        <Manifesto />
+        <Journey />
+        <Work />
+        <ProcessSection />
+        <Contact />
+      </div>
+    </main>
   )
 }
 
-export default function App() {
-  return <AppShell />
-}
+export default App
