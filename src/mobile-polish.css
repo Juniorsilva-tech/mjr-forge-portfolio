@@ -18,15 +18,15 @@ main:before {
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: .62;
+  opacity: .72;
   background:
     linear-gradient(128deg, rgba(255,255,255,.07) 0 1px, transparent 1px 16px),
-    linear-gradient(36deg, transparent 0 34%, rgba(154,111,255,.075) 35%, transparent 39%, rgba(255,133,44,.052) 62%, transparent 67%),
+    linear-gradient(36deg, transparent 0 34%, rgba(154,111,255,.085) 35%, transparent 39%, rgba(255,133,44,.062) 62%, transparent 67%),
     radial-gradient(circle at 24% 20%, rgba(255,255,255,.07) 0 1px, transparent 1.5px),
     radial-gradient(circle at 80% 58%, rgba(255,126,35,.06) 0 1px, transparent 1.5px);
   background-size: 100% 100%, 100% 100%, 28px 28px, 34px 34px;
   mix-blend-mode: screen;
-  animation: obsidianShift 12s ease-in-out infinite alternate;
+  animation: obsidianShift 13s ease-in-out infinite alternate;
 }
 main:after {
   content: '';
@@ -34,13 +34,13 @@ main:after {
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: .78;
+  opacity: .88;
   background:
-    radial-gradient(circle at 82% 15%, rgba(255,132,38,.28), transparent 22%),
-    radial-gradient(circle at 58% 82%, rgba(255,92,25,.12), transparent 30%),
-    radial-gradient(circle at 18% 76%, rgba(111,70,210,.14), transparent 31%),
-    radial-gradient(circle at center, transparent 0%, rgba(0,0,0,.08) 54%, rgba(0,0,0,.38) 100%);
-  animation: forgeFireBreath 4.8s ease-in-out infinite alternate;
+    radial-gradient(circle at 82% 15%, rgba(255,132,38,.32), transparent 22%),
+    radial-gradient(circle at 58% 82%, rgba(255,92,25,.15), transparent 30%),
+    radial-gradient(circle at 18% 76%, rgba(111,70,210,.17), transparent 31%),
+    radial-gradient(circle at center, transparent 0%, rgba(0,0,0,.06) 54%, rgba(0,0,0,.36) 100%);
+  animation: forgeFireBreath 5.8s ease-in-out infinite alternate;
 }
 main > * { position: relative; z-index: 1; }
 main section:first-of-type {
@@ -50,21 +50,22 @@ main section:first-of-type {
     radial-gradient(circle at 17% 68%, rgba(112,66,210,.18), transparent 28%),
     linear-gradient(180deg, rgba(2,2,3,.86) 0%, rgba(8,5,4,.76) 48%, rgba(3,3,5,.9) 100%);
 }
+main section:first-of-type .profile-card { display: none !important; }
 main section:first-of-type:before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: .54;
+  opacity: .60;
   background:
     linear-gradient(128deg, rgba(255,255,255,.09) 0 1px, transparent 1px 13px),
-    linear-gradient(42deg, transparent 0 38%, rgba(180,150,255,.08) 39%, transparent 42%),
+    linear-gradient(42deg, transparent 0 38%, rgba(180,150,255,.09) 39%, transparent 42%),
     radial-gradient(circle at 24% 24%, rgba(255,255,255,.07) 0 1px, transparent 1.4px),
     radial-gradient(circle at 78% 54%, rgba(255,135,48,.06) 0 1px, transparent 1.4px);
   background-size: 100% 100%, 100% 100%, 28px 28px, 36px 36px;
   mix-blend-mode: screen;
-  animation: obsidianShift 11s ease-in-out infinite alternate;
+  animation: obsidianShift 12s ease-in-out infinite alternate;
 }
 main section:first-of-type:after {
   content: '';
@@ -73,13 +74,13 @@ main section:first-of-type:after {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(circle at 82% 18%, rgba(255,132,38,.32), transparent 21%),
-    radial-gradient(circle at 72% 36%, rgba(255,70,22,.18), transparent 23%),
-    radial-gradient(circle at 22% 72%, rgba(111,70,210,.17), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(255,132,38,.34), transparent 21%),
+    radial-gradient(circle at 72% 36%, rgba(255,70,22,.2), transparent 23%),
+    radial-gradient(circle at 22% 72%, rgba(111,70,210,.18), transparent 28%),
     linear-gradient(135deg, rgba(255,255,255,.035), transparent 24%, rgba(255,135,48,.06) 42%, transparent 62%),
-    radial-gradient(circle at center, transparent 0%, rgba(0,0,0,.1) 58%, rgba(0,0,0,.42) 100%);
+    radial-gradient(circle at center, transparent 0%, rgba(0,0,0,.08) 58%, rgba(0,0,0,.40) 100%);
   filter: saturate(1.35);
-  animation: forgeFireBreath 4.6s ease-in-out infinite alternate;
+  animation: forgeFireBreath 5.2s ease-in-out infinite alternate;
 }
 main section:first-of-type > div:not(.pointer-events-none) { position: relative; z-index: 1; }
 main h1 { animation: mjrTitleIn 720ms ease both; text-shadow: 0 0 42px rgba(232,132,46,.11); }
@@ -126,8 +127,8 @@ main a:active, main button:active { transform: scale(.98); }
 @keyframes mjrTitleIn { from { opacity: 0; transform: translateY(24px) scale(.98); filter: blur(10px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
 @keyframes mjrRevealIn { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
 @keyframes mjrSoftFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-@keyframes forgeFireBreath { from { opacity: .68; transform: scale(1); } to { opacity: .98; transform: scale(1.035); } }
-@keyframes obsidianShift { from { opacity: .34; background-position: 0 0, 0 0, 0 0, 0 0; } to { opacity: .74; background-position: 0 0, 12px -18px, 18px 20px, -14px 16px; } }
+@keyframes forgeFireBreath { from { opacity: .62; transform: scale(1) translate3d(0,0,0); } to { opacity: .98; transform: scale(1.045) translate3d(-1.2%, -1%, 0); } }
+@keyframes obsidianShift { from { opacity: .38; background-position: 0 0, 0 0, 0 0, 0 0; transform: translate3d(0,0,0) scale(1); } to { opacity: .78; background-position: 0 0, 18px -24px, 22px 26px, -18px 20px; transform: translate3d(-1%, .8%, 0) scale(1.018); } }
 @media (max-width: 767px) {
   main section { padding-top: 4rem; padding-bottom: 4rem; }
   main section:first-of-type { padding-top: 8rem; }
