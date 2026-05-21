@@ -4,25 +4,20 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint . --max-warnings=0"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@gsap/react": "latest",
-    "gsap": "latest",
-    "lenis": "latest",
-    "next": "latest",
+    "@vitejs/plugin-react": "latest",
+    "vite": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "framer-motion": "latest"
   },
   "devDependencies": {
-    "@eslint/js": "latest",
-    "autoprefixer": "latest",
-    "eslint": "latest",
-    "eslint-config-next": "latest",
+    "tailwindcss": "3.4.17",
     "postcss": "latest",
-    "tailwindcss": "3.4.17"
+    "autoprefixer": "latest"
   }
 }
