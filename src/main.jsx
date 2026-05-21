@@ -4,6 +4,7 @@ import App from './App.jsx'
 import './index.css'
 import './scene-transitions.css'
 import './premium-polish.css'
+import './mobile-menu-forge.css'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
