@@ -13,7 +13,9 @@
     "vite": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "framer-motion": "latest"
+    "framer-motion": "latest",
+    "gsap": "latest",
+    "lenis": "latest"
   },
   "devDependencies": {
     "tailwindcss": "3.4.17",
