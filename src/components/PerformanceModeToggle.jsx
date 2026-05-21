@@ -243,13 +243,13 @@ export function usePerformanceMode() {
 }
 
 export default function PerformanceModeToggle({ mode, setMode, resolvedMode }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
   const fps = usePerformanceFps(mode === 'auto')
   const isAutoLow = mode === 'auto' && resolvedMode === 'low'
 
   return (
-    <div className="fixed bottom-4 right-4 z-[80] max-w-[calc(100vw-2rem)]">
-      {isAutoLow && (
+    <div className="performance-mode-panel fixed bottom-4 right-4 z-[80] max-w-[calc(100vw-2rem)]">
+      {isAutoLow && open && (
         <div className="mb-2 max-w-[280px] rounded-[1.35rem] border border-[#f4efe7]/10 bg-[#0a0907]/96 px-3.5 py-2.5 text-[11px] font-semibold text-[#d8d0c3] shadow-[0_18px_45px_rgba(0,0,0,.35)]">
           Auto priorizou fluidez neste dispositivo.
         </div>
@@ -258,15 +258,16 @@ export default function PerformanceModeToggle({ mode, setMode, resolvedMode }) {
       <button
         type="button"
         onClick={() => setOpen(current => !current)}
-        className="ml-auto flex h-11 w-11 items-center justify-center rounded-full border border-[#f4efe7]/10 bg-[#0a0907]/96 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f4efe7] shadow-[0_18px_45px_rgba(0,0,0,.35)] md:hidden"
+        className="ml-auto mb-2 flex h-11 min-w-11 items-center justify-center rounded-full border border-[#f4efe7]/10 bg-[#0a0907]/96 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#f4efe7] shadow-[0_18px_45px_rgba(0,0,0,.35)] md:hidden"
         aria-label="Alternar modo de performance"
         aria-expanded={open}
       >
-        {resolvedMode.slice(0, 1).toUpperCase()}
+        Perf · {resolvedMode.slice(0, 1).toUpperCase()}
       </button>
 
       <div
-        className={`${open ? 'mt-2 block' : 'hidden'} rounded-[1.6rem] border border-[#f4efe7]/10 bg-[#0a0907]/96 px-3 py-3 shadow-[0_22px_60px_rgba(0,0,0,.4)] md:block`}
+        data-performance-card="true"
+        className={`${open ? 'block' : 'hidden'} rounded-[1.6rem] border border-[#f4efe7]/10 bg-[#0a0907]/96 px-3 py-3 shadow-[0_22px_60px_rgba(0,0,0,.4)] md:block`}
       >
         <div className="mb-3 flex items-center justify-between gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8f877b]">
           <span>Performance</span>
@@ -285,7 +286,7 @@ export default function PerformanceModeToggle({ mode, setMode, resolvedMode }) {
                 key={item.value}
                 type="button"
                 onClick={() => setMode(item.value)}
-                className={`rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition ${
+                className={`rounded-xl border px-2.5 py-2 text-xs font-semibold transition ${
                   active
                     ? 'border-[#c7a15a]/35 bg-[#c7a15a]/12 text-[#f4efe7]'
                     : 'border-[#f4efe7]/10 bg-[#f4efe7]/[0.03] text-[#8f877b] hover:border-[#f4efe7]/20 hover:bg-[#f4efe7]/[0.05] hover:text-[#d8d0c3]'
