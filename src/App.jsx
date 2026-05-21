@@ -49,6 +49,25 @@ const PROCESS = [
   ['05', 'Entrega', 'Deploy limpo, apresentação clara e próximos passos para evoluir o produto.'],
 ]
 
+const QUALITY = {
+  auto: { label: 'Auto', ember: 0.066, ash: 70, dpr: 1.35, max: 130, lenis: 1.06, glow: 1 },
+  low: { label: 'Low', ember: 0.036, ash: 38, dpr: 1.08, max: 74, lenis: 0.92, glow: 0.72 },
+  medium: { label: 'Med', ember: 0.062, ash: 62, dpr: 1.3, max: 126, lenis: 1.06, glow: 0.95 },
+  high: { label: 'High', ember: 0.112, ash: 110, dpr: 1.75, max: 230, lenis: 1.18, glow: 1.35 },
+}
+
+function lerp(start, end, amount) {
+  return start + (end - start) * amount
+}
+
+function mixColor(from, to, amount) {
+  return [
+    Math.round(lerp(from[0], to[0], amount)),
+    Math.round(lerp(from[1], to[1], amount)),
+    Math.round(lerp(from[2], to[2], amount)),
+  ]
+}
+
 function useReducedMotionPreference() {
   const [reduced, setReduced] = useState(false)
 
@@ -66,7 +85,7 @@ function useReducedMotionPreference() {
   return reduced
 }
 
-function useLenis(reducedMotion) {
+function useLenis(reducedMotion, quality) {
   useEffect(() => {
     if (typeof window === 'undefined' || reducedMotion) {
       ScrollTrigger.update()
@@ -82,7 +101,7 @@ function useLenis(reducedMotion) {
     }
 
     const lenis = new Lenis({
-      duration: 1.18,
+      duration: QUALITY[quality]?.lenis ?? 1.12,
       easing: t => Math.min(1, 1.001 - 2 ** (-10 * t)),
       smoothWheel: true,
       syncTouch: false,
@@ -109,10 +128,10 @@ function useLenis(reducedMotion) {
       if (window.__mjrLenis === lenis) window.__mjrLenis = null
       ScrollTrigger.update()
     }
-  }, [reducedMotion])
+  }, [reducedMotion, quality])
 }
 
-function ForgeCanvas({ reducedMotion }) {
+function ForgeCanvas({ reducedMotion, quality }) {
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -124,6 +143,7 @@ function ForgeCanvas({ reducedMotion }) {
     const ctx = canvas.getContext('2d', { alpha: true })
     if (!ctx) return undefined
 
+    const settings = QUALITY[quality] ?? QUALITY.high
     let width = 0
     let height = 0
     let dpr = 1
@@ -134,7 +154,7 @@ function ForgeCanvas({ reducedMotion }) {
     const ash = []
 
     const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.15 : 1.65)
+      dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? Math.min(settings.dpr, 1.28) : settings.dpr)
       width = window.innerWidth
       height = window.innerHeight
       canvas.width = Math.round(width * dpr)
@@ -144,38 +164,45 @@ function ForgeCanvas({ reducedMotion }) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
 
-    const spawn = (time, kind = 'ember') => {
+    const spawn = time => {
+      if (embers.length > settings.max) return
+      const mobile = width < 768
       const sourceRoll = Math.random()
-      const fromHero = sourceRoll < 0.46
+      const fromHero = sourceRoll < 0.48
       const fromLower = sourceRoll > 0.76
-      const baseX = fromHero ? width * (0.58 + Math.random() * 0.34) : fromLower ? width * Math.random() : width * (0.12 + Math.random() * 0.76)
-      const baseY = fromHero ? height * (0.16 + Math.random() * 0.42) : fromLower ? height * (0.76 + Math.random() * 0.18) : height * (0.42 + Math.random() * 0.42)
-      const spark = Math.random() < 0.14
+      const baseX = fromHero
+        ? width * (mobile ? 0.36 + Math.random() * 0.58 : 0.56 + Math.random() * 0.36)
+        : fromLower
+          ? width * Math.random()
+          : width * (0.08 + Math.random() * 0.84)
+      const baseY = fromHero
+        ? height * (mobile ? 0.12 + Math.random() * 0.62 : 0.14 + Math.random() * 0.42)
+        : fromLower
+          ? height * (0.72 + Math.random() * 0.22)
+          : height * (0.34 + Math.random() * 0.5)
+      const spark = Math.random() < (quality === 'high' ? 0.22 : 0.14)
 
       embers.push({
         x: baseX,
         y: baseY,
-        vx: (-0.16 + Math.random() * 0.32) * (spark ? 1.8 : 1),
-        vy: (-0.28 - Math.random() * 0.92) * (spark ? 1.35 : 1),
-        size: spark ? 1.9 + Math.random() * 2.8 : 0.55 + Math.random() * 1.65,
-        life: 1900 + Math.random() * 3300,
+        vx: (-0.18 + Math.random() * 0.36) * (spark ? 1.85 : 1),
+        vy: (-0.24 - Math.random() * 0.96) * (spark ? 1.4 : 1),
+        size: spark ? 1.7 + Math.random() * 2.9 : 0.6 + Math.random() * 1.85,
+        life: 1900 + Math.random() * 3400,
         age: 0,
         sway: Math.random() * Math.PI * 2,
         spark,
-        born: time,
-        kind,
       })
     }
 
     const spawnAsh = () => {
-      if (ash.length > 90) return
       ash.push({
         x: Math.random() * width,
         y: Math.random() * height,
         vx: -0.06 + Math.random() * 0.12,
-        vy: -0.05 + Math.random() * 0.12,
-        size: 0.65 + Math.random() * 1.4,
-        alpha: 0.04 + Math.random() * 0.08,
+        vy: -0.035 + Math.random() * 0.1,
+        size: 0.65 + Math.random() * 1.45,
+        alpha: 0.045 + Math.random() * 0.09,
         drift: Math.random() * Math.PI * 2,
       })
     }
@@ -186,34 +213,36 @@ function ForgeCanvas({ reducedMotion }) {
 
       const pulse = (Math.sin(time * 0.00072) + 1) / 2
       const ignition = (Math.sin(time * 0.00046 + 1.8) + 1) / 2
+      const glow = settings.glow
+      const mobile = width < 768
 
       const base = ctx.createLinearGradient(0, 0, width, height)
-      base.addColorStop(0, 'rgba(0,0,4,0.82)')
-      base.addColorStop(0.38, 'rgba(4,3,10,0.72)')
-      base.addColorStop(0.7, 'rgba(8,3,6,0.68)')
-      base.addColorStop(1, 'rgba(1,1,4,0.86)')
+      base.addColorStop(0, 'rgba(0,0,4,0.88)')
+      base.addColorStop(0.38, 'rgba(4,3,10,0.76)')
+      base.addColorStop(0.7, 'rgba(8,3,6,0.72)')
+      base.addColorStop(1, 'rgba(1,1,4,0.88)')
       ctx.fillStyle = base
       ctx.fillRect(0, 0, width, height)
 
-      const hearth = ctx.createRadialGradient(width * 0.72, height * 0.28, 0, width * 0.72, height * 0.28, Math.max(width, height) * 0.76)
-      hearth.addColorStop(0, `rgba(236,92,24,${0.14 + pulse * 0.11})`)
-      hearth.addColorStop(0.2, `rgba(150,30,12,${0.12 + ignition * 0.06})`)
-      hearth.addColorStop(0.5, 'rgba(52,9,9,0.07)')
+      const hearth = ctx.createRadialGradient(width * (mobile ? 0.62 : 0.72), height * 0.32, 0, width * (mobile ? 0.62 : 0.72), height * 0.32, Math.max(width, height) * 0.92)
+      hearth.addColorStop(0, `rgba(236,92,24,${(0.17 + pulse * 0.14) * glow})`)
+      hearth.addColorStop(0.2, `rgba(150,30,12,${(0.14 + ignition * 0.08) * glow})`)
+      hearth.addColorStop(0.54, `rgba(52,9,9,${0.08 * glow})`)
       hearth.addColorStop(1, 'rgba(0,0,0,0)')
       ctx.fillStyle = hearth
       ctx.fillRect(0, 0, width, height)
 
-      const blueBase = ctx.createRadialGradient(width * 0.5, height * 0.72, 0, width * 0.5, height * 0.72, Math.max(width, height) * 0.62)
-      blueBase.addColorStop(0, `rgba(18,48,108,${0.08 + ignition * 0.06})`)
-      blueBase.addColorStop(0.4, 'rgba(15,22,56,0.06)')
+      const blueBase = ctx.createRadialGradient(width * 0.46, height * 0.76, 0, width * 0.46, height * 0.76, Math.max(width, height) * 0.7)
+      blueBase.addColorStop(0, `rgba(18,48,108,${(0.1 + ignition * 0.08) * glow})`)
+      blueBase.addColorStop(0.4, `rgba(15,22,56,${0.07 * glow})`)
       blueBase.addColorStop(1, 'rgba(0,0,0,0)')
       ctx.fillStyle = blueBase
       ctx.fillRect(0, 0, width, height)
 
-      const fissure = ctx.createLinearGradient(width * 0.05, height * 0.68, width * 0.92, height * 0.46)
+      const fissure = ctx.createLinearGradient(width * 0.02, height * 0.72, width * 0.95, height * 0.42)
       fissure.addColorStop(0, 'rgba(0,0,0,0)')
-      fissure.addColorStop(0.42, `rgba(235,111,35,${0.045 + pulse * 0.05})`)
-      fissure.addColorStop(0.54, `rgba(48,112,210,${0.025 + ignition * 0.035})`)
+      fissure.addColorStop(0.38, `rgba(235,111,35,${(0.06 + pulse * 0.07) * glow})`)
+      fissure.addColorStop(0.54, `rgba(48,112,210,${(0.03 + ignition * 0.04) * glow})`)
       fissure.addColorStop(1, 'rgba(0,0,0,0)')
       ctx.fillStyle = fissure
       ctx.fillRect(0, 0, width, height)
@@ -228,14 +257,14 @@ function ForgeCanvas({ reducedMotion }) {
         if (flake.y > height + 8) flake.y = -8
         if (flake.x < -8) flake.x = width + 8
         if (flake.x > width + 8) flake.x = -8
-        ctx.fillStyle = `rgba(160,143,130,${flake.alpha})`
+        ctx.fillStyle = `rgba(164,143,128,${flake.alpha})`
         ctx.fillRect(flake.x, flake.y, flake.size, flake.size)
       }
     }
 
     const drawEmbers = (delta, time) => {
       if (!reducedMotion) {
-        accumulator += delta * (width < 768 ? 0.038 : 0.07)
+        accumulator += delta * settings.ember
         while (accumulator >= 1) {
           spawn(time)
           accumulator -= 1
@@ -253,7 +282,7 @@ function ForgeCanvas({ reducedMotion }) {
           continue
         }
 
-        ember.x += ember.vx + Math.sin(time * 0.002 + ember.sway) * 0.22
+        ember.x += ember.vx + Math.sin(time * 0.002 + ember.sway) * 0.24
         ember.y += ember.vy
         ember.vx *= 0.997
         ember.vy *= 0.995
@@ -262,12 +291,16 @@ function ForgeCanvas({ reducedMotion }) {
         const hot = [255, 150, 60]
         const red = [192, 44, 18]
         const dead = [118, 94, 84]
-        const heat = progress < 0.16 ? mixColor(blue, hot, progress / 0.16) : progress < 0.55 ? mixColor(hot, red, (progress - 0.16) / 0.39) : mixColor(red, dead, (progress - 0.55) / 0.45)
+        const heat = progress < 0.16
+          ? mixColor(blue, hot, progress / 0.16)
+          : progress < 0.55
+            ? mixColor(hot, red, (progress - 0.16) / 0.39)
+            : mixColor(red, dead, (progress - 0.55) / 0.45)
         const flicker = 0.78 + Math.sin(time * 0.009 + ember.sway) * 0.18
-        const alpha = Math.pow(1 - progress, 1.15) * flicker
+        const alpha = Math.pow(1 - progress, 1.12) * flicker * settings.glow
 
         ctx.shadowColor = `rgba(${heat[0]},${heat[1]},${heat[2]},${alpha})`
-        ctx.shadowBlur = ember.spark ? 16 : 9
+        ctx.shadowBlur = ember.spark ? 18 : 10
         ctx.fillStyle = `rgba(${heat[0]},${heat[1]},${heat[2]},${alpha})`
 
         if (ember.spark) {
@@ -302,17 +335,17 @@ function ForgeCanvas({ reducedMotion }) {
 
     resize()
     window.addEventListener('resize', resize, { passive: true })
-    for (let i = 0; i < 52; i += 1) spawnAsh()
-    for (let i = 0; i < (window.innerWidth < 768 ? 18 : 34); i += 1) spawn(last)
+    for (let i = 0; i < settings.ash; i += 1) spawnAsh()
+    for (let i = 0; i < Math.min(settings.max, window.innerWidth < 768 ? 48 : 82); i += 1) spawn(last)
     raf = window.requestAnimationFrame(draw)
 
     return () => {
       window.cancelAnimationFrame(raf)
       window.removeEventListener('resize', resize)
     }
-  }, [reducedMotion])
+  }, [reducedMotion, quality])
 
-  return <canvas ref={canvasRef} className="pointer-events-none fixed inset-0 z-0 h-full w-full" aria-hidden="true" />
+  return <canvas ref={canvasRef} className="pointer-events-none fixed inset-0 z-0 h-full w-full opacity-100 mix-blend-screen" aria-hidden="true" />
 }
 
 function Cursor({ reducedMotion }) {
@@ -366,6 +399,33 @@ function Cursor({ reducedMotion }) {
   )
 }
 
+function PerformanceDock({ quality, setQuality }) {
+  return (
+    <div className="fixed bottom-5 left-1/2 z-[80] w-[calc(100vw-2rem)] max-w-[720px] -translate-x-1/2 rounded-[1.45rem] border border-white/10 bg-[#040405]/88 p-3 shadow-[0_24px_90px_rgba(0,0,0,.6)] backdrop-blur-2xl md:right-6 md:left-auto md:w-[430px] md:translate-x-0">
+      <div className="mb-3 flex items-center justify-between gap-4 px-1">
+        <p className="text-[10px] font-bold uppercase tracking-[0.34em] text-[#a89d92]">Performance</p>
+        <p className="rounded-full border border-[#e8842e]/25 bg-[#e8842e]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.26em] text-[#f0a24a]">{QUALITY[quality]?.label}</p>
+      </div>
+      <div className="grid grid-cols-4 gap-2">
+        {Object.entries(QUALITY).map(([key, value]) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setQuality(key)}
+            className={`rounded-2xl border px-3 py-3 text-xs font-bold transition duration-300 ${
+              quality === key
+                ? 'border-[#e8842e]/55 bg-[#e8842e]/16 text-[#f6efe8] shadow-[0_0_34px_rgba(232,132,46,.16)]'
+                : 'border-white/10 bg-white/[0.035] text-[#a89d92] hover:border-[#e8842e]/30 hover:text-[#f6efe8]'
+            }`}
+          >
+            {value.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function Header() {
   const [open, setOpen] = useState(false)
   return (
@@ -408,9 +468,9 @@ function Hero() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_64%_42%,rgba(232,132,46,.22),transparent_28%),linear-gradient(90deg,rgba(3,3,5,.92),rgba(3,3,5,.38),rgba(3,3,5,.9))]" />
       </div>
       <div className="mx-auto grid w-full max-w-[1560px] items-end gap-12 lg:grid-cols-[1.08fr_.92fr]">
-        <div className="max-w-[980px] pb-20">
+        <div className="max-w-[980px] pb-24 md:pb-20">
           <p className="hero-kicker mb-8 text-[11px] font-bold uppercase tracking-[0.48em] text-[#e8842e]">Front-end, UI premium e direção de produto</p>
-          <h1 className="hero-title text-[17vw] font-semibold leading-[0.86] tracking-[-0.095em] text-[#f6efe8] sm:text-[7rem] lg:text-[9.4rem]">
+          <h1 className="hero-title text-[16vw] font-semibold leading-[0.86] tracking-[-0.095em] text-[#f6efe8] sm:text-[7rem] lg:text-[9.4rem]">
             Interfaces que transformam ideias em <span className="text-[#e8842e] drop-shadow-[0_0_34px_rgba(232,132,46,.34)]">resultado real.</span>
           </h1>
           <p className="hero-copy mt-8 max-w-2xl text-lg leading-8 text-[#d7ccc1]">Eu crio experiências digitais com presença, ritmo, automação e acabamento de produto — como peças forjadas para vender, guiar e impressionar.</p>
@@ -427,7 +487,7 @@ function Hero() {
           </div>
         </div>
       </div>
-      <div className="scroll-indicator absolute bottom-8 left-1/2 hidden -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.34em] text-[#a89d92] md:block">Role para acender</div>
+      <div className="scroll-indicator absolute bottom-28 left-1/2 hidden -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.34em] text-[#a89d92] md:block">Role para acender</div>
     </section>
   )
 }
@@ -537,9 +597,18 @@ function Contact() {
 function App() {
   const rootRef = useRef(null)
   const reducedMotion = useReducedMotionPreference()
+  const [quality, setQuality] = useState('high')
   const isMobile = useMemo(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches, [])
 
-  useLenis(reducedMotion)
+  useLenis(reducedMotion, quality)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    document.documentElement.dataset.performanceMode = quality
+    return () => {
+      delete document.documentElement.dataset.performanceMode
+    }
+  }, [quality])
 
   useEffect(() => {
     if (typeof window === 'undefined' || reducedMotion) return undefined
@@ -605,11 +674,12 @@ function App() {
 
   return (
     <main ref={rootRef} className="forge-root relative min-h-screen overflow-x-hidden bg-[#030305] text-[#f6efe8]">
-      <ForgeCanvas reducedMotion={reducedMotion} />
+      <ForgeCanvas reducedMotion={reducedMotion} quality={quality} />
       <Cursor reducedMotion={reducedMotion} />
-      <div className="pointer-events-none fixed inset-0 z-[1] bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,.24)_45%,rgba(0,0,0,.78)_100%)]" />
+      <div className="pointer-events-none fixed inset-0 z-[1] bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,.16)_45%,rgba(0,0,0,.66)_100%)]" />
       <Header />
-      <div className="relative z-10">
+      <PerformanceDock quality={quality} setQuality={setQuality} />
+      <div className="relative z-10 pb-32 md:pb-0">
         <Hero />
         <Manifesto />
         <Journey />
