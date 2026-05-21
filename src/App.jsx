@@ -120,17 +120,32 @@ function useViewportMode() {
   return viewport
 }
 
-function useLenisScroll(reducedMotion) {
+function destroyLenisRuntime() {
+  if (!window.__mjrLenisRuntime) return
+  const previous = window.__mjrLenisRuntime
+  previous.lenis?.off('scroll', previous.update)
+  if (previous.raf) gsap.ticker.remove(previous.raf)
+  previous.lenis?.destroy()
+  window.__mjrLenisRuntime = null
+}
+
+function useLenisScroll(reducedMotion, isCoarse) {
   useEffect(() => {
-    if (reducedMotion) return undefined
-    if (window.__mjrLenisRuntime) {
-      const previous = window.__mjrLenisRuntime
-      previous.lenis?.off('scroll', previous.update)
-      gsap.ticker.remove(previous.raf)
-      previous.lenis?.destroy()
-      window.__mjrLenisRuntime = null
+    if (reducedMotion || isCoarse) {
+      destroyLenisRuntime()
+      ScrollTrigger.update()
+      return undefined
     }
-    const lenis = new Lenis({ duration: 1.08, easing: t => Math.min(1, 1.001 - 2 ** (-10 * t)), smoothWheel: true, syncTouch: false, wheelMultiplier: 0.88 })
+
+    destroyLenisRuntime()
+    const lenis = new Lenis({
+      duration: 1.02,
+      easing: t => Math.min(1, 1.001 - 2 ** (-10 * t)),
+      smoothWheel: true,
+      smoothTouch: false,
+      syncTouch: false,
+      wheelMultiplier: 0.88,
+    })
     const update = () => ScrollTrigger.update()
     const raf = time => lenis.raf(time * 1000)
     lenis.on('scroll', update)
@@ -145,7 +160,7 @@ function useLenisScroll(reducedMotion) {
       if (window.__mjrLenisRuntime?.lenis === lenis) window.__mjrLenisRuntime = null
       ScrollTrigger.update()
     }
-  }, [reducedMotion])
+  }, [reducedMotion, isCoarse])
 }
 
 function useScrolled() {
@@ -169,25 +184,51 @@ function useForgeMotion(rootRef, reducedMotion, isMobile) {
       gsap.set('.hero-copy-line', { autoAlpha: 0, y: 22 })
       gsap.set('.hero-actions', { autoAlpha: 0, y: 20 })
       gsap.set('.orbital-chip', { autoAlpha: 0, scale: 0.94, y: 22 })
+
       gsap.timeline({ defaults: { ease: 'power3.out' } })
-        .to('.hero-title-pop', { autoAlpha: 1, y: 0, letterSpacing: '-0.08em', duration: 1.2, delay: 0.22 })
-        .to('.hero-copy-line', { autoAlpha: 1, y: 0, duration: 0.86, stagger: 0.12 }, '-=0.52')
+        .to('.hero-title-pop', { autoAlpha: 1, y: 0, letterSpacing: '-0.08em', duration: 1.16, delay: 0.18 })
+        .to('.hero-copy-line', { autoAlpha: 1, y: 0, duration: 0.84, stagger: 0.12 }, '-=0.5')
         .to('.hero-actions', { autoAlpha: 1, y: 0, duration: 0.82 }, '-=0.42')
-        .to('.orbital-chip', { autoAlpha: 1, scale: 1, y: 0, duration: 0.74, stagger: 0.08 }, '-=0.46')
+        .to('.orbital-chip', { autoAlpha: 1, scale: 1, y: 0, duration: 0.72, stagger: 0.08 }, '-=0.46')
+
       gsap.utils.toArray('.reveal-in').forEach(element => {
-        gsap.to(element, { autoAlpha: 1, y: 0, scale: 1, duration: 0.96, ease: 'power3.out', scrollTrigger: { trigger: element, start: 'top 86%', once: true } })
+        gsap.to(element, { autoAlpha: 1, y: 0, scale: 1, duration: 0.92, ease: 'power3.out', scrollTrigger: { trigger: element, start: 'top 86%', once: true } })
       })
+
       gsap.utils.toArray('.project-card').forEach((card, index) => {
-        gsap.fromTo(card, { y: 52, autoAlpha: 0, scale: 0.965 }, { y: 0, autoAlpha: 1, scale: 1, duration: 0.98, delay: index * 0.04, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 88%', once: true } })
+        const aura = card.querySelector('.project-aura')
+        const line = card.querySelector('.project-line')
+        const depth = card.querySelector('.project-depth')
+        const body = card.querySelector('.project-body')
+        gsap.set([aura, line], { autoAlpha: 0 })
+        gsap.fromTo(card, { y: isMobile ? 36 : 58, autoAlpha: 0, scale: 0.955, rotateX: isMobile ? 0 : 5 }, {
+          y: 0,
+          autoAlpha: 1,
+          scale: 1,
+          rotateX: 0,
+          duration: 1,
+          delay: index * 0.05,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: card, start: 'top 88%', once: true },
+        })
+        gsap.to(aura, { autoAlpha: 1, scale: 1.12, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 82%', once: true } })
+        gsap.fromTo(line, { autoAlpha: 0, scaleX: 0, transformOrigin: '0% 50%' }, { autoAlpha: 1, scaleX: 1, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 80%', once: true } })
+        gsap.to(depth, { y: isMobile ? -10 : -18, scale: 1.025, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: isMobile ? 0.35 : 0.8 } })
+        if (body) {
+          gsap.fromTo(body.children, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.72, stagger: 0.07, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 78%', once: true } })
+        }
       })
-      gsap.to('.forge-lens-core', { scale: 1.1, yPercent: -5, ease: 'power3.inOut', scrollTrigger: { trigger: '#top', start: 'top top', end: 'bottom top', scrub: 1.3 } })
-      gsap.to('.forge-ring-a', { rotation: 12, xPercent: 5, yPercent: -8, ease: 'none', scrollTrigger: { trigger: '#top', start: 'top top', end: 'bottom top', scrub: 1.2 } })
-      gsap.to('.forge-ring-b', { rotation: -10, xPercent: -4, yPercent: 7, ease: 'none', scrollTrigger: { trigger: '#work', start: 'top bottom', end: 'bottom top', scrub: 1.5 } })
-      gsap.to('.forge-glow-a', { yPercent: -10, xPercent: 7, scale: 1.08, ease: 'power3.inOut', scrollTrigger: { trigger: '#top', start: 'top top', end: 'bottom top', scrub: 1.2 } })
-      gsap.to('.forge-glow-b', { yPercent: 12, xPercent: -6, scale: 1.12, ease: 'power3.inOut', scrollTrigger: { trigger: '#work', start: 'top bottom', end: 'bottom top', scrub: 1.4 } })
+
+      gsap.to('.forge-lens-core', { scale: 1.08, yPercent: -4, ease: 'power3.inOut', scrollTrigger: { trigger: '#top', start: 'top top', end: 'bottom top', scrub: isMobile ? 0.45 : 1.2 } })
+      gsap.to('.forge-ring-a', { rotation: 8, xPercent: 4, yPercent: -6, ease: 'none', scrollTrigger: { trigger: '#top', start: 'top top', end: 'bottom top', scrub: isMobile ? 0.45 : 1.1 } })
+      gsap.to('.forge-ring-b', { rotation: -8, xPercent: -3, yPercent: 5, ease: 'none', scrollTrigger: { trigger: '#work', start: 'top bottom', end: 'bottom top', scrub: isMobile ? 0.45 : 1.3 } })
+      gsap.to('.forge-glow-a', { yPercent: -8, xPercent: 6, scale: 1.06, ease: 'power3.inOut', scrollTrigger: { trigger: '#top', start: 'top top', end: 'bottom top', scrub: isMobile ? 0.45 : 1.2 } })
+      gsap.to('.forge-glow-b', { yPercent: 9, xPercent: -5, scale: 1.08, ease: 'power3.inOut', scrollTrigger: { trigger: '#work', start: 'top bottom', end: 'bottom top', scrub: isMobile ? 0.45 : 1.3 } })
+
       gsap.utils.toArray('.float-node').forEach((node, index) => {
-        gsap.to(node, { y: index % 2 === 0 ? -14 : 16, x: index % 2 === 0 ? 8 : -10, rotation: index % 2 === 0 ? -3 : 4, duration: 3.8 + index * 0.45, repeat: -1, yoyo: true, ease: 'sine.inOut' })
+        gsap.to(node, { y: index % 2 === 0 ? -10 : 12, x: index % 2 === 0 ? 6 : -7, rotation: index % 2 === 0 ? -2 : 3, duration: 4 + index * 0.4, repeat: -1, yoyo: true, ease: 'sine.inOut' })
       })
+
       if (!isMobile) {
         gsap.utils.toArray('.magnetic').forEach(element => {
           const move = event => {
@@ -257,16 +298,11 @@ function HeroOrbitalStage() {
 }
 
 function Hero() {
-  return (
-    <section id="top" className="relative z-10 overflow-hidden px-5 pb-12 pt-32 lg:px-8 lg:pb-24 lg:pt-44">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#e8842e]/50 to-transparent" />
-      <div className="relative mx-auto grid max-w-[1440px] gap-10 lg:grid-cols-[1.02fr_.98fr] lg:items-center"><div><p className="hero-copy-line mb-6 text-[11px] font-bold uppercase tracking-[0.34em] text-[#e8842e] md:tracking-[0.42em]">Front-end, UI premium e produto digital</p><h1 className="hero-title-pop max-w-5xl text-[clamp(3.45rem,17vw,9.6rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-[#f6efe8] md:tracking-[-0.095em]">Interfaces que viram presença, confiança e contato.</h1><p className="hero-copy-line mt-7 max-w-2xl text-base leading-8 text-[#d7ccc1] md:text-lg">Sou o Maurício. Construo dashboards, landing pages e experiências web modernas com React, Next.js, TypeScript e foco real em conversão para negócios locais e produtos digitais.</p><p className="hero-copy-line mt-4 max-w-2xl text-base leading-8 text-[#a89d92]">Direção espacial: profundidade, flutuação, luz térmica e superfícies com blur, sem repetir o bloco de sobre mim logo na entrada.</p><div className="hero-actions mt-9 flex flex-col gap-3 sm:flex-row"><a href="#work" className="magnetic rounded-full border border-[#e8842e]/45 bg-[#e8842e]/16 px-8 py-4 text-center text-sm font-bold text-[#f6efe8] shadow-[0_0_60px_rgba(232,132,46,.16)] transition hover:bg-[#e8842e] hover:text-[#080604]">Ver projetos</a><a href={BRAND.whatsapp} target="_blank" rel="noreferrer" className="magnetic rounded-full border border-white/12 bg-white/[0.045] px-8 py-4 text-center text-sm font-bold text-[#f6efe8] transition hover:border-[#e8842e]/40">Chamar no WhatsApp</a></div></div><HeroOrbitalStage /></div>
-    </section>
-  )
+  return <section id="top" className="relative z-10 overflow-hidden px-5 pb-12 pt-32 lg:px-8 lg:pb-24 lg:pt-44"><div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#e8842e]/50 to-transparent" /><div className="relative mx-auto grid max-w-[1440px] gap-10 lg:grid-cols-[1.02fr_.98fr] lg:items-center"><div><p className="hero-copy-line mb-6 text-[11px] font-bold uppercase tracking-[0.34em] text-[#e8842e] md:tracking-[0.42em]">Front-end, UI premium e produto digital</p><h1 className="hero-title-pop max-w-5xl text-[clamp(3.45rem,17vw,9.6rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-[#f6efe8] md:tracking-[-0.095em]">Interfaces que viram presença, confiança e contato.</h1><p className="hero-copy-line mt-7 max-w-2xl text-base leading-8 text-[#d7ccc1] md:text-lg">Sou o Maurício. Construo dashboards, landing pages e experiências web modernas com React, Next.js, TypeScript e foco real em conversão para negócios locais e produtos digitais.</p><p className="hero-copy-line mt-4 max-w-2xl text-base leading-8 text-[#a89d92]">Direção espacial: profundidade, flutuação, luz térmica e superfícies com blur, sem repetir o bloco de sobre mim logo na entrada.</p><div className="hero-actions mt-9 flex flex-col gap-3 sm:flex-row"><a href="#work" className="magnetic rounded-full border border-[#e8842e]/45 bg-[#e8842e]/16 px-8 py-4 text-center text-sm font-bold text-[#f6efe8] shadow-[0_0_60px_rgba(232,132,46,.16)] transition hover:bg-[#e8842e] hover:text-[#080604]">Ver projetos</a><a href={BRAND.whatsapp} target="_blank" rel="noreferrer" className="magnetic rounded-full border border-white/12 bg-white/[0.045] px-8 py-4 text-center text-sm font-bold text-[#f6efe8] transition hover:border-[#e8842e]/40">Chamar no WhatsApp</a></div></div><HeroOrbitalStage /></div></section>
 }
 
 function Work({ onProjectOpen }) {
-  return <section id="work" className="relative z-10 mx-auto max-w-[1440px] px-5 py-16 lg:px-8 lg:py-28"><div className="reveal-in mb-12 flex flex-col justify-between gap-6 lg:flex-row lg:items-end"><div><p className="mb-5 text-xs font-bold uppercase tracking-[0.34em] text-[#e8842e] md:tracking-[0.42em]">Projetos principais</p><h2 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Portfólio prático, não só visual.</h2></div><p className="max-w-xl text-base leading-8 text-[#d7ccc1]">Cards com abertura em modal para parecer mais produto premium e menos lista comum.</p></div><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{PROJECTS.map(project => <article key={project.title} className="project-card group relative flex min-h-[430px] flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#080807]/76 p-6 shadow-[0_30px_120px_rgba(0,0,0,.32)] backdrop-blur-xl transition duration-500 hover:-translate-y-1 hover:border-[#e8842e]/35 md:p-7"><div className="pointer-events-none absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100" style={{ background: 'radial-gradient(circle at 70% 20%, rgba(232,132,46,.18), transparent 30%), linear-gradient(180deg, transparent, rgba(232,132,46,.07))' }} /><div className="relative z-10 flex flex-1 flex-col"><div className="flex items-start justify-between gap-4"><p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#e8842e]">{project.eyebrow}</p><span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#a89d92]">{project.metric}</span></div><h3 className="mt-7 text-3xl font-semibold tracking-[-0.055em] text-[#f6efe8] md:text-4xl">{project.title}</h3><p className="mt-5 leading-8 text-[#d7ccc1]">{project.text}</p><div className="mt-7 flex flex-wrap gap-2">{project.tags.map(tag => <span key={tag} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#a89d92]">{tag}</span>)}</div><div className="mt-auto flex flex-wrap gap-3 pt-8"><button type="button" onClick={() => onProjectOpen(project)} className="magnetic rounded-full bg-[#e8842e] px-5 py-3 text-sm font-bold text-[#080604] transition hover:bg-[#f6efe8]">Ver detalhe</button><a href={project.repo} target="_blank" rel="noreferrer" className="magnetic rounded-full border border-white/12 bg-white/[0.04] px-5 py-3 text-sm font-bold text-[#f6efe8] transition hover:border-[#e8842e]/40">GitHub</a></div></div></article>)}</div></section>
+  return <section id="work" className="relative z-10 mx-auto max-w-[1440px] px-5 py-16 lg:px-8 lg:py-28"><div className="reveal-in mb-12 flex flex-col justify-between gap-6 lg:flex-row lg:items-end"><div><p className="mb-5 text-xs font-bold uppercase tracking-[0.34em] text-[#e8842e] md:tracking-[0.42em]">Projetos principais</p><h2 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Portfólio prático, não só visual.</h2></div><p className="max-w-xl text-base leading-8 text-[#d7ccc1]">Agora cada projeto entra com profundidade, brilho vivo e movimento sutil durante o scroll.</p></div><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{PROJECTS.map(project => <article key={project.title} className="project-card group relative flex min-h-[430px] flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#080807]/76 p-6 shadow-[0_30px_120px_rgba(0,0,0,.32)] backdrop-blur-xl transition duration-500 hover:-translate-y-1 hover:border-[#e8842e]/35 md:p-7"><div className="project-aura pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(232,132,46,.24),transparent_62%)] blur-2xl" /><div className="project-depth pointer-events-none absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_72%_18%,rgba(255,255,255,.08),transparent_18%),linear-gradient(135deg,rgba(232,132,46,.08),transparent_42%)]" /><div className="project-line pointer-events-none absolute bottom-0 left-7 right-7 h-px bg-gradient-to-r from-[#e8842e]/80 via-white/20 to-transparent" /><div className="project-body relative z-10 flex flex-1 flex-col"><div className="flex items-start justify-between gap-4"><p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#e8842e]">{project.eyebrow}</p><span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#a89d92]">{project.metric}</span></div><h3 className="mt-7 text-3xl font-semibold tracking-[-0.055em] text-[#f6efe8] md:text-4xl">{project.title}</h3><p className="mt-5 leading-8 text-[#d7ccc1]">{project.text}</p><div className="mt-7 flex flex-wrap gap-2">{project.tags.map(tag => <span key={tag} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#a89d92]">{tag}</span>)}</div><div className="mt-auto flex flex-wrap gap-3 pt-8"><button type="button" onClick={() => onProjectOpen(project)} className="magnetic rounded-full bg-[#e8842e] px-5 py-3 text-sm font-bold text-[#080604] transition hover:bg-[#f6efe8]">Ver detalhe</button><a href={project.repo} target="_blank" rel="noreferrer" className="magnetic rounded-full border border-white/12 bg-white/[0.04] px-5 py-3 text-sm font-bold text-[#f6efe8] transition hover:border-[#e8842e]/40">GitHub</a></div></div></article>)}</div></section>
 }
 
 function ProjectModal({ project, onClose }) {
@@ -274,17 +310,15 @@ function ProjectModal({ project, onClose }) {
     if (!project) return undefined
     const onKey = event => { if (event.key === 'Escape') onClose() }
     document.addEventListener('keydown', onKey)
+    const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = '' }
+    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = previousOverflow }
   }, [project, onClose])
   if (!project) return null
   return <div className="fixed inset-0 z-[90] grid place-items-center px-4 py-8"><button type="button" aria-label="Fechar modal" onClick={onClose} className="absolute inset-0 bg-black/72 backdrop-blur-xl" /><section className="relative max-h-[86vh] w-full max-w-4xl overflow-auto rounded-[2.2rem] border border-white/10 bg-[#070707]/95 p-6 shadow-[0_50px_180px_rgba(0,0,0,.74)] md:p-10"><div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_10%,rgba(232,132,46,.18),transparent_30%),radial-gradient(circle_at_10%_90%,rgba(42,92,190,.12),transparent_28%)]" /><div className="flex items-start justify-between gap-6"><div><p className="text-[11px] font-bold uppercase tracking-[0.32em] text-[#e8842e]">{project.eyebrow}</p><h3 className="mt-5 text-4xl font-semibold tracking-[-0.06em] text-[#f6efe8] md:text-6xl">{project.title}</h3></div><button type="button" onClick={onClose} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-bold uppercase tracking-[0.18em] text-[#f6efe8]">Fechar</button></div><p className="mt-7 max-w-3xl text-lg leading-9 text-[#d7ccc1]">{project.text}</p><div className="mt-8 flex flex-wrap gap-2">{project.tags.map(tag => <span key={tag} className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[#a89d92]">{tag}</span>)}</div><div className="mt-10 grid gap-4 md:grid-cols-3"><div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-bold uppercase tracking-[0.2em] text-[#e8842e]">Tipo</p><p className="mt-3 text-2xl font-semibold text-[#f6efe8]">{project.metric}</p></div><div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-bold uppercase tracking-[0.2em] text-[#e8842e]">Entrega</p><p className="mt-3 text-2xl font-semibold text-[#f6efe8]">Interface real</p></div><div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-bold uppercase tracking-[0.2em] text-[#e8842e]">Foco</p><p className="mt-3 text-2xl font-semibold text-[#f6efe8]">Produto</p></div></div><div className="mt-10 flex flex-col gap-3 sm:flex-row"><a href={project.href} target="_blank" rel="noreferrer" className="rounded-full bg-[#e8842e] px-7 py-4 text-center text-sm font-bold text-[#080604] transition hover:bg-[#f6efe8]">Abrir projeto</a><a href={project.repo} target="_blank" rel="noreferrer" className="rounded-full border border-white/12 bg-white/[0.04] px-7 py-4 text-center text-sm font-bold text-[#f6efe8]">Ver código</a></div></section></div>
 }
 
-function About() {
-  return <section id="about" className="relative z-10 border-y border-white/10 bg-[#050505]/70 px-5 py-16 lg:px-8 lg:py-24"><div className="mx-auto grid max-w-[1440px] gap-8 lg:grid-cols-[.82fr_1.18fr] lg:items-center"><div className="reveal-in rounded-[2rem] border border-white/10 bg-[#080807]/62 p-4 shadow-[0_34px_130px_rgba(0,0,0,.34)] backdrop-blur-xl md:p-5"><div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[radial-gradient(circle_at_50%_18%,rgba(232,132,46,.22),transparent_32%),linear-gradient(180deg,#19120d,#050505)]"><img src="/forge-portrait.jpg" alt="Maurício Silva Junior" className="h-full w-full object-cover object-center" /></div></div><div className="reveal-in"><p className="mb-5 text-xs font-bold uppercase tracking-[0.42em] text-[#e8842e]">Sobre mim</p><h2 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Minha foto fica aqui, onde faz sentido.</h2><p className="mt-7 max-w-3xl text-lg leading-9 text-[#d7ccc1]">Estou no começo da carreira formal, mas já venho criando projetos reais e autorais com foco em frontend moderno. Meu diferencial hoje é unir interface bonita, organização visual, velocidade de execução e vontade de resolver problema de negócio.</p><p className="mt-5 max-w-3xl text-lg leading-9 text-[#d7ccc1]">Para clientes locais, eu transformo uma ideia em uma página clara: apresentação, prova visual, WhatsApp, perguntas frequentes, mapa, fotos e estrutura pensada para gerar contato.</p><div className="mt-8 flex flex-wrap gap-3">{['Angra dos Reis', 'React / Next.js', 'UI Premium', 'Dashboards', 'Landings', 'Produto'].map(item => <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-[#d7ccc1]">{item}</span>)}</div></div></div></section>
-}
-
+function About() { return <section id="about" className="relative z-10 border-y border-white/10 bg-[#050505]/70 px-5 py-16 lg:px-8 lg:py-24"><div className="mx-auto grid max-w-[1440px] gap-8 lg:grid-cols-[.82fr_1.18fr] lg:items-center"><div className="reveal-in rounded-[2rem] border border-white/10 bg-[#080807]/62 p-4 shadow-[0_34px_130px_rgba(0,0,0,.34)] backdrop-blur-xl md:p-5"><div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[radial-gradient(circle_at_50%_18%,rgba(232,132,46,.22),transparent_32%),linear-gradient(180deg,#19120d,#050505)]"><img src="/forge-portrait.jpg" alt="Maurício Silva Junior" className="h-full w-full object-cover object-center" /></div></div><div className="reveal-in"><p className="mb-5 text-xs font-bold uppercase tracking-[0.42em] text-[#e8842e]">Sobre mim</p><h2 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Minha foto fica aqui, onde faz sentido.</h2><p className="mt-7 max-w-3xl text-lg leading-9 text-[#d7ccc1]">Estou no começo da carreira formal, mas já venho criando projetos reais e autorais com foco em frontend moderno. Meu diferencial hoje é unir interface bonita, organização visual, velocidade de execução e vontade de resolver problema de negócio.</p><p className="mt-5 max-w-3xl text-lg leading-9 text-[#d7ccc1]">Para clientes locais, eu transformo uma ideia em uma página clara: apresentação, prova visual, WhatsApp, perguntas frequentes, mapa, fotos e estrutura pensada para gerar contato.</p><div className="mt-8 flex flex-wrap gap-3">{['Angra dos Reis', 'React / Next.js', 'UI Premium', 'Dashboards', 'Landings', 'Produto'].map(item => <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-[#d7ccc1]">{item}</span>)}</div></div></div></section> }
 function Stack() { return <section id="stack" className="relative z-10 px-5 py-16 lg:px-8 lg:py-24"><div className="reveal-in mx-auto max-w-[1440px]"><p className="mb-5 text-xs font-bold uppercase tracking-[0.42em] text-[#e8842e]">Stack</p><h2 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Ferramentas que uso para construir.</h2><div className="mt-10 flex flex-wrap gap-3">{STACK.map(item => <span key={item} className="rounded-full border border-white/10 bg-white/[0.045] px-5 py-3 text-sm font-semibold text-[#d7ccc1] transition hover:border-[#e8842e]/35 hover:text-[#f6efe8]">{item}</span>)}</div></div></section> }
 function ProcessSection() { return <section id="process" className="relative z-10 mx-auto max-w-[1440px] px-5 py-16 lg:px-8 lg:py-24"><div className="reveal-in"><p className="mb-5 text-xs font-bold uppercase tracking-[0.42em] text-[#e8842e]">Processo</p><h2 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Do problema à interface publicada.</h2></div><div className="mt-12 grid gap-4 md:grid-cols-5">{PROCESS.map(([step, title, text]) => <article key={step} className="reveal-in rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-5 transition hover:border-[#e8842e]/35 hover:-translate-y-1"><p className="text-xs font-bold text-[#e8842e]">{step}</p><h3 className="mt-8 text-xl font-semibold text-[#f6efe8]">{title}</h3><p className="mt-4 text-sm leading-7 text-[#a89d92]">{text}</p></article>)}</div></section> }
 function Contact() { return <section id="contact" className="relative z-10 mx-auto max-w-[1440px] px-5 py-16 lg:px-8 lg:py-28"><div className="reveal-in rounded-[2.5rem] border border-[#e8842e]/20 bg-[radial-gradient(circle_at_74%_20%,rgba(232,132,46,.18),transparent_32%),rgba(8,8,8,.78)] p-7 shadow-[0_40px_160px_rgba(0,0,0,.42)] backdrop-blur-xl md:p-14"><p className="mb-5 text-xs font-bold uppercase tracking-[0.42em] text-[#e8842e]">Contato</p><h2 className="max-w-5xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Quer transformar uma ideia em site, landing ou dashboard?</h2><p className="mt-7 max-w-2xl text-lg leading-8 text-[#d7ccc1]">Me chame com o contexto do projeto. Eu te ajudo a organizar escopo, prioridade e uma primeira versão viável para colocar no ar.</p><div className="mt-10 flex flex-col gap-4 sm:flex-row"><a href={BRAND.whatsapp} target="_blank" rel="noreferrer" className="magnetic rounded-full bg-[#e8842e] px-8 py-4 text-center text-sm font-bold text-[#080604] transition hover:bg-[#f6efe8]">Começar conversa</a><a href={BRAND.github} target="_blank" rel="noreferrer" className="magnetic rounded-full border border-white/12 bg-white/[0.04] px-8 py-4 text-center text-sm font-bold text-[#f6efe8]">Ver GitHub</a><a href={BRAND.email} className="magnetic rounded-full border border-white/12 bg-white/[0.04] px-8 py-4 text-center text-sm font-bold text-[#f6efe8]">Enviar e-mail</a></div></div></section> }
@@ -294,7 +328,7 @@ function App() {
   const reducedMotion = useReducedMotion()
   const { isMobile, isCoarse } = useViewportMode()
   const [selectedProject, setSelectedProject] = useState(null)
-  useLenisScroll(reducedMotion)
+  useLenisScroll(reducedMotion, isCoarse)
   useForgeMotion(rootRef, reducedMotion, isMobile)
   useEffect(() => {
     document.documentElement.dataset.cursorMode = !reducedMotion && !isCoarse ? 'custom' : 'native'
