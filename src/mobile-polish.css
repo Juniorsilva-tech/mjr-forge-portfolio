@@ -1,12 +1,23 @@
-.mobile-clean-bg {
+main {
+  background: radial-gradient(circle at 72% 10%, rgba(232,132,46,.14), transparent 32%), linear-gradient(180deg, #030305 0%, #070605 52%, #030305 100%);
+}
+main section:first-of-type {
   background: radial-gradient(circle at 70% 10%, rgba(232,132,46,.16), transparent 32%), linear-gradient(180deg, #030305 0%, #070605 52%, #030305 100%);
 }
-.hero-title-pop { animation: mjrTitleIn 720ms ease both; }
-.reveal-in { animation: mjrRevealIn 520ms ease both; }
-.soft-float { animation: mjrSoftFloat 7s ease-in-out infinite; }
-.human-card { background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025)); }
-.project-card:after { content: ''; position: absolute; left: 1.5rem; right: 1.5rem; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(232,132,46,.58), transparent); }
+main h1 { animation: mjrTitleIn 720ms ease both; }
+main section, main article, main aside { animation: mjrRevealIn 560ms ease both; }
+main article { position: relative; }
+main article:after { content: ''; position: absolute; left: 1.5rem; right: 1.5rem; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(232,132,46,.58), transparent); }
+main a, main button { transition: transform 220ms ease, border-color 220ms ease, background-color 220ms ease, color 220ms ease; }
+main a:active, main button:active { transform: scale(.98); }
 @keyframes mjrTitleIn { from { opacity: 0; transform: translateY(24px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes mjrRevealIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes mjrSoftFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-@media (max-width: 767px) { .reveal-in { animation-duration: 420ms; } .project-card { min-height: auto !important; border-radius: 1.65rem !important; } .hero-title-pop { animation-duration: 580ms; } }
+@media (max-width: 767px) {
+  main section { padding-top: 4rem; padding-bottom: 4rem; }
+  main section:first-of-type { padding-top: 8rem; }
+  main h1 { letter-spacing: -.075em; animation-duration: 580ms; }
+  main article, main aside { min-height: auto !important; border-radius: 1.65rem !important; box-shadow: 0 24px 80px rgba(0,0,0,.34) !important; animation-duration: 420ms; }
+}
+@media (prefers-reduced-motion: reduce) {
+  main *, main *:before, main *:after { animation: none !important; transition: none !important; }
+}
