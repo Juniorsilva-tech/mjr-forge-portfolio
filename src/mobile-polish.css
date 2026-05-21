@@ -1,0 +1,12 @@
+.mobile-clean-bg {
+  background: radial-gradient(circle at 70% 10%, rgba(232,132,46,.16), transparent 32%), linear-gradient(180deg, #030305 0%, #070605 52%, #030305 100%);
+}
+.hero-title-pop { animation: mjrTitleIn 720ms ease both; }
+.reveal-in { animation: mjrRevealIn 520ms ease both; }
+.soft-float { animation: mjrSoftFloat 7s ease-in-out infinite; }
+.human-card { background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025)); }
+.project-card:after { content: ''; position: absolute; left: 1.5rem; right: 1.5rem; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(232,132,46,.58), transparent); }
+@keyframes mjrTitleIn { from { opacity: 0; transform: translateY(24px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes mjrRevealIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes mjrSoftFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@media (max-width: 767px) { .reveal-in { animation-duration: 420ms; } .project-card { min-height: auto !important; border-radius: 1.65rem !important; } .hero-title-pop { animation-duration: 580ms; } }
