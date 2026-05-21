@@ -1,9 +1,46 @@
 main {
-  background: radial-gradient(circle at 72% 10%, rgba(232,132,46,.14), transparent 32%), linear-gradient(180deg, #030305 0%, #070605 52%, #030305 100%);
+  background:
+    radial-gradient(circle at 72% 10%, rgba(232,132,46,.14), transparent 32%),
+    radial-gradient(circle at 18% 72%, rgba(45,78,140,.10), transparent 28%),
+    linear-gradient(180deg, #030305 0%, #070605 52%, #030305 100%);
 }
 main section:first-of-type {
-  background: radial-gradient(circle at 70% 10%, rgba(232,132,46,.16), transparent 32%), linear-gradient(180deg, #030305 0%, #070605 52%, #030305 100%);
+  position: relative;
+  background:
+    radial-gradient(circle at 76% 12%, rgba(232,132,46,.23), transparent 28%),
+    radial-gradient(circle at 15% 70%, rgba(45,78,140,.12), transparent 27%),
+    linear-gradient(180deg, #020202 0%, #0a0705 50%, #030305 100%);
 }
+main section:first-of-type:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .34;
+  background:
+    repeating-linear-gradient(118deg, rgba(255,255,255,.035) 0 1px, transparent 1px 9px),
+    radial-gradient(circle at 24% 24%, rgba(255,255,255,.055) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 78% 54%, rgba(255,255,255,.04) 0 1px, transparent 1.4px);
+  background-size: 100% 100%, 28px 28px, 36px 36px;
+  mix-blend-mode: overlay;
+  animation: forgeOreShift 10s ease-in-out infinite alternate;
+}
+main section:first-of-type:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(255,135,48,.24), transparent 20%),
+    radial-gradient(circle at 72% 36%, rgba(255,86,26,.12), transparent 22%),
+    radial-gradient(circle at 50% 82%, rgba(255,180,80,.10), transparent 30%),
+    radial-gradient(circle at center, transparent 0%, rgba(0,0,0,.2) 58%, rgba(0,0,0,.62) 100%);
+  filter: saturate(1.25);
+  animation: forgeFireBreath 4.6s ease-in-out infinite alternate;
+}
+main section:first-of-type > div:not(.pointer-events-none) { position: relative; z-index: 1; }
 main h1 { animation: mjrTitleIn 720ms ease both; }
 main section, main article, main aside { animation: mjrRevealIn 560ms ease both; }
 main article { position: relative; }
@@ -11,18 +48,21 @@ main article:after { content: ''; position: absolute; left: 1.5rem; right: 1.5re
 main a, main button { transition: transform 220ms ease, border-color 220ms ease, background-color 220ms ease, color 220ms ease; }
 main a:active, main button:active { transform: scale(.98); }
 .profile-card {
-  background: radial-gradient(circle at 20% 0%, rgba(232,132,46,.14), transparent 30%), linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
+  background:
+    radial-gradient(circle at 20% 0%, rgba(232,132,46,.16), transparent 30%),
+    linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
 }
 .profile-photo {
-  background-image: linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,.3)), url('/forge-portrait.jpg') !important;
+  position: relative;
+  background-image: linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,.34)), url('/forge-portrait.jpg') !important;
   background-size: cover !important;
   background-position: center 18% !important;
   min-height: 340px !important;
-  box-shadow: inset 0 -90px 120px rgba(0,0,0,.42), 0 0 90px rgba(232,132,46,.1);
+  box-shadow: inset 0 -100px 130px rgba(0,0,0,.48), 0 0 90px rgba(232,132,46,.12);
 }
 .profile-photo > div { display: none !important; }
 .profile-photo:after {
-  content: 'Maurício Silva Junior';
+  content: 'Maurício Silva Júnior';
   position: absolute;
   left: 1rem;
   right: 1rem;
@@ -39,11 +79,12 @@ main a:active, main button:active { transform: scale(.98); }
   text-align: center;
   backdrop-filter: blur(14px);
 }
-.profile-photo { position: relative; }
 .soft-float { animation: mjrSoftFloat 7s ease-in-out infinite; }
-@keyframes mjrTitleIn { from { opacity: 0; transform: translateY(24px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-@keyframes mjrRevealIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes mjrTitleIn { from { opacity: 0; transform: translateY(24px) scale(.98); filter: blur(10px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+@keyframes mjrRevealIn { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
 @keyframes mjrSoftFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes forgeFireBreath { from { opacity: .68; transform: scale(1); } to { opacity: .98; transform: scale(1.035); } }
+@keyframes forgeOreShift { from { opacity: .22; background-position: 0 0, 0 0, 0 0; } to { opacity: .42; background-position: 0 0, 18px 20px, -14px 16px; } }
 @media (max-width: 767px) {
   main section { padding-top: 4rem; padding-bottom: 4rem; }
   main section:first-of-type { padding-top: 8rem; }
