@@ -1,0 +1,102 @@
+:root {
+  --ember: rgba(255, 132, 38, .34);
+  --ember-soft: rgba(232, 132, 46, .18);
+  --obsidian-violet: rgba(112, 66, 210, .18);
+}
+
+main {
+  background-size: 160% 160%, 180% 180%, 140% 140%, 100% 100% !important;
+  animation: forgeAmbientDrift 16s ease-in-out infinite alternate !important;
+}
+
+main::before {
+  opacity: .88 !important;
+  background-size: 220% 220%, 180% 180%, 32px 32px, 40px 40px !important;
+  animation: forgeObsidianCurrent 14s ease-in-out infinite alternate !important;
+}
+
+main::after {
+  opacity: .95 !important;
+  background:
+    radial-gradient(circle at 78% 14%, rgba(255, 126, 35, .36), transparent 20%),
+    radial-gradient(circle at 58% 78%, rgba(255, 80, 22, .20), transparent 28%),
+    radial-gradient(circle at 16% 72%, rgba(112, 66, 210, .22), transparent 30%),
+    radial-gradient(circle at 48% 46%, rgba(255,255,255,.035), transparent 34%),
+    radial-gradient(circle at center, transparent 0%, rgba(0,0,0,.08) 54%, rgba(0,0,0,.34) 100%) !important;
+  background-size: 140% 140%, 150% 150%, 150% 150%, 100% 100%, 100% 100% !important;
+  animation: forgeHeatPulse 6.8s ease-in-out infinite alternate !important;
+}
+
+main section {
+  position: relative;
+  overflow: hidden;
+}
+
+main section::before {
+  content: '';
+  position: absolute;
+  inset: -25%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .28;
+  background:
+    radial-gradient(circle at 18% 90%, var(--ember) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 56% 96%, rgba(255, 184, 92, .22) 0 1.2px, transparent 2px),
+    radial-gradient(circle at 86% 88%, var(--obsidian-violet) 0 1.6px, transparent 2.4px);
+  background-size: 95px 160px, 130px 210px, 150px 240px;
+  animation: emberLift 13s linear infinite;
+  mix-blend-mode: screen;
+}
+
+main section > * {
+  position: relative;
+  z-index: 1;
+}
+
+main article,
+main aside,
+#contact > div {
+  background-image:
+    radial-gradient(circle at 75% 0%, rgba(255, 132, 38, .10), transparent 32%),
+    radial-gradient(circle at 16% 100%, rgba(112, 66, 210, .075), transparent 30%) !important;
+}
+
+@keyframes forgeAmbientDrift {
+  0% { background-position: 0% 0%, 100% 30%, 50% 100%, 0 0; }
+  100% { background-position: 100% 18%, 0% 80%, 80% 12%, 0 0; }
+}
+
+@keyframes forgeObsidianCurrent {
+  0% { transform: translate3d(0,0,0) scale(1); background-position: 0% 0%, 100% 40%, 0 0, 0 0; }
+  100% { transform: translate3d(-1.4%, 1%, 0) scale(1.025); background-position: 80% 20%, 15% 70%, 22px 28px, -18px 24px; }
+}
+
+@keyframes forgeHeatPulse {
+  0% { transform: scale(1) translate3d(0,0,0); filter: saturate(1.05) brightness(1); }
+  100% { transform: scale(1.055) translate3d(-1%, -1%, 0); filter: saturate(1.35) brightness(1.12); }
+}
+
+@keyframes emberLift {
+  0% { transform: translate3d(0, 12%, 0); background-position: 0 100%, 50px 120%, 20px 110%; opacity: .16; }
+  45% { opacity: .34; }
+  100% { transform: translate3d(0, -12%, 0); background-position: 30px 0%, 80px -20%, -40px -10%; opacity: .22; }
+}
+
+@media (max-width: 767px) {
+  main::before { opacity: .95 !important; }
+  main::after { opacity: 1 !important; }
+  main section::before {
+    opacity: .34;
+    background-size: 78px 135px, 112px 180px, 128px 205px;
+    animation-duration: 10s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main,
+  main::before,
+  main::after,
+  main section::before {
+    animation: none !important;
+  }
+}
