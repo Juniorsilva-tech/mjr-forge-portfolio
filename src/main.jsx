@@ -6,6 +6,7 @@ import './scene-transitions.css'
 import './premium-polish.css'
 import './mobile-menu-forge.css'
 import './mobile-polish.css'
+import './forge-motion-visible.css'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
