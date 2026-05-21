@@ -1,0 +1,334 @@
+/* Consolidated forge/obsidian visual system: background, motion, profile photo, mobile polish and performance modes. */
+:root {
+  --forge-text: #f6efe8;
+  --forge-muted: #d7ccc1;
+  --forge-ember: rgba(255, 132, 38, .48);
+  --forge-ember-soft: rgba(232, 132, 46, .24);
+  --forge-obsidian-violet: rgba(112, 66, 210, .28);
+}
+
+body {
+  background:
+    radial-gradient(circle at 78% 4%, rgba(255,126,35,.18), transparent 32%),
+    radial-gradient(circle at 12% 72%, rgba(95,58,190,.16), transparent 30%),
+    linear-gradient(180deg, #020203 0%, #080504 48%, #030305 100%) !important;
+}
+
+main {
+  isolation: isolate;
+  position: relative;
+  background:
+    radial-gradient(circle at 72% 8%, rgba(255,126,35,.16), transparent 30%),
+    radial-gradient(circle at 22% 58%, rgba(112,66,210,.14), transparent 30%),
+    radial-gradient(circle at 72% 82%, rgba(232,132,46,.10), transparent 34%),
+    linear-gradient(180deg, #020203 0%, #090605 44%, #030305 100%);
+  background-size: 160% 160%, 180% 180%, 140% 140%, 100% 100%;
+  animation: forgeAmbientDrift 12s ease-in-out infinite alternate;
+}
+
+main::before,
+main::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+main::before {
+  opacity: .96;
+  background:
+    linear-gradient(128deg, rgba(255,255,255,.07) 0 1px, transparent 1px 16px),
+    linear-gradient(36deg, transparent 0 34%, rgba(154,111,255,.085) 35%, transparent 39%, rgba(255,133,44,.062) 62%, transparent 67%),
+    radial-gradient(circle at 24% 20%, rgba(255,255,255,.07) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 80% 58%, rgba(255,126,35,.06) 0 1px, transparent 1.5px);
+  background-size: 220% 220%, 180% 180%, 30px 30px, 38px 38px;
+  mix-blend-mode: screen;
+  animation: forgeObsidianCurrent 10s ease-in-out infinite alternate;
+}
+
+main::after {
+  opacity: 1;
+  background:
+    radial-gradient(circle at 78% 14%, rgba(255, 126, 35, .44), transparent 20%),
+    radial-gradient(circle at 58% 78%, rgba(255, 80, 22, .26), transparent 28%),
+    radial-gradient(circle at 16% 72%, rgba(112, 66, 210, .30), transparent 30%),
+    radial-gradient(circle at 48% 46%, rgba(255,255,255,.045), transparent 34%),
+    radial-gradient(circle at center, transparent 0%, rgba(0,0,0,.05) 54%, rgba(0,0,0,.30) 100%);
+  background-size: 150% 150%, 160% 160%, 160% 160%, 100% 100%, 100% 100%;
+  animation: forgeHeatPulse 4.9s ease-in-out infinite alternate;
+}
+
+main > * {
+  position: relative;
+  z-index: 1;
+}
+
+main section {
+  position: relative;
+  overflow: hidden;
+}
+
+main section::before,
+main section::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: screen;
+}
+
+main section::before {
+  inset: -28%;
+  opacity: .42;
+  background:
+    radial-gradient(circle at 18% 90%, var(--forge-ember) 0 1.8px, transparent 2.8px),
+    radial-gradient(circle at 56% 96%, rgba(255, 184, 92, .36) 0 1.45px, transparent 2.6px),
+    radial-gradient(circle at 86% 88%, var(--forge-obsidian-violet) 0 1.8px, transparent 2.8px),
+    linear-gradient(122deg, transparent 0 44%, rgba(255,132,38,.055) 45%, transparent 52%);
+  background-size: 82px 130px, 116px 176px, 132px 205px, 180% 180%;
+  animation: emberLift 8.5s linear infinite;
+}
+
+main section::after {
+  inset: -20%;
+  opacity: .20;
+  background:
+    linear-gradient(115deg, transparent 0 35%, rgba(255,255,255,.12) 38%, transparent 43%),
+    linear-gradient(38deg, transparent 0 54%, rgba(126,82,255,.15) 56%, transparent 62%);
+  filter: blur(1px);
+  animation: obsidianVeinSweep 7.5s ease-in-out infinite alternate;
+}
+
+main section > * {
+  position: relative;
+  z-index: 1;
+}
+
+main section:first-of-type {
+  background:
+    radial-gradient(circle at 76% 12%, rgba(255,132,38,.24), transparent 28%),
+    radial-gradient(circle at 17% 68%, rgba(112,66,210,.18), transparent 28%),
+    linear-gradient(180deg, rgba(2,2,3,.86) 0%, rgba(8,5,4,.76) 48%, rgba(3,3,5,.9) 100%);
+}
+
+main h1 {
+  animation: mjrTitleIn 720ms ease both;
+  text-shadow: 0 0 42px rgba(232,132,46,.11);
+}
+
+main section,
+main article,
+main aside {
+  animation: mjrRevealIn 560ms ease both;
+}
+
+main article {
+  position: relative;
+  background-color: rgba(8,8,9,.68) !important;
+}
+
+main article,
+main aside,
+#contact > div {
+  background-image:
+    radial-gradient(circle at 75% 0%, rgba(255, 132, 38, .12), transparent 32%),
+    radial-gradient(circle at 16% 100%, rgba(112, 66, 210, .09), transparent 30%) !important;
+}
+
+main article::after {
+  content: '';
+  position: absolute;
+  left: 1.5rem;
+  right: 1.5rem;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,132,46,.66), rgba(152,105,255,.24), transparent);
+}
+
+main a,
+main button {
+  transition: transform 220ms ease, border-color 220ms ease, background-color 220ms ease, color 220ms ease;
+}
+
+main a:active,
+main button:active {
+  transform: scale(.98);
+}
+
+.profile-card {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(232,132,46,.19), transparent 30%),
+    radial-gradient(circle at 100% 100%, rgba(120,76,220,.14), transparent 28%),
+    linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.032)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 34px 120px rgba(0,0,0,.42);
+}
+
+.profile-photo {
+  position: relative;
+  background-image: linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,.34)), url('/forge-portrait.jpg') !important;
+  background-size: cover !important;
+  background-position: center 18% !important;
+  min-height: 340px !important;
+  box-shadow: inset 0 -100px 130px rgba(0,0,0,.48), 0 0 90px rgba(232,132,46,.12);
+}
+
+.profile-photo > div {
+  display: none !important;
+}
+
+.profile-photo::after {
+  content: 'Maurício Silva Júnior';
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  background: rgba(3,3,5,.58);
+  padding: .7rem 1rem;
+  color: var(--forge-text);
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  text-align: center;
+  backdrop-filter: blur(14px);
+}
+
+.soft-float {
+  animation: mjrSoftFloat 7s ease-in-out infinite;
+}
+
+@keyframes mjrTitleIn {
+  from { opacity: 0; transform: translateY(24px) scale(.98); filter: blur(10px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes mjrRevealIn {
+  from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes mjrSoftFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes forgeAmbientDrift {
+  0% { background-position: 0% 0%, 100% 30%, 50% 100%, 0 0; }
+  100% { background-position: 100% 18%, 0% 80%, 80% 12%, 0 0; }
+}
+
+@keyframes forgeObsidianCurrent {
+  0% { transform: translate3d(0,0,0) scale(1); background-position: 0% 0%, 100% 40%, 0 0, 0 0; }
+  100% { transform: translate3d(-1.6%, 1.1%, 0) scale(1.03); background-position: 80% 20%, 15% 70%, 24px 30px, -20px 26px; }
+}
+
+@keyframes forgeHeatPulse {
+  0% { transform: scale(1) translate3d(0,0,0); filter: saturate(1.08) brightness(1); }
+  100% { transform: scale(1.07) translate3d(-1.2%, -1%, 0); filter: saturate(1.45) brightness(1.16); }
+}
+
+@keyframes emberLift {
+  0% { transform: translate3d(0, 16%, 0); background-position: 0 120%, 50px 130%, 20px 120%, 0 0; opacity: .22; }
+  42% { opacity: .48; }
+  100% { transform: translate3d(0, -16%, 0); background-position: 34px -5%, 86px -30%, -44px -15%, 100% 100%; opacity: .30; }
+}
+
+@keyframes obsidianVeinSweep {
+  0% { transform: translate3d(-3%, 2%, 0) scale(1); opacity: .10; }
+  100% { transform: translate3d(3%, -2%, 0) scale(1.04); opacity: .28; }
+}
+
+@media (max-width: 767px) {
+  main section {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  main section:first-of-type {
+    padding-top: 8rem;
+  }
+
+  main h1 {
+    letter-spacing: -.075em;
+    animation-duration: 580ms;
+  }
+
+  main article,
+  main aside {
+    min-height: auto !important;
+    border-radius: 1.65rem !important;
+    box-shadow: 0 24px 80px rgba(0,0,0,.34) !important;
+    animation-duration: 420ms;
+  }
+
+  .profile-photo {
+    min-height: 390px !important;
+    background-position: center 12% !important;
+  }
+
+  main::before,
+  main::after {
+    opacity: 1;
+  }
+
+  main section::before {
+    opacity: .50;
+    background-size: 70px 112px, 98px 150px, 116px 176px, 180% 180%;
+    animation-duration: 6.5s;
+  }
+
+  main section::after {
+    opacity: .26;
+    animation-duration: 6s;
+  }
+}
+
+html[data-performance='balanced'] main::before,
+html[data-performance='balanced'] main::after {
+  opacity: .72 !important;
+  animation-duration: 16s !important;
+}
+
+html[data-performance='balanced'] main section::before {
+  opacity: .28 !important;
+  animation-duration: 13s !important;
+}
+
+html[data-performance='balanced'] main section::after {
+  opacity: .14 !important;
+  animation-duration: 12s !important;
+}
+
+html[data-performance='performance'] main,
+html[data-performance='performance'] main::before,
+html[data-performance='performance'] main::after,
+html[data-performance='performance'] main section::before,
+html[data-performance='performance'] main section::after {
+  animation: none !important;
+}
+
+html[data-performance='performance'] main::before {
+  opacity: .25 !important;
+}
+
+html[data-performance='performance'] main::after {
+  opacity: .34 !important;
+}
+
+html[data-performance='performance'] main section::before,
+html[data-performance='performance'] main section::after {
+  opacity: .08 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main,
+  main *,
+  main *::before,
+  main *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
