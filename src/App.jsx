@@ -1,340 +1,966 @@
-import { useEffect, useRef, useState } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import Lenis from 'lenis'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import BrandMark from './components/BrandMark.jsx'
+import BlackHoleBackground from './components/BlackHoleBackground.jsx'
+import GravityCursor from './components/GravityCursor.jsx'
+import PerformanceModeToggle, { usePerformanceMode } from './components/PerformanceModeToggle.jsx'
+import ProjectMockup from './components/ProjectMockup.jsx'
+import SpatialSection from './components/SpatialSection.jsx'
+import {
+  PerformanceProfileContext,
+  getPerformanceProfile,
+  usePerformanceProfile,
+} from './lib/performance.js'
+import { useSpatialJourney } from './lib/useSpatialJourney.js'
 
-gsap.registerPlugin(ScrollTrigger)
+function PageIntroLoader({ onDone }) {
+  const [progress, setProgress] = useState(0)
+  const [visible, setVisible] = useState(true)
+  const [frame, setFrame] = useState('00:00:00:00')
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+
+    // Timecode counter
+    let f = 0
+    const tc = setInterval(() => {
+      f++
+      const ff = String(f % 30).padStart(2, '0')
+      const ss = String(Math.floor(f / 30) % 60).padStart(2, '0')
+      const mm = String(Math.floor(f / 1800) % 60).padStart(2, '0')
+      const hh = String(Math.floor(f / 108000)).padStart(2, '0')
+      setFrame(`${hh}:${mm}:${ss}:${ff}`)
+    }, 40)
+
+    // Progress bar
+    const start = performance.now()
+    const duration = 2200
+    const raf = requestAnimationFrame(function tick(now) {
+      const t = Math.min((now - start) / duration, 1)
+      setProgress(t)
+      if (t < 1) requestAnimationFrame(tick)
+    })
+
+    // Exit
+    const exit = setTimeout(() => {
+      setVisible(false)
+      document.body.style.overflow = ''
+      clearInterval(tc)
+      setTimeout(onDone, 520)
+    }, 2600)
+
+    return () => {
+      clearInterval(tc)
+      clearTimeout(exit)
+      cancelAnimationFrame(raf)
+      document.body.style.overflow = ''
+    }
+  }, [onDone])
+
+  return (
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 300,
+        background: '#010103',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        opacity: visible ? 1 : 0,
+        transition: 'opacity 500ms cubic-bezier(0.16,1,0.3,1)',
+        pointerEvents: visible ? 'all' : 'none',
+      }}
+    >
+      {/* Top-left brand */}
+      <div style={{ position: 'absolute', top: 28, left: 28, fontFamily: 'Syne, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.38em', textTransform: 'uppercase', color: 'rgba(244,239,231,0.38)' }}>
+        MJR Forge
+      </div>
+
+      {/* Center content */}
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: '0.42em', textTransform: 'uppercase', color: 'rgba(199,161,90,0.55)', marginBottom: 32 }}>
+          {frame}
+        </div>
+        <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(32px, 6vw, 72px)', fontWeight: 800, letterSpacing: '-0.06em', color: '#f4efe7', lineHeight: 1 }}>
+          MAURICIO JUNIOR
+        </div>
+        <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: '0.34em', textTransform: 'uppercase', color: 'rgba(244,239,231,0.32)', marginTop: 14 }}>
+          Front-end Developer — UI Premium — React
+        </div>
+      </div>
+
+      {/* Bottom-left label */}
+      <div style={{ position: 'absolute', bottom: 36, left: 28, fontFamily: 'DM Sans, sans-serif', fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'rgba(199,161,90,0.38)' }}>
+        Initializing
+      </div>
+
+      {/* Progress bar */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: 'rgba(255,255,255,0.06)' }}>
+        <div style={{ height: '100%', background: 'linear-gradient(90deg, rgba(199,161,90,0.9), rgba(255,220,140,1))', width: `${progress * 100}%`, transition: 'width 60ms linear', boxShadow: '0 0 18px rgba(199,161,90,0.8)' }} />
+      </div>
+    </div>
+  )
+}
 
 const BRAND = {
   name: 'MJR Forge',
-  signature: 'Maurício Silva Junior',
-  role: 'Frontend Developer | React • Next.js • TypeScript • UI Premium',
+  signature: 'Mauricio Junior',
+  email: 'mauriciojr07052006@gmail.com',
   whatsapp: 'https://wa.me/5524992625175',
   github: 'https://github.com/Juniorsilva-tech',
-  email: 'mailto:mauriciojr0705@gmail.com',
 }
 
-const NAV = [
+const nav = [
+  ['Manifesto', '#manifesto'],
+  ['Jornada', '#journey'],
   ['Projetos', '#work'],
-  ['Sobre', '#about'],
-  ['Stack', '#stack'],
-  ['Contato', '#contact'],
+  ['Contato', '#contato'],
 ]
 
-const PROJECTS = [
+const principles = ['Silêncio', 'Presença', 'Ritmo', 'Produto', 'Refino']
+
+const milestones = [
+  ['01', 'Março 2026', 'ADS com foco real em web. Estudo virando prática, deploy e projeto visível.'],
+  ['02', 'MJR Forge', 'Portfólio como laboratório de identidade, UI e direção visual aplicada.'],
+  ['03', 'RetailFlow', 'Dashboard SaaS com CRUD, clientes, pedidos, métricas e visão de produto.'],
+  ['04', 'Princessmel', 'Projeto real para loja cristã com vitrine digital, estética e conversão.'],
+  ['05', 'Jarvis', 'Workflow privado de QA visual e aceleração de interface com IA aplicada.'],
+]
+
+const projects = [
   {
+    slug: 'princessmel',
+    label: 'Real Case',
+    title: 'Princessmel',
+    status: 'Em construção',
+    summary: 'Editorial warm',
+    text: 'Landing page e presença digital para loja de moda cristã, com foco em curadoria, respiração visual e CTA direto via WhatsApp.',
+    note: 'Apresentado como direção visual e base real de produto, ainda em evolução.',
+    tags: ['Landing Page', 'Branding', 'UI Editorial', 'WhatsApp'],
+  },
+  {
+    slug: 'retailflow',
+    label: 'SaaS Demo',
     title: 'RetailFlow Dashboard',
-    eyebrow: 'dashboard SaaS para negócios locais',
-    text: 'Dashboard administrativo com clientes, pedidos, pagamentos, relatórios e métricas comerciais. Projeto focado em UI de produto, CRUD visual, responsividade e experiência de SaaS moderno.',
-    tags: ['React', 'Vite', 'Dashboard', 'UI SaaS'],
-    href: 'https://retailflow-dashboard.vercel.app',
+    status: 'Projeto navegável',
+    summary: 'Business precise',
+    text: 'Dashboard para pequenos negócios com clientes, pedidos, financeiro e relatórios, desenhado para parecer produto real e pronto para operação.',
+    note: 'Caso mais maduro em termos de interface, fluxo operacional e prova visual de produto.',
+    tags: ['React', 'Dashboard', 'CRUD', 'Vercel'],
+    demo: 'https://retailflow-dashboard.vercel.app',
     repo: 'https://github.com/Juniorsilva-tech/retailflow-dashboard',
-    metric: 'Produto',
+    screenshots: [
+      '/retailflow/retailflow-dashboard-01.png',
+      '/retailflow/retailflow-dashboard-02.png',
+      '/retailflow/retailflow-dashboard-03.png',
+      '/retailflow/retailflow-dashboard-04.png',
+      '/retailflow/retailflow-dashboard-05.png',
+    ],
   },
   {
-    title: 'BarberFlow',
-    eyebrow: 'gestão moderna para barbearias',
-    text: 'Aplicação quase full TypeScript com Next.js, dashboard operacional, agenda, clientes, serviços, formulários com validação e estrutura preparada para evolução com backend.',
-    tags: ['Next.js', 'TypeScript', 'React', 'Dashboard'],
-    href: 'https://github.com/Juniorsilva-tech/BarberFlow',
-    repo: 'https://github.com/Juniorsilva-tech/BarberFlow',
-    metric: 'TypeScript',
-  },
-  {
-    title: 'Princessmel Boutique',
-    eyebrow: 'landing page premium para marca local',
-    text: 'Landing page editorial para boutique, com foco em apresentação de marca, experiência mobile, hierarquia visual, conversão por WhatsApp e acabamento de interface.',
-    tags: ['Next.js', 'TypeScript', 'Landing Page', 'UI/UX'],
-    href: 'https://github.com/Juniorsilva-tech/Princessmel-boutique',
-    repo: 'https://github.com/Juniorsilva-tech/Princessmel-boutique',
-    metric: 'Conversão',
-  },
-  {
-    title: 'MJR Forge Portfolio',
-    eyebrow: 'portfólio cinematográfico',
-    text: 'Portfólio em React com experiência visual, motion, controle de performance e storytelling para apresentar projetos e diferenciais de frontend.',
-    tags: ['React', 'Motion', 'GSAP', 'UI Premium'],
-    href: 'https://mjr-forge-portfolio.vercel.app',
-    repo: 'https://github.com/Juniorsilva-tech/mjr-forge-portfolio',
-    metric: 'Motion',
-  },
-  {
-    title: 'Jarvis Workflow Assistant',
-    eyebrow: 'automação e IA aplicada',
-    text: 'Projeto experimental de workflow assistido por IA para geração, QA visual, repair e automação de desenvolvimento frontend, com foco em produtividade e validação.',
-    tags: ['Python', 'React', 'Automação', 'IA'],
-    href: 'https://github.com/Juniorsilva-tech/Jarvis-Ia-assist',
-    repo: 'https://github.com/Juniorsilva-tech/Jarvis-Ia-assist',
-    metric: 'Workflow',
+    slug: 'jarvis',
+    label: 'Private System',
+    title: 'Jarvis Workflow',
+    status: 'Em finalização',
+    summary: 'Silent automation',
+    text: 'Sistema privado para organizar, revisar e acelerar criação de interfaces com QA visual, automação e leitura operacional.',
+    note: 'Exibido como sistema autoral em finalização, com foco em processo e automação aplicada.',
+    tags: ['Automation', 'QA Visual', 'AI Workflow', 'React UI'],
   },
 ]
 
-const STACK = ['React', 'Next.js', 'TypeScript', 'JavaScript', 'Vite', 'Framer Motion', 'GSAP', 'HTML', 'CSS', 'Python', 'SQL', 'Supabase', 'Git/GitHub', 'Docker', 'Vercel', 'UI/UX']
-
-const PROCESS = [
-  ['01', 'Diagnóstico', 'Entendo o negócio, público, objetivo da página e o que precisa virar contato, venda ou clareza.'],
-  ['02', 'Direção visual', 'Defino hierarquia, narrativa, seções e estilo para a interface não parecer genérica.'],
-  ['03', 'Construção', 'Transformo a ideia em componentes responsivos, navegação clara e experiência funcional.'],
-  ['04', 'Refino', 'Ajusto espaçamento, contraste, mobile, microinterações, copy e detalhes de conversão.'],
-  ['05', 'Entrega', 'Publico online, explico o uso e deixo próximos passos para evoluir o produto.'],
+const professionalHighlights = [
+  {
+    title: 'Front-end React',
+    text: 'Interfaces modernas com arquitetura clara, legibilidade e manutenção viável.',
+  },
+  {
+    title: 'UI premium',
+    text: 'Direção visual controlada, acabamento editorial e consistência entre layout, ritmo e marca.',
+  },
+  {
+    title: 'Dashboards',
+    text: 'Painéis para operação e leitura de métricas com foco em clareza e uso real.',
+  },
+  {
+    title: 'Landing pages',
+    text: 'Páginas para apresentação, conversão e narrativa visual com CTA objetivo.',
+  },
+  {
+    title: 'Automação',
+    text: 'Fluxos que aceleram build, QA e revisão sem sacrificar estabilidade.',
+  },
+  {
+    title: 'IA aplicada',
+    text: 'Uso pragmático de IA para validação, refinamento e aceleração de entrega.',
+  },
 ]
 
-function useReducedMotion() {
-  const [reduced, setReduced] = useState(false)
+const SCENES = {
+  hero: {
+    sceneKey: 'hero',
+    direction: 'left',
+    accent: 'rgba(199, 161, 90, 0.18)',
+    secondary: 'rgba(110, 68, 42, 0.16)',
+    gridLine: 'rgba(199, 161, 90, 0.08)',
+    gridGlow: 'rgba(199, 161, 90, 0.2)',
+    highlightX: '76%',
+    highlightY: '16%',
+    cameraX: '-28px',
+    cameraY: '-12px',
+    cameraScale: '1.006',
+    gradientAngle: '118deg',
+    dissolveAngle: '128deg',
+    background:
+      'linear-gradient(122deg, #050505 0%, #080706 34%, #14100d 63%, #050505 100%)',
+    mesh:
+      'radial-gradient(circle at 74% 16%, rgba(199,161,90,0.18), transparent 30%), radial-gradient(circle at 18% 84%, rgba(155,94,50,0.15), transparent 28%), linear-gradient(180deg, rgba(255,255,255,0.02), transparent 54%)',
+    grid:
+      'linear-gradient(rgba(199,161,90,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(199,161,90,0.05) 1px, transparent 1px)',
+  },
+  manifesto: {
+    sceneKey: 'manifesto',
+    direction: 'right',
+    accent: 'rgba(214, 174, 118, 0.16)',
+    secondary: 'rgba(244, 239, 231, 0.08)',
+    gridLine: 'rgba(244, 239, 231, 0.05)',
+    gridGlow: 'rgba(214, 174, 118, 0.18)',
+    highlightX: '26%',
+    highlightY: '28%',
+    cameraX: '22px',
+    cameraY: '-6px',
+    cameraScale: '1.003',
+    gradientAngle: '244deg',
+    dissolveAngle: '236deg',
+    background:
+      'linear-gradient(132deg, #050505 0%, #120f0b 28%, #1a140e 56%, #070707 100%)',
+    mesh:
+      'radial-gradient(circle at 28% 24%, rgba(214,174,118,0.18), transparent 28%), radial-gradient(circle at 78% 76%, rgba(244,239,231,0.08), transparent 32%)',
+    grid:
+      'linear-gradient(rgba(244,239,231,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(214,174,118,0.04) 1px, transparent 1px)',
+  },
+  journey: {
+    sceneKey: 'journey',
+    direction: 'center',
+    accent: 'rgba(165, 112, 68, 0.16)',
+    secondary: 'rgba(244, 239, 231, 0.06)',
+    gridLine: 'rgba(185, 139, 93, 0.05)',
+    gridGlow: 'rgba(165, 112, 68, 0.16)',
+    highlightX: '50%',
+    highlightY: '18%',
+    cameraX: '0px',
+    cameraY: '-10px',
+    cameraScale: '1.004',
+    gradientAngle: '180deg',
+    dissolveAngle: '180deg',
+    background:
+      'linear-gradient(145deg, #060606 0%, #0d0a08 25%, #19120d 58%, #070707 100%)',
+    mesh:
+      'radial-gradient(circle at 50% 18%, rgba(165,112,68,0.18), transparent 30%), radial-gradient(circle at 14% 72%, rgba(244,239,231,0.06), transparent 22%), radial-gradient(circle at 86% 72%, rgba(122,84,46,0.12), transparent 26%)',
+    grid:
+      'linear-gradient(rgba(185,139,93,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(185,139,93,0.05) 1px, transparent 1px)',
+  },
+  work: {
+    sceneKey: 'work',
+    direction: 'right',
+    accent: 'rgba(87, 125, 214, 0.14)',
+    secondary: 'rgba(20, 39, 76, 0.14)',
+    gridLine: 'rgba(121, 164, 255, 0.04)',
+    gridGlow: 'rgba(87, 125, 214, 0.14)',
+    highlightX: '72%',
+    highlightY: '18%',
+    cameraX: '18px',
+    cameraY: '-10px',
+    cameraScale: '1.004',
+    gradientAngle: '238deg',
+    dissolveAngle: '230deg',
+    background:
+      'linear-gradient(138deg, #050608 0%, #0a111d 28%, #111b2a 58%, #060709 100%)',
+    mesh:
+      'radial-gradient(circle at 76% 18%, rgba(87,125,214,0.22), transparent 28%), radial-gradient(circle at 20% 80%, rgba(26,53,102,0.18), transparent 30%), linear-gradient(180deg, rgba(255,255,255,0.015), transparent 56%)',
+    grid:
+      'linear-gradient(rgba(121,164,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(121,164,255,0.05) 1px, transparent 1px)',
+  },
+  professional: {
+    sceneKey: 'professional',
+    direction: 'left',
+    accent: 'rgba(199, 161, 90, 0.14)',
+    secondary: 'rgba(244, 239, 231, 0.07)',
+    gridLine: 'rgba(199, 161, 90, 0.04)',
+    gridGlow: 'rgba(199, 161, 90, 0.16)',
+    highlightX: '24%',
+    highlightY: '24%',
+    cameraX: '-18px',
+    cameraY: '-6px',
+    cameraScale: '1.002',
+    gradientAngle: '118deg',
+    dissolveAngle: '122deg',
+    background:
+      'linear-gradient(140deg, #050505 0%, #0a0907 24%, #141210 52%, #050505 100%)',
+    mesh:
+      'radial-gradient(circle at 22% 24%, rgba(199,161,90,0.16), transparent 26%), radial-gradient(circle at 82% 74%, rgba(244,239,231,0.05), transparent 30%)',
+    grid:
+      'linear-gradient(rgba(199,161,90,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(199,161,90,0.03) 1px, transparent 1px)',
+  },
+  process: {
+    sceneKey: 'process',
+    direction: 'center',
+    accent: 'rgba(98, 122, 140, 0.14)',
+    secondary: 'rgba(44, 56, 69, 0.18)',
+    gridLine: 'rgba(98, 122, 140, 0.05)',
+    gridGlow: 'rgba(98, 122, 140, 0.14)',
+    highlightX: '50%',
+    highlightY: '20%',
+    cameraX: '0px',
+    cameraY: '-16px',
+    cameraScale: '1.006',
+    gradientAngle: '180deg',
+    dissolveAngle: '186deg',
+    background:
+      'linear-gradient(142deg, #050505 0%, #090c10 24%, #12171d 56%, #050505 100%)',
+    mesh:
+      'radial-gradient(circle at 50% 18%, rgba(98,122,140,0.16), transparent 28%), radial-gradient(circle at 18% 82%, rgba(55,74,95,0.14), transparent 24%), radial-gradient(circle at 82% 80%, rgba(244,239,231,0.05), transparent 22%)',
+    grid:
+      'linear-gradient(rgba(98,122,140,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(98,122,140,0.04) 1px, transparent 1px)',
+  },
+  contact: {
+    sceneKey: 'contact',
+    direction: 'right',
+    accent: 'rgba(214, 180, 122, 0.2)',
+    secondary: 'rgba(244, 239, 231, 0.08)',
+    gridLine: 'rgba(214, 180, 122, 0.05)',
+    gridGlow: 'rgba(214, 180, 122, 0.18)',
+    highlightX: '66%',
+    highlightY: '18%',
+    cameraX: '18px',
+    cameraY: '-10px',
+    cameraScale: '1.004',
+    gradientAngle: '238deg',
+    dissolveAngle: '238deg',
+    background:
+      'linear-gradient(138deg, #050505 0%, #0d0a08 26%, #17110c 58%, #050505 100%)',
+    mesh:
+      'radial-gradient(circle at 68% 18%, rgba(214,180,122,0.22), transparent 30%), radial-gradient(circle at 28% 82%, rgba(244,239,231,0.06), transparent 26%)',
+    grid:
+      'linear-gradient(rgba(214,180,122,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(214,180,122,0.04) 1px, transparent 1px)',
+  },
+}
+
+const PROJECT_TONES = {
+  princessmel: {
+    '--project-accent': 'rgba(214, 176, 122, 0.18)',
+    '--project-secondary': 'rgba(132, 89, 48, 0.14)',
+    '--project-tint': 'rgba(99, 63, 32, 0.1)',
+    '--project-outline': 'rgba(244, 223, 190, 0.08)',
+  },
+  retailflow: {
+    '--project-accent': 'rgba(93, 140, 255, 0.2)',
+    '--project-secondary': 'rgba(23, 51, 109, 0.18)',
+    '--project-tint': 'rgba(13, 26, 48, 0.14)',
+    '--project-outline': 'rgba(127, 170, 255, 0.1)',
+  },
+  jarvis: {
+    '--project-accent': 'rgba(133, 152, 160, 0.12)',
+    '--project-secondary': 'rgba(40, 51, 58, 0.16)',
+    '--project-tint': 'rgba(11, 14, 17, 0.24)',
+    '--project-outline': 'rgba(166, 178, 185, 0.08)',
+  },
+}
+
+function useCompactViewport() {
+  const [isCompactViewport, setIsCompactViewport] = useState(false)
+
   useEffect(() => {
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const sync = () => setReduced(media.matches)
-    sync()
-    media.addEventListener('change', sync)
-    return () => media.removeEventListener('change', sync)
+    if (typeof window === 'undefined') return undefined
+
+    const media = window.matchMedia('(max-width: 767px)')
+    const syncViewport = () => setIsCompactViewport(media.matches)
+
+    syncViewport()
+    media.addEventListener('change', syncViewport)
+
+    return () => media.removeEventListener('change', syncViewport)
   }, [])
-  return reduced
+
+  return isCompactViewport
 }
 
-function useViewportMode() {
-  const [viewport, setViewport] = useState({ isMobile: false, isCoarse: false })
-  useEffect(() => {
-    const mobile = window.matchMedia('(max-width: 767px)')
-    const coarse = window.matchMedia('(pointer: coarse)')
-    let frame = 0
-    const sync = () => {
-      if (frame) window.cancelAnimationFrame(frame)
-      frame = window.requestAnimationFrame(() => {
-        setViewport({ isMobile: mobile.matches, isCoarse: coarse.matches })
-        ScrollTrigger.refresh()
-      })
-    }
-    sync()
-    mobile.addEventListener('change', sync)
-    coarse.addEventListener('change', sync)
-    window.addEventListener('resize', sync, { passive: true })
-    window.addEventListener('orientationchange', sync)
-    return () => {
-      if (frame) window.cancelAnimationFrame(frame)
-      mobile.removeEventListener('change', sync)
-      coarse.removeEventListener('change', sync)
-      window.removeEventListener('resize', sync)
-      window.removeEventListener('orientationchange', sync)
-    }
-  }, [])
-  return viewport
+function getSceneVariants(type, intensity = 1) {
+  const yDepth = Math.round(22 * intensity)
+  const yRise = Math.round(28 * intensity)
+  const xShift = Math.round(30 * intensity)
+  const yFinal = Math.round(18 * intensity)
+
+  return {
+    depth: {
+      hidden: { opacity: 0, y: yDepth, scale: 0.985 },
+      visible: { opacity: 1, y: 0, scale: 1 },
+    },
+    rise: {
+      hidden: { opacity: 0, y: yRise },
+      visible: { opacity: 1, y: 0 },
+    },
+    left: {
+      hidden: { opacity: 0, x: xShift, scale: 0.992 },
+      visible: { opacity: 1, x: 0, scale: 1 },
+    },
+    expand: {
+      hidden: { opacity: 0, scale: 0.985 },
+      visible: { opacity: 1, scale: 1 },
+    },
+    final: {
+      hidden: { opacity: 0, y: yFinal, scale: 0.988 },
+      visible: { opacity: 1, y: 0, scale: 1 },
+    },
+  }[type]
 }
 
-function destroyLenisRuntime() {
-  if (!window.__mjrLenisRuntime) return
-  const previous = window.__mjrLenisRuntime
-  previous.lenis?.off('scroll', previous.update)
-  if (previous.raf) gsap.ticker.remove(previous.raf)
-  previous.lenis?.destroy()
-  window.__mjrLenisRuntime = null
-}
+function Scene({ type = 'rise', children, className = '', delay = 0 }) {
+  const performance = usePerformanceProfile()
 
-function useLenisScroll(reducedMotion, isCoarse) {
-  useEffect(() => {
-    if (reducedMotion || isCoarse) {
-      destroyLenisRuntime()
-      ScrollTrigger.update()
-      return undefined
-    }
+  if (!performance.motionEnabled) {
+    return <div className={className}>{children}</div>
+  }
 
-    destroyLenisRuntime()
-    const lenis = new Lenis({
-      duration: 1.02,
-      easing: t => Math.min(1, 1.001 - 2 ** (-10 * t)),
-      smoothWheel: true,
-      smoothTouch: false,
-      syncTouch: false,
-      wheelMultiplier: 0.88,
-    })
-    const update = () => ScrollTrigger.update()
-    const raf = time => lenis.raf(time * 1000)
-    lenis.on('scroll', update)
-    gsap.ticker.add(raf)
-    gsap.ticker.lagSmoothing(0)
-    window.__mjrLenisRuntime = { lenis, update, raf }
-    ScrollTrigger.refresh()
-    return () => {
-      lenis.off('scroll', update)
-      gsap.ticker.remove(raf)
-      lenis.destroy()
-      if (window.__mjrLenisRuntime?.lenis === lenis) window.__mjrLenisRuntime = null
-      ScrollTrigger.update()
-    }
-  }, [reducedMotion, isCoarse])
-}
-
-function useScrolled() {
-  const [scrolled, setScrolled] = useState(false)
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-  return scrolled
-}
-
-function useForgeMotion(rootRef, reducedMotion, isMobile) {
-  useEffect(() => {
-    if (reducedMotion || !rootRef.current) return undefined
-    const cleanupFns = []
-    const ctx = gsap.context(() => {
-      gsap.set('.reveal-in', { autoAlpha: 0, y: 34, scale: 0.985 })
-      gsap.set('.hero-title-pop', { autoAlpha: 0, y: 40, letterSpacing: '-0.04em' })
-      gsap.set('.hero-copy-line', { autoAlpha: 0, y: 22 })
-      gsap.set('.hero-actions', { autoAlpha: 0, y: 20 })
-      gsap.set('.orbital-chip', { autoAlpha: 0, scale: 0.94, y: 22 })
-
-      gsap.timeline({ defaults: { ease: 'power3.out' } })
-        .to('.hero-title-pop', { autoAlpha: 1, y: 0, letterSpacing: '-0.08em', duration: 1.16, delay: 0.18 })
-        .to('.hero-copy-line', { autoAlpha: 1, y: 0, duration: 0.84, stagger: 0.12 }, '-=0.5')
-        .to('.hero-actions', { autoAlpha: 1, y: 0, duration: 0.82 }, '-=0.42')
-        .to('.orbital-chip', { autoAlpha: 1, scale: 1, y: 0, duration: 0.72, stagger: 0.08 }, '-=0.46')
-
-      gsap.utils.toArray('.reveal-in').forEach(element => {
-        gsap.to(element, { autoAlpha: 1, y: 0, scale: 1, duration: 0.92, ease: 'power3.out', scrollTrigger: { trigger: element, start: 'top 86%', once: true } })
-      })
-
-      gsap.utils.toArray('.project-card').forEach((card, index) => {
-        const aura = card.querySelector('.project-aura')
-        const line = card.querySelector('.project-line')
-        const depth = card.querySelector('.project-depth')
-        const body = card.querySelector('.project-body')
-        gsap.set([aura, line], { autoAlpha: 0 })
-        gsap.fromTo(card, { y: isMobile ? 36 : 58, autoAlpha: 0, scale: 0.955, rotateX: isMobile ? 0 : 5 }, {
-          y: 0,
-          autoAlpha: 1,
-          scale: 1,
-          rotateX: 0,
-          duration: 1,
-          delay: index * 0.05,
-          ease: 'power3.out',
-          scrollTrigger: { trigger: card, start: 'top 88%', once: true },
-        })
-        gsap.to(aura, { autoAlpha: 1, scale: 1.12, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 82%', once: true } })
-        gsap.fromTo(line, { autoAlpha: 0, scaleX: 0, transformOrigin: '0% 50%' }, { autoAlpha: 1, scaleX: 1, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 80%', once: true } })
-        gsap.to(depth, { y: isMobile ? -10 : -18, scale: 1.025, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: isMobile ? 0.35 : 0.8 } })
-        if (body) {
-          gsap.fromTo(body.children, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.72, stagger: 0.07, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 78%', once: true } })
-        }
-      })
-
-      gsap.to('.forge-lens-core', { scale: 1.08, yPercent: -4, ease: 'power3.inOut', scrollTrigger: { trigger: '#top', start: 'top top', end: 'bottom top', scrub: isMobile ? 0.45 : 1.2 } })
-      gsap.to('.forge-ring-a', { rotation: 8, xPercent: 4, yPercent: -6, ease: 'none', scrollTrigger: { trigger: '#top', start: 'top top', end: 'bottom top', scrub: isMobile ? 0.45 : 1.1 } })
-      gsap.to('.forge-ring-b', { rotation: -8, xPercent: -3, yPercent: 5, ease: 'none', scrollTrigger: { trigger: '#work', start: 'top bottom', end: 'bottom top', scrub: isMobile ? 0.45 : 1.3 } })
-      gsap.to('.forge-glow-a', { yPercent: -8, xPercent: 6, scale: 1.06, ease: 'power3.inOut', scrollTrigger: { trigger: '#top', start: 'top top', end: 'bottom top', scrub: isMobile ? 0.45 : 1.2 } })
-      gsap.to('.forge-glow-b', { yPercent: 9, xPercent: -5, scale: 1.08, ease: 'power3.inOut', scrollTrigger: { trigger: '#work', start: 'top bottom', end: 'bottom top', scrub: isMobile ? 0.45 : 1.3 } })
-
-      gsap.utils.toArray('.float-node').forEach((node, index) => {
-        gsap.to(node, { y: index % 2 === 0 ? -10 : 12, x: index % 2 === 0 ? 6 : -7, rotation: index % 2 === 0 ? -2 : 3, duration: 4 + index * 0.4, repeat: -1, yoyo: true, ease: 'sine.inOut' })
-      })
-
-      if (!isMobile) {
-        gsap.utils.toArray('.magnetic').forEach(element => {
-          const move = event => {
-            const rect = element.getBoundingClientRect()
-            const x = event.clientX - rect.left - rect.width / 2
-            const y = event.clientY - rect.top - rect.height / 2
-            gsap.to(element, { x: x * 0.13, y: y * 0.18, duration: 0.45, ease: 'power3.out' })
-          }
-          const leave = () => gsap.to(element, { x: 0, y: 0, duration: 0.62, ease: 'elastic.out(1, 0.45)' })
-          element.addEventListener('mousemove', move)
-          element.addEventListener('mouseleave', leave)
-          cleanupFns.push(() => {
-            element.removeEventListener('mousemove', move)
-            element.removeEventListener('mouseleave', leave)
-          })
-        })
-      }
-    }, rootRef)
-    return () => {
-      cleanupFns.forEach(fn => fn())
-      ctx.revert()
-    }
-  }, [rootRef, reducedMotion, isMobile])
-}
-
-function ForgeAtmosphere() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#030305]" aria-hidden="true">
-      <div className="forge-lens-core absolute left-1/2 top-[8vh] h-[82vh] w-[132vw] -translate-x-1/2 rounded-[50%] border border-white/[0.04] bg-[radial-gradient(circle_at_50%_45%,rgba(255,255,255,.05)_0%,rgba(255,255,255,.015)_12%,rgba(232,132,46,.09)_20%,rgba(9,10,18,.12)_34%,transparent_68%)] blur-[2px]" />
-      <div className="forge-ring-a absolute left-1/2 top-[4vh] h-[92vh] w-[148vw] -translate-x-1/2 rounded-[50%] border border-[#e8842e]/10" />
-      <div className="forge-ring-b absolute left-1/2 top-[14vh] h-[68vh] w-[116vw] -translate-x-1/2 rounded-[50%] border border-[#4d6bba]/10" />
-      <div className="forge-glow-a absolute -right-[28vw] top-[-18vh] h-[72vh] w-[86vw] rounded-full bg-[radial-gradient(circle,rgba(232,132,46,.28)_0%,rgba(126,28,11,.14)_34%,transparent_66%)] blur-3xl" />
-      <div className="forge-glow-b absolute -left-[24vw] top-[42vh] h-[70vh] w-[78vw] rounded-full bg-[radial-gradient(circle,rgba(32,74,150,.20)_0%,rgba(232,132,46,.08)_34%,transparent_68%)] blur-3xl" />
-      <div className="absolute inset-0 opacity-[0.16] mix-blend-screen [background-image:radial-gradient(circle_at_16%_22%,rgba(232,132,46,.16),transparent_18%),radial-gradient(circle_at_84%_18%,rgba(255,116,32,.14),transparent_18%),radial-gradient(circle_at_52%_76%,rgba(42,92,190,.14),transparent_22%),radial-gradient(circle_at_22%_70%,rgba(255,255,255,.08),transparent_14%)]" />
-      <div className="absolute inset-0 opacity-[0.08] [background-image:repeating-linear-gradient(112deg,rgba(255,255,255,.18)_0_1px,transparent_1px_17px)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,.18)_42%,rgba(0,0,0,.74)_100%)]" />
-    </div>
+    <motion.div
+      variants={getSceneVariants(type, performance.key === 'high' ? 1 : 0.76)}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: performance.viewportAmount, margin: '-80px' }}
+      transition={{
+        duration: performance.sceneDuration,
+        delay: delay * performance.sceneDelayFactor,
+        ease: [0.16, 1, 0.3, 1],
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+function Icon({ name, className = '' }) {
+  const icons = {
+    arrow: ['M5 12h14', 'M13 5l7 7-7 7'],
+    menu: ['M4 6h16', 'M4 12h16', 'M4 18h16'],
+    close: ['M6 6l12 12', 'M18 6L6 18'],
+  }
+
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {(icons[name] || icons.arrow).map((path, index) => (
+        <path key={index} d={path} />
+      ))}
+    </svg>
+  )
+}
+
+function Button({ href, children, secondary = false }) {
+  const isExternal = href?.startsWith('http')
+
+  return (
+    <a
+      href={href}
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noreferrer' : undefined}
+      data-cursor="active"
+      className={`group inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-semibold transition duration-300 sm:w-auto ${
+        secondary
+          ? 'border border-[#f4efe7]/10 bg-[#080807]/55 text-[#f4efe7] hover:border-[#c7a15a]/40 hover:bg-[#c7a15a]/8'
+          : 'bg-[#c7a15a] text-[#080807] shadow-[0_20px_90px_rgba(199,161,90,.18)] hover:bg-[#f4efe7]'
+      }`}
+    >
+      {children}
+      <Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-1" />
+    </a>
   )
 }
 
 function Header() {
   const [open, setOpen] = useState(false)
-  const scrolled = useScrolled()
+
   return (
-    <header className={`fixed left-0 right-0 top-0 z-50 transition duration-300 ${scrolled ? 'border-b border-white/10 bg-[#030305]/90 backdrop-blur-2xl' : 'bg-[#030305]/48 backdrop-blur-xl'}`}>
-      <div className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 lg:px-8">
-        <a href="#top" className="magnetic group flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-2xl border border-[#e8842e]/35 bg-[#e8842e]/10 text-sm font-black text-[#f6efe8] shadow-[0_0_40px_rgba(232,132,46,.16)]">MJ</span><span><span className="block text-sm font-semibold text-[#f6efe8]">{BRAND.name}</span><span className="mt-1 block text-[10px] uppercase tracking-[0.28em] text-[#a89d92]">{BRAND.signature}</span></span></a>
-        <nav className="hidden items-center gap-7 md:flex">{NAV.map(([label, href]) => <a key={href} href={href} className="magnetic text-xs font-semibold uppercase tracking-[0.18em] text-[#a89d92] transition hover:text-[#f6efe8]">{label}</a>)}</nav>
-        <button type="button" onClick={() => setOpen(value => !value)} className="rounded-full border border-white/10 bg-white/5 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#f6efe8] md:hidden">{open ? 'Fechar' : 'Menu'}</button>
+    <header className="fixed left-0 right-0 top-0 z-50 border-b border-[#f4efe7]/10 bg-[#050505]/96 backdrop-blur-md">
+      <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-3 px-5 py-4 lg:px-8">
+        <a href="#top" className="flex min-w-0 items-center gap-3" data-cursor="active">
+          <BrandMark />
+
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-[#f4efe7]">{BRAND.name}</p>
+            <p className="mt-1 truncate text-[10px] uppercase tracking-[0.26em] text-[#a89f91]">
+              {BRAND.signature}
+            </p>
+          </div>
+        </a>
+
+        <nav className="hidden items-center gap-1 rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 p-1 md:flex">
+          {nav.map(([label, href]) => (
+            <a
+              key={href}
+              href={href}
+              data-cursor="active"
+              className="rounded-full px-4 py-2 text-xs font-semibold text-[#a89f91] transition hover:bg-[#c7a15a]/10 hover:text-[#f4efe7]"
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
+
+        <a
+          href={BRAND.whatsapp}
+          target="_blank"
+          rel="noreferrer"
+          data-cursor="active"
+          className="hidden rounded-full bg-[#c7a15a] px-5 py-2.5 text-xs font-semibold text-[#080807] transition hover:bg-[#f4efe7] md:inline-flex"
+        >
+          Vamos conversar
+        </a>
+
+        <button
+          type="button"
+          onClick={() => setOpen(current => !current)}
+          className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 p-2 md:hidden"
+          aria-label="Abrir menu"
+          aria-expanded={open}
+        >
+          <Icon name={open ? 'close' : 'menu'} className="h-5 w-5" />
+        </button>
       </div>
-      {open && <div className="mx-5 mb-4 rounded-[1.5rem] border border-white/10 bg-[#050507]/95 p-3 shadow-[0_24px_80px_rgba(0,0,0,.55)] backdrop-blur-2xl md:hidden">{NAV.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)} className="mb-2 block rounded-2xl bg-white/[0.04] px-4 py-3 text-sm font-semibold text-[#f6efe8]">{label}</a>)}</div>}
+
+      {open && (
+        <div className="border-t border-[#f4efe7]/10 bg-[#080807]/98 px-5 py-4 md:hidden">
+          {nav.map(([label, href]) => (
+            <a
+              key={href}
+              href={href}
+              onClick={() => setOpen(false)}
+              className="mb-2 block rounded-2xl bg-[#f4efe7]/5 px-4 py-3 text-sm font-semibold text-[#f4efe7]"
+            >
+              {label}
+            </a>
+          ))}
+
+          <a
+            href={BRAND.whatsapp}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 inline-flex w-full items-center justify-center rounded-2xl bg-[#c7a15a] px-4 py-3 text-sm font-semibold text-[#080807]"
+          >
+            Vamos conversar
+          </a>
+        </div>
+      )}
     </header>
   )
 }
 
-function HeroOrbitalStage() {
+function Hero() {
   return (
-    <div className="relative min-h-[420px] lg:min-h-[520px]">
-      <div className="absolute left-1/2 top-1/2 h-[88%] w-[96%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border border-white/10 bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,.05),rgba(255,255,255,.01)_14%,rgba(232,132,46,.12)_24%,rgba(10,10,16,.5)_48%,rgba(3,3,5,.1)_70%,transparent_86%)] shadow-[0_40px_180px_rgba(0,0,0,.4)] blur-[1px]" />
-      <div className="float-node absolute left-[8%] top-[18%] orbital-chip rounded-[1.4rem] border border-white/10 bg-white/[0.04] px-4 py-3 shadow-[0_16px_50px_rgba(0,0,0,.24)] backdrop-blur-xl"><p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#a89d92]">visual</p><p className="mt-2 text-lg font-semibold text-[#f6efe8]">UI Premium</p></div>
-      <div className="float-node absolute right-[2%] top-[12%] orbital-chip rounded-[1.4rem] border border-[#e8842e]/25 bg-[#140f0c]/72 px-5 py-4 shadow-[0_20px_60px_rgba(232,132,46,.12)] backdrop-blur-xl"><p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#e8842e]">motion</p><p className="mt-2 text-lg font-semibold text-[#f6efe8]">GSAP + Lenis</p></div>
-      <div className="float-node absolute bottom-[16%] left-[4%] orbital-chip rounded-[1.4rem] border border-white/10 bg-[#09090b]/76 px-5 py-4 shadow-[0_20px_60px_rgba(0,0,0,.3)] backdrop-blur-xl"><p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#a89d92]">foco</p><p className="mt-2 text-lg font-semibold text-[#f6efe8]">Produto real</p></div>
-      <div className="float-node absolute bottom-[10%] right-[8%] orbital-chip rounded-[1.4rem] border border-[#4d6bba]/25 bg-[#09101a]/72 px-5 py-4 shadow-[0_20px_60px_rgba(43,86,170,.12)] backdrop-blur-xl"><p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#8da5e8]">stack</p><p className="mt-2 text-lg font-semibold text-[#f6efe8]">React / Next</p></div>
-      <div className="absolute left-1/2 top-1/2 h-52 w-52 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8842e]/25 bg-[radial-gradient(circle,rgba(232,132,46,.18),rgba(232,132,46,.04)_38%,rgba(32,74,150,.05)_56%,transparent_72%)] shadow-[0_0_120px_rgba(232,132,46,.2)] backdrop-blur-md md:h-64 md:w-64"><div className="absolute inset-[14%] rounded-full border border-white/10" /><div className="absolute inset-[26%] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,.16),rgba(255,255,255,0)_62%)] blur-2xl" /><div className="absolute left-1/2 top-1/2 h-[118%] w-[118%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.05]" /><div className="absolute left-1/2 top-1/2 h-px w-[180%] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-transparent via-[#e8842e]/55 to-transparent" /></div>
+    <SpatialSection
+      id="top"
+      scene={SCENES.hero}
+      className="relative z-10 min-h-screen overflow-hidden px-5 pb-16 pt-24 sm:pt-28 lg:px-8"
+      shellClassName="forge-scene-focus"
+    >
+      <div className="forge-depth-stage relative z-10 mx-auto grid min-h-[calc(100vh-6.5rem)] max-w-[1500px] items-center gap-10 lg:min-h-[calc(100vh-7rem)] lg:grid-cols-[0.95fr_1.05fr] lg:gap-12">
+        <Scene type="depth" className="relative z-10">
+          <div className="relative z-10 max-w-[640px]">
+            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.34em] text-[#c7a15a] sm:text-xs sm:tracking-[0.45em]">
+              Front-end React · UI Premium · Produto Digital
+            </p>
+
+            <h1 style={{
+              fontFamily: 'Syne, sans-serif',
+              fontWeight: 800,
+              fontSize: 'clamp(2.2rem, 4.2vw, 5.8rem)',
+              lineHeight: 1.0,
+              letterSpacing: '-0.04em',
+              color: '#f4efe7',
+              maxWidth: '16ch',
+              margin: 0,
+              position: 'relative',
+              zIndex: 10,
+            }}>
+              Interfaces que resolvem. Front-end com presença.
+            </h1>
+
+            <p className="mt-6 max-w-2xl text-base leading-8 text-[#d8d0c3] sm:mt-8 sm:text-lg md:text-xl md:leading-9">
+              Creative Front-end Developer focado em React, UI premium, dashboards e
+              experiências digitais modernas.
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-2">
+              {['React', 'Dashboards', 'Landing Pages', 'UI Systems'].map(item => (
+                <span
+                  key={item}
+                  className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/5 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#d8d0c3] sm:px-4 sm:text-[11px] sm:tracking-[0.18em]"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:gap-4">
+              <Button href="#work">Explorar projetos</Button>
+              <Button href={BRAND.whatsapp} secondary>
+                Falar comigo
+              </Button>
+            </div>
+          </div>
+        </Scene>
+
+        <Scene type="left" delay={0.12} className="relative z-10">
+          <div className="relative ml-auto w-full max-w-[560px]">
+            <div className="absolute -inset-4 rounded-[2.5rem] bg-[#c7a15a]/8 blur-[52px] sm:-inset-8 sm:rounded-[3rem]" />
+
+            <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/70 p-3 shadow-[0_50px_160px_rgba(0,0,0,.55)]">
+              <img
+                src="/forge-portrait.jpg"
+                alt="Mauricio Junior"
+                className="h-[420px] w-full rounded-[2.2rem] object-cover object-[50%_20%] saturate-[.85] contrast-[1.08] brightness-[.78] sm:h-[560px] sm:rounded-[2.4rem] lg:h-[620px]"
+              />
+
+              <div className="absolute inset-3 rounded-[2.2rem] bg-[linear-gradient(180deg,transparent_35%,rgba(5,5,5,.92)_100%)] sm:rounded-[2.4rem]" />
+
+              <div className="absolute bottom-5 left-5 right-5 rounded-[1.6rem] border border-[#f4efe7]/10 bg-[#050505]/82 p-4 sm:bottom-8 sm:left-8 sm:right-8 sm:rounded-3xl sm:p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#c7a15a]">
+                  Engineering & Design
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[#d8d0c3]">
+                  React, dashboards, landing pages e sistemas com direção visual e entrega real.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Scene>
+      </div>
+    </SpatialSection>
+  )
+}
+
+function SectionTitle({ eyebrow, title, text, type = 'rise' }) {
+  return (
+    <Scene type={type} className="mb-14 grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+      <div>
+        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">
+          {eyebrow}
+        </p>
+        <h2 className="max-w-4xl text-4xl font-[Syne] font-semibold leading-[0.98] tracking-[-0.055em] text-[#f4efe7] md:text-6xl">
+          {title}
+        </h2>
+      </div>
+
+      {text && <p className="max-w-2xl text-lg leading-8 text-[#a89f91]">{text}</p>}
+    </Scene>
+  )
+}
+
+function Manifesto() {
+  return (
+    <div className="relative z-10 bg-[#050505]/80 backdrop-blur-[1px]">
+      <SpatialSection
+        id="manifesto"
+        scene={SCENES.manifesto}
+        className="mx-auto max-w-[1500px] px-5 py-20 lg:px-8"
+        shellClassName="forge-scene-focus"
+      >
+        <Scene type="depth">
+          <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/88 p-8 shadow-[0_40px_140px_rgba(0,0,0,.45)] md:p-14 lg:p-20">
+            <div className="grid gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+              <div>
+                <p className="mb-6 text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">
+                  Manifesto
+                </p>
+                <h2 className="text-5xl font-[Syne] font-semibold leading-[0.95] tracking-[-0.07em] text-[#f4efe7] md:text-7xl">
+                  O site não precisa gritar. Precisa conduzir.
+                </h2>
+              </div>
+
+              <div>
+                <p className="text-xl leading-9 text-[#a89f91]">
+                  O Forge parte da ideia de que uma boa interface tem ritmo: silêncio, tensão,
+                  respiro, impacto e clareza. Menos efeito aleatório. Mais direção visual.
+                </p>
+
+                <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-5">
+                  {principles.map((item, index) => (
+                    <Scene key={item} type="rise" delay={index * 0.04}>
+                      <div className="rounded-2xl border border-[#f4efe7]/10 bg-[#050505]/60 px-4 py-5 text-center text-sm font-semibold text-[#d8d0c3]">
+                        {item}
+                      </div>
+                    </Scene>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Scene>
+      </SpatialSection>
     </div>
   )
 }
 
-function Hero() {
-  return <section id="top" className="relative z-10 overflow-hidden px-5 pb-12 pt-32 lg:px-8 lg:pb-24 lg:pt-44"><div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#e8842e]/50 to-transparent" /><div className="relative mx-auto grid max-w-[1440px] gap-10 lg:grid-cols-[1.02fr_.98fr] lg:items-center"><div><p className="hero-copy-line mb-6 text-[11px] font-bold uppercase tracking-[0.34em] text-[#e8842e] md:tracking-[0.42em]">Front-end, UI premium e produto digital</p><h1 className="hero-title-pop max-w-5xl text-[clamp(3.45rem,17vw,9.6rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-[#f6efe8] md:tracking-[-0.095em]">Interfaces que viram presença, confiança e contato.</h1><p className="hero-copy-line mt-7 max-w-2xl text-base leading-8 text-[#d7ccc1] md:text-lg">Sou o Maurício. Construo dashboards, landing pages e experiências web modernas com React, Next.js, TypeScript e foco real em conversão para negócios locais e produtos digitais.</p><p className="hero-copy-line mt-4 max-w-2xl text-base leading-8 text-[#a89d92]">Direção espacial: profundidade, flutuação, luz térmica e superfícies com blur, sem repetir o bloco de sobre mim logo na entrada.</p><div className="hero-actions mt-9 flex flex-col gap-3 sm:flex-row"><a href="#work" className="magnetic rounded-full border border-[#e8842e]/45 bg-[#e8842e]/16 px-8 py-4 text-center text-sm font-bold text-[#f6efe8] shadow-[0_0_60px_rgba(232,132,46,.16)] transition hover:bg-[#e8842e] hover:text-[#080604]">Ver projetos</a><a href={BRAND.whatsapp} target="_blank" rel="noreferrer" className="magnetic rounded-full border border-white/12 bg-white/[0.045] px-8 py-4 text-center text-sm font-bold text-[#f6efe8] transition hover:border-[#e8842e]/40">Chamar no WhatsApp</a></div></div><HeroOrbitalStage /></div></section>
+function JourneyScene() {
+  const containerRef = useRef(null)
+  const trackRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] })
+
+  // Import useScroll, useTransform from framer-motion at the top of file
+  const x = useTransform(scrollYProgress, [0, 1], ['0%', '-66.666%'])
+
+  return (
+    <div ref={containerRef} id="journey" style={{ height: '350vh', position: 'relative', zIndex: 10, backgroundColor: 'rgba(5,5,5,0.75)' }}>
+      <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <SpatialSection
+          scene={SCENES.journey}
+          className="h-full px-5 pt-24 lg:px-8"
+          shellClassName="forge-scene-focus"
+        >
+          <div className="mb-10">
+            <SectionTitle
+              type="left"
+              eyebrow="Jornada / ritmo"
+              title="A jornada atravessa a tela."
+              text={null}
+            />
+          </div>
+
+          <motion.div
+            ref={trackRef}
+            style={{ x, display: 'flex', gap: '1.25rem', willChange: 'transform', width: `${milestones.length * (360 + 20)}px` }}
+          >
+            {milestones.map(([number, time, text], index) => (
+              <article
+                key={time}
+                style={{ width: 360, flexShrink: 0 }}
+                className="forge-emerge-card forge-scene-focus relative h-[320px] rounded-[1.6rem] border border-[#f4efe7]/10 bg-[#0c0b09]/88 p-6 shadow-[0_40px_140px_rgba(0,0,0,.42)]"
+              >
+                <p className="text-[3.5rem] font-[Syne] font-extrabold leading-none tracking-[-0.12em] text-[#c7a15a]/18">
+                  {number}
+                </p>
+                <p className="mt-4 text-xs font-semibold uppercase tracking-[0.32em] text-[#c7a15a]">
+                  {time}
+                </p>
+                <p className="mt-5 text-base leading-8 text-[#a89f91]">{text}</p>
+              </article>
+            ))}
+          </motion.div>
+        </SpatialSection>
+      </div>
+    </div>
+  )
 }
 
-function Work({ onProjectOpen }) {
-  return <section id="work" className="relative z-10 mx-auto max-w-[1440px] px-5 py-16 lg:px-8 lg:py-28"><div className="reveal-in mb-12 flex flex-col justify-between gap-6 lg:flex-row lg:items-end"><div><p className="mb-5 text-xs font-bold uppercase tracking-[0.34em] text-[#e8842e] md:tracking-[0.42em]">Projetos principais</p><h2 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Portfólio prático, não só visual.</h2></div><p className="max-w-xl text-base leading-8 text-[#d7ccc1]">Agora cada projeto entra com profundidade, brilho vivo e movimento sutil durante o scroll.</p></div><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{PROJECTS.map(project => <article key={project.title} className="project-card group relative flex min-h-[430px] flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#080807]/76 p-6 shadow-[0_30px_120px_rgba(0,0,0,.32)] backdrop-blur-xl transition duration-500 hover:-translate-y-1 hover:border-[#e8842e]/35 md:p-7"><div className="project-aura pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(232,132,46,.24),transparent_62%)] blur-2xl" /><div className="project-depth pointer-events-none absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_72%_18%,rgba(255,255,255,.08),transparent_18%),linear-gradient(135deg,rgba(232,132,46,.08),transparent_42%)]" /><div className="project-line pointer-events-none absolute bottom-0 left-7 right-7 h-px bg-gradient-to-r from-[#e8842e]/80 via-white/20 to-transparent" /><div className="project-body relative z-10 flex flex-1 flex-col"><div className="flex items-start justify-between gap-4"><p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#e8842e]">{project.eyebrow}</p><span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#a89d92]">{project.metric}</span></div><h3 className="mt-7 text-3xl font-semibold tracking-[-0.055em] text-[#f6efe8] md:text-4xl">{project.title}</h3><p className="mt-5 leading-8 text-[#d7ccc1]">{project.text}</p><div className="mt-7 flex flex-wrap gap-2">{project.tags.map(tag => <span key={tag} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#a89d92]">{tag}</span>)}</div><div className="mt-auto flex flex-wrap gap-3 pt-8"><button type="button" onClick={() => onProjectOpen(project)} className="magnetic rounded-full bg-[#e8842e] px-5 py-3 text-sm font-bold text-[#080604] transition hover:bg-[#f6efe8]">Ver detalhe</button><a href={project.repo} target="_blank" rel="noreferrer" className="magnetic rounded-full border border-white/12 bg-white/[0.04] px-5 py-3 text-sm font-bold text-[#f6efe8] transition hover:border-[#e8842e]/40">GitHub</a></div></div></article>)}</div></section>
+function Work() {
+  const performance = usePerformanceProfile()
+
+  return (
+    <div className="relative z-10 bg-[#050505]/80 backdrop-blur-[1px]">
+      <SpatialSection
+        id="work"
+        scene={SCENES.work}
+        className="mx-auto max-w-[1500px] px-5 py-20 lg:px-8"
+        shellClassName="forge-scene-focus"
+      >
+        <SectionTitle
+          type="expand"
+          eyebrow="Projetos selecionados"
+          title="Projetos com leitura de produto e atmosfera própria."
+          text="Três atmosferas com leitura clara de produto: business frio, editorial quente e automação silenciosa."
+        />
+
+        <div className="grid gap-8">
+          {projects.map((project, index) => (
+            <Scene
+              key={project.title}
+              type={index % 2 === 0 ? 'depth' : 'left'}
+              delay={index * 0.08}
+            >
+              <motion.article
+                whileHover={performance.hoverLift ? { y: -Math.max(2, performance.hoverLift - 2) } : undefined}
+                data-cursor="active"
+                style={PROJECT_TONES[project.slug] ?? PROJECT_TONES.jarvis}
+                className="forge-emerge-card forge-project-storyboard overflow-hidden rounded-[2.3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/88 p-3 shadow-[0_40px_140px_rgba(0,0,0,.45)] sm:rounded-[2.8rem] sm:p-4"
+              >
+                <div className="relative grid gap-8 rounded-[2rem] bg-gradient-to-br from-[#f4efe7]/[0.025] via-transparent to-transparent p-5 sm:rounded-[2.4rem] sm:p-7 md:p-10 lg:grid-cols-[0.5fr_0.72fr_1.14fr] lg:items-start lg:gap-10">
+                  <div className="relative z-10">
+                    <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#c7a15a]">
+                      {project.label}
+                    </p>
+                    <p className="mt-3 inline-flex rounded-full border border-[#f4efe7]/10 bg-[#0f0f0e]/88 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b7afa3]">
+                      {project.status}
+                    </p>
+                    <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8f877b]">
+                      {project.summary}
+                    </p>
+                    <h3 className="mt-4 text-[2.8rem] font-[Syne] font-semibold tracking-[-0.06em] text-[#f4efe7] md:text-6xl">
+                      {project.title}
+                    </h3>
+                  </div>
+
+                  <div className="relative z-10">
+                    <p className="max-w-[42ch] text-base leading-8 text-[#b5ada1] md:text-lg">{project.text}</p>
+                    <p className="mt-4 max-w-[42ch] text-sm leading-7 text-[#8f877b]">
+                      {project.note}
+                    </p>
+
+                    <div className="mt-6 flex flex-wrap gap-2.5">
+                      {project.tags.map(tag => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-[#f4efe7]/10 bg-[#f4efe7]/[0.04] px-3.5 py-1.5 text-[11px] font-semibold text-[#d8d0c3]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    {(project.demo || project.repo) && (
+                      <div className="mt-8 flex flex-wrap gap-3">
+                        {project.demo && <Button href={project.demo}>Demo</Button>}
+                        {project.repo && (
+                          <Button href={project.repo} secondary>
+                            GitHub
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <ProjectMockup index={index} project={project} />
+                </div>
+              </motion.article>
+            </Scene>
+          ))}
+        </div>
+      </SpatialSection>
+    </div>
+  )
 }
 
-function ProjectModal({ project, onClose }) {
+function Contact() {
+  return (
+    <div className="relative z-10 bg-[#050505]/80 backdrop-blur-[1px]">
+      <SpatialSection
+        id="contato"
+        scene={SCENES.contact}
+        className="mx-auto max-w-6xl px-5 py-20 text-center lg:px-8"
+        shellClassName="forge-scene-focus"
+      >
+        <Scene type="final">
+          <div className="relative overflow-hidden rounded-[3rem] border border-[#f4efe7]/10 bg-[#0b0a08]/86 p-8 md:p-16">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c7a15a] to-transparent" />
+
+            <p style={{ fontFamily: 'Syne', fontSize: 'clamp(80px, 14vw, 180px)', fontWeight: 800, letterSpacing: '-0.08em', color: 'rgba(199,161,90,0.06)', lineHeight: 1, marginBottom: -20 }}>MJR</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#c7a15a]">
+              Cena final
+            </p>
+            <h2 className="mx-auto mt-6 max-w-4xl text-4xl font-[Syne] font-semibold tracking-[-0.06em] text-[#f4efe7] md:text-6xl">
+              Você tem o problema. Eu tenho a interface.
+            </h2>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[#a89f91]">
+              Disponível para estágio front-end, freelas de produto e colaborações com quem leva interface a sério.
+            </p>
+
+            <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
+              <Button href={BRAND.whatsapp}>WhatsApp</Button>
+              <Button href={`mailto:${BRAND.email}`} secondary>
+                E-mail
+              </Button>
+              <Button href={BRAND.github} secondary>
+                GitHub
+              </Button>
+            </div>
+          </div>
+        </Scene>
+      </SpatialSection>
+    </div>
+  )
+}
+
+function AppShell() {
+  const { mode, setMode, resolvedMode } = usePerformanceMode()
+  const prefersReducedMotion = useReducedMotion()
+  const isCompactViewport = useCompactViewport()
+  const [, setActiveSceneKey] = useState('hero')
+  const [loaded, setLoaded] = useState(false)
+  const handleLoaded = useCallback(() => setLoaded(true), [])
+  const performanceProfile = useMemo(
+    () =>
+      getPerformanceProfile(resolvedMode, {
+        prefersReducedMotion,
+        isCompactViewport,
+      }),
+    [isCompactViewport, prefersReducedMotion, resolvedMode],
+  )
+
+  useSpatialJourney(performanceProfile, setActiveSceneKey)
+
   useEffect(() => {
-    if (!project) return undefined
-    const onKey = event => { if (event.key === 'Escape') onClose() }
-    document.addEventListener('keydown', onKey)
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = previousOverflow }
-  }, [project, onClose])
-  if (!project) return null
-  return <div className="fixed inset-0 z-[90] grid place-items-center px-4 py-8"><button type="button" aria-label="Fechar modal" onClick={onClose} className="absolute inset-0 bg-black/72 backdrop-blur-xl" /><section className="relative max-h-[86vh] w-full max-w-4xl overflow-auto rounded-[2.2rem] border border-white/10 bg-[#070707]/95 p-6 shadow-[0_50px_180px_rgba(0,0,0,.74)] md:p-10"><div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_10%,rgba(232,132,46,.18),transparent_30%),radial-gradient(circle_at_10%_90%,rgba(42,92,190,.12),transparent_28%)]" /><div className="flex items-start justify-between gap-6"><div><p className="text-[11px] font-bold uppercase tracking-[0.32em] text-[#e8842e]">{project.eyebrow}</p><h3 className="mt-5 text-4xl font-semibold tracking-[-0.06em] text-[#f6efe8] md:text-6xl">{project.title}</h3></div><button type="button" onClick={onClose} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-bold uppercase tracking-[0.18em] text-[#f6efe8]">Fechar</button></div><p className="mt-7 max-w-3xl text-lg leading-9 text-[#d7ccc1]">{project.text}</p><div className="mt-8 flex flex-wrap gap-2">{project.tags.map(tag => <span key={tag} className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[#a89d92]">{tag}</span>)}</div><div className="mt-10 grid gap-4 md:grid-cols-3"><div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-bold uppercase tracking-[0.2em] text-[#e8842e]">Tipo</p><p className="mt-3 text-2xl font-semibold text-[#f6efe8]">{project.metric}</p></div><div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-bold uppercase tracking-[0.2em] text-[#e8842e]">Entrega</p><p className="mt-3 text-2xl font-semibold text-[#f6efe8]">Interface real</p></div><div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-bold uppercase tracking-[0.2em] text-[#e8842e]">Foco</p><p className="mt-3 text-2xl font-semibold text-[#f6efe8]">Produto</p></div></div><div className="mt-10 flex flex-col gap-3 sm:flex-row"><a href={project.href} target="_blank" rel="noreferrer" className="rounded-full bg-[#e8842e] px-7 py-4 text-center text-sm font-bold text-[#080604] transition hover:bg-[#f6efe8]">Abrir projeto</a><a href={project.repo} target="_blank" rel="noreferrer" className="rounded-full border border-white/12 bg-white/[0.04] px-7 py-4 text-center text-sm font-bold text-[#f6efe8]">Ver código</a></div></section></div>
+    document.documentElement.dataset.cursorMode = performanceProfile.cursorEnabled ? 'custom' : 'native'
+    document.documentElement.dataset.performanceMode = performanceProfile.key
+    document.documentElement.dataset.motion = performanceProfile.motionEnabled ? 'full' : 'reduce'
+
+    return () => {
+      delete document.documentElement.dataset.cursorMode
+      delete document.documentElement.dataset.performanceMode
+      delete document.documentElement.dataset.motion
+    }
+  }, [performanceProfile])
+
+  return (
+    <PerformanceProfileContext.Provider value={performanceProfile}>
+      <main
+        className="forge-root min-h-screen overflow-hidden bg-[#050505] text-[#f4efe7] antialiased"
+        data-performance-mode={performanceProfile.key}
+        data-motion={performanceProfile.motionEnabled ? 'full' : 'reduce'}
+        style={performanceProfile.cssVariables}
+      >
+        <PageIntroLoader onDone={handleLoaded} />
+        <BlackHoleBackground />
+        <GravityCursor />
+
+        <div style={{ opacity: loaded ? 1 : 0, transition: 'opacity 600ms ease', transitionDelay: '100ms' }}>
+          <Header />
+
+          <div className="forge-spatial-orbit">
+            <Hero />
+            <Manifesto />
+            <JourneyScene />
+            <Work />
+            <Contact />
+
+            <footer className="relative z-10 border-t border-[#f4efe7]/10 px-5 py-8 lg:px-8">
+              <div className="mx-auto flex max-w-[1500px] flex-col gap-4 text-sm text-[#766f65] md:flex-row md:items-center md:justify-between">
+                <p>
+                  &copy; 2026 {BRAND.signature} - {BRAND.name}
+                </p>
+                <p>React - UI premium - dashboards - automação aplicada à entrega</p>
+              </div>
+            </footer>
+          </div>
+        </div>
+
+        <div style={{ display: 'none' }}>
+          <PerformanceModeToggle
+            mode={mode}
+            setMode={setMode}
+            resolvedMode={performanceProfile.key}
+          />
+        </div>
+      </main>
+    </PerformanceProfileContext.Provider>
+  )
 }
 
-function About() { return <section id="about" className="relative z-10 border-y border-white/10 bg-[#050505]/70 px-5 py-16 lg:px-8 lg:py-24"><div className="mx-auto grid max-w-[1440px] gap-8 lg:grid-cols-[.82fr_1.18fr] lg:items-center"><div className="reveal-in rounded-[2rem] border border-white/10 bg-[#080807]/62 p-4 shadow-[0_34px_130px_rgba(0,0,0,.34)] backdrop-blur-xl md:p-5"><div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[radial-gradient(circle_at_50%_18%,rgba(232,132,46,.22),transparent_32%),linear-gradient(180deg,#19120d,#050505)]"><img src="/forge-portrait.jpg" alt="Maurício Silva Junior" className="h-full w-full object-cover object-center" /></div></div><div className="reveal-in"><p className="mb-5 text-xs font-bold uppercase tracking-[0.42em] text-[#e8842e]">Sobre mim</p><h2 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Minha foto fica aqui, onde faz sentido.</h2><p className="mt-7 max-w-3xl text-lg leading-9 text-[#d7ccc1]">Estou no começo da carreira formal, mas já venho criando projetos reais e autorais com foco em frontend moderno. Meu diferencial hoje é unir interface bonita, organização visual, velocidade de execução e vontade de resolver problema de negócio.</p><p className="mt-5 max-w-3xl text-lg leading-9 text-[#d7ccc1]">Para clientes locais, eu transformo uma ideia em uma página clara: apresentação, prova visual, WhatsApp, perguntas frequentes, mapa, fotos e estrutura pensada para gerar contato.</p><div className="mt-8 flex flex-wrap gap-3">{['Angra dos Reis', 'React / Next.js', 'UI Premium', 'Dashboards', 'Landings', 'Produto'].map(item => <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-[#d7ccc1]">{item}</span>)}</div></div></div></section> }
-function Stack() { return <section id="stack" className="relative z-10 px-5 py-16 lg:px-8 lg:py-24"><div className="reveal-in mx-auto max-w-[1440px]"><p className="mb-5 text-xs font-bold uppercase tracking-[0.42em] text-[#e8842e]">Stack</p><h2 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Ferramentas que uso para construir.</h2><div className="mt-10 flex flex-wrap gap-3">{STACK.map(item => <span key={item} className="rounded-full border border-white/10 bg-white/[0.045] px-5 py-3 text-sm font-semibold text-[#d7ccc1] transition hover:border-[#e8842e]/35 hover:text-[#f6efe8]">{item}</span>)}</div></div></section> }
-function ProcessSection() { return <section id="process" className="relative z-10 mx-auto max-w-[1440px] px-5 py-16 lg:px-8 lg:py-24"><div className="reveal-in"><p className="mb-5 text-xs font-bold uppercase tracking-[0.42em] text-[#e8842e]">Processo</p><h2 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Do problema à interface publicada.</h2></div><div className="mt-12 grid gap-4 md:grid-cols-5">{PROCESS.map(([step, title, text]) => <article key={step} className="reveal-in rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-5 transition hover:border-[#e8842e]/35 hover:-translate-y-1"><p className="text-xs font-bold text-[#e8842e]">{step}</p><h3 className="mt-8 text-xl font-semibold text-[#f6efe8]">{title}</h3><p className="mt-4 text-sm leading-7 text-[#a89d92]">{text}</p></article>)}</div></section> }
-function Contact() { return <section id="contact" className="relative z-10 mx-auto max-w-[1440px] px-5 py-16 lg:px-8 lg:py-28"><div className="reveal-in rounded-[2.5rem] border border-[#e8842e]/20 bg-[radial-gradient(circle_at_74%_20%,rgba(232,132,46,.18),transparent_32%),rgba(8,8,8,.78)] p-7 shadow-[0_40px_160px_rgba(0,0,0,.42)] backdrop-blur-xl md:p-14"><p className="mb-5 text-xs font-bold uppercase tracking-[0.42em] text-[#e8842e]">Contato</p><h2 className="max-w-5xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-[#f6efe8] md:text-7xl">Quer transformar uma ideia em site, landing ou dashboard?</h2><p className="mt-7 max-w-2xl text-lg leading-8 text-[#d7ccc1]">Me chame com o contexto do projeto. Eu te ajudo a organizar escopo, prioridade e uma primeira versão viável para colocar no ar.</p><div className="mt-10 flex flex-col gap-4 sm:flex-row"><a href={BRAND.whatsapp} target="_blank" rel="noreferrer" className="magnetic rounded-full bg-[#e8842e] px-8 py-4 text-center text-sm font-bold text-[#080604] transition hover:bg-[#f6efe8]">Começar conversa</a><a href={BRAND.github} target="_blank" rel="noreferrer" className="magnetic rounded-full border border-white/12 bg-white/[0.04] px-8 py-4 text-center text-sm font-bold text-[#f6efe8]">Ver GitHub</a><a href={BRAND.email} className="magnetic rounded-full border border-white/12 bg-white/[0.04] px-8 py-4 text-center text-sm font-bold text-[#f6efe8]">Enviar e-mail</a></div></div></section> }
-
-function App() {
-  const rootRef = useRef(null)
-  const reducedMotion = useReducedMotion()
-  const { isMobile, isCoarse } = useViewportMode()
-  const [selectedProject, setSelectedProject] = useState(null)
-  useLenisScroll(reducedMotion, isCoarse)
-  useForgeMotion(rootRef, reducedMotion, isMobile)
-  useEffect(() => {
-    document.documentElement.dataset.cursorMode = !reducedMotion && !isCoarse ? 'custom' : 'native'
-    return () => delete document.documentElement.dataset.cursorMode
-  }, [reducedMotion, isCoarse])
-  return <main ref={rootRef} className="relative min-h-screen overflow-x-hidden bg-[#030305] text-[#f6efe8]"><ForgeAtmosphere /><div className="relative z-10"><Header /><Hero /><Work onProjectOpen={setSelectedProject} /><About /><Stack /><ProcessSection /><Contact /></div><ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} /></main>
+export default function App() {
+  return <AppShell />
 }
-
-export default App
